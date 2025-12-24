@@ -3,8 +3,6 @@ import { useState, useEffect, useMemo } from 'react';
 export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
     // Session Setup states
     const [showSetup, setShowSetup] = useState(false);
-    const [activeBatch, setActiveBatch] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
     const [showBatchPreview, setShowBatchPreview] = useState(true);
     const [stats, setStats] = useState({ correct: 0, total: 0 });
     const [completedCount, setCompletedCount] = useState(0);
@@ -19,30 +17,43 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
     const [isTypo, setIsTypo] = useState(false);
     const [lastUserAnswer, setLastUserAnswer] = useState('');
 
+    const [queue, setQueue] = useState([]);
+    const [sessionStats, setSessionStats] = useState({}); // { wordId: { correct: 0, total: 0 } }
+    const [initialQueueSize, setInitialQueueSize] = useState(0);
     const [isInitialized, setIsInitialized] = useState(false);
-    const [studyDirection, setStudyDirection] = useState('both'); // 'both', 'term-to-def', 'def-to-term'
+    const [studyDirection, setStudyDirection] = useState('both');
+    const [masteredWords, setMasteredWords] = useState([]);
+    const [studiedWords, setStudiedWords] = useState([]); // All unique words studied in this session
 
     useEffect(() => {
         if (isInitialized || vocabulary.length === 0) return;
 
-        // Initialize session immediately
-        const notLearned = vocabulary.filter(w => !w.learningStatus || w.learningStatus === 'not-learned');
-        const reviewed = vocabulary.filter(w => w.learningStatus === 'learning' || w.learningStatus === 'learned');
+        // Sorting logic stays the same...
+        const sortedVocab = [...vocabulary].sort((a, b) => {
+            const masteryA = a.masteryLevel || 0;
+            const masteryB = b.masteryLevel || 0;
+            if (masteryA !== masteryB) return masteryA - masteryB;
 
-        const selectedNew = [...notLearned].sort(() => Math.random() - 0.5).slice(0, 10);
-        const learningWords = reviewed.filter(w => w.learningStatus === 'learning');
-        const learnedWords = reviewed.filter(w => w.learningStatus === 'learned').sort(() => Math.random() - 0.5);
+            const timeA = a.lastReviewed ? new Date(a.lastReviewed).getTime() : 0;
+            const timeB = b.lastReviewed ? new Date(b.lastReviewed).getTime() : 0;
+            if (timeA !== timeB) return timeB - timeA;
 
-        const selectedReview = [...learningWords, ...learnedWords].slice(0, 10);
+            const statusOrder = { 'learning': 0, 'not-learned': 1, 'learned': 2 };
+            const orderA = statusOrder[a.learningStatus] ?? 1;
+            const orderB = statusOrder[b.learningStatus] ?? 1;
+            if (orderA !== orderB) return orderA - orderB;
 
-        const combined = [
-            ...selectedNew.map(w => ({ ...w, mode: 'mcq' })),
-            ...selectedReview.map(w => ({ ...w, mode: 'written' }))
-        ].sort(() => Math.random() - 0.5);
+            return Math.random() - 0.5;
+        });
 
-        if (combined.length > 0) {
-            setActiveBatch(combined);
-        }
+        // Pick 10 words as requested
+        const sessionWords = sortedVocab.slice(0, 10).map(w => ({
+            ...w,
+            mode: (w.masteryLevel < 2 || w.learningStatus === 'not-learned') ? 'mcq' : 'written'
+        }));
+
+        setQueue(sessionWords);
+        setInitialQueueSize(sessionWords.length);
         setIsInitialized(true);
     }, [vocabulary, isInitialized]);
 
@@ -78,7 +89,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
     const handleAnswer = (correct, storageMode, optionId = null, isAlmost = false) => {
         if (showResult) return;
 
-        const currentWord = activeBatch[currentIndex];
+        const currentWord = queue[0];
         setLastUserAnswer(userAnswer);
         const finalCorrect = correct || isAlmost;
         setIsCorrect(finalCorrect);
@@ -86,16 +97,26 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
         setShowResult(true);
         if (optionId) setSelectedOptionId(optionId);
 
+        // Update session tracking
+        setSessionStats(prev => ({
+            ...prev,
+            [currentWord.id]: {
+                correct: (prev[currentWord.id]?.correct || 0) + (finalCorrect ? 1 : 0),
+                total: (prev[currentWord.id]?.total || 0) + 1
+            }
+        }));
+
         onUpdateStats(currentWord.id, finalCorrect, storageMode);
+
+        setStudiedWords(prev => {
+            if (prev.find(w => w.id === currentWord.id)) return prev;
+            return [...prev, currentWord];
+        });
 
         setStats(prev => ({
             correct: prev.correct + (finalCorrect ? 1 : 0),
             total: prev.total + 1
         }));
-
-        if (finalCorrect) {
-            setCompletedCount(prev => prev + 1);
-        }
     };
 
     const levenshteinDistance = (a, b) => {
@@ -120,6 +141,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
     };
 
     const processWrittenAnswer = () => {
+        const currentWord = queue[0];
         const target = (currentWord.qType === 'term-to-def' ? currentWord.definition : currentWord.term).trim().toLowerCase();
         const user = userAnswer.trim().toLowerCase();
 
@@ -131,7 +153,6 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
         }
 
         const distance = levenshteinDistance(user, target);
-        // Threshold: 1 typo for words 5-8 chars, 2 typos for words 9+ chars
         const threshold = target.length <= 4 ? 0 : target.length <= 8 ? 1 : 2;
 
         if (distance <= threshold) {
@@ -142,7 +163,6 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
     };
 
     const renderDiff = (user, target) => {
-        // Simple visualization: show target but highlight what user got wrong/missed
         const userClean = user.trim().toLowerCase();
         const targetClean = target.trim().toLowerCase();
 
@@ -166,17 +186,50 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
     };
 
     const nextQuestion = () => {
-        if (currentIndex < activeBatch.length - 1) {
-            const nextIdx = currentIndex + 1;
-            setCurrentIndex(nextIdx);
-            generateQuestion(activeBatch[nextIdx]);
+        const [currentWord, ...remainingQueue] = queue;
+        const wordStats = sessionStats[currentWord.id] || { correct: 0 };
+
+        let newQueue = [...remainingQueue];
+
+        if (!isCorrect) {
+            // Sai -> Reset session correct count for this word and put back in queue
+            setSessionStats(prev => ({
+                ...prev,
+                [currentWord.id]: { ...prev[currentWord.id], correct: 0 }
+            }));
+
+            // Re-insert 3 positions away
+            const insertPos = Math.min(3, newQueue.length);
+            newQueue.splice(insertPos, 0, currentWord);
         } else {
+            // Đúng
+            const totalCorrect = wordStats.correct;
+
+            if (currentWord.mode === 'mcq') {
+                // If passed MCQ, switch to Written and put back in queue to confirm mastery
+                const upgradedWord = { ...currentWord, mode: 'written' };
+                const insertPos = Math.min(5, newQueue.length);
+                newQueue.splice(insertPos, 0, upgradedWord);
+            } else if (totalCorrect < 2) {
+                // If Written but only 1 correct so far, put back
+                newQueue.push(currentWord);
+            } else {
+                // "Đúng nhiều" (at least 2 times, or passed from MCQ to Written) -> mark as mastered
+                setCompletedCount(prev => prev + 1);
+                setMasteredWords(prev => [...prev, currentWord]);
+            }
+        }
+
+        if (stats.total >= 10 || newQueue.length === 0) {
             setShowSessionComplete(true);
+        } else {
+            setQueue(newQueue);
+            generateQuestion(newQueue[0]);
         }
     };
 
     const startStudy = () => {
-        const finalizedBatch = activeBatch.map(word => {
+        const finalizedQueue = queue.map(word => {
             let qType = 'term-to-def';
             if (studyDirection === 'def-to-term') {
                 qType = 'def-to-term';
@@ -185,12 +238,12 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
             }
             return { ...word, qType };
         });
-        setActiveBatch(finalizedBatch);
+        setQueue(finalizedQueue);
         setShowBatchPreview(false);
-        generateQuestion(finalizedBatch[0]);
+        generateQuestion(finalizedQueue[0]);
     };
 
-    if (activeBatch.length === 0) {
+    if (queue.length === 0 && !showSessionComplete) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-950 p-8">
                 <div className="text-center max-w-md glass-effect p-12 rounded-3xl animate-in zoom-in duration-500">
@@ -222,7 +275,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                     <h2 className="text-4xl font-black text-white mb-2">Tuyệt vời!</h2>
                     <p className="text-gray-400 text-lg mb-10 font-medium">Bạn đã hoàn thành phiên học này.</p>
 
-                    <div className="grid grid-cols-2 gap-4 mb-10">
+                    <div className="grid grid-cols-2 gap-4 mb-8">
                         <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
                             <div className="text-3xl font-bold text-gradient-success mb-1">{completedCount}</div>
                             <div className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Lượt đúng</div>
@@ -233,12 +286,59 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                         </div>
                     </div>
 
-                    <button
-                        className="w-full py-5 bg-gradient-primary rounded-2xl font-bold text-xl text-white hover:shadow-2xl hover:shadow-primary-500/40 hover:-translate-y-1 transition-all"
-                        onClick={onExit}
-                    >
-                        Hoàn tất học tập
-                    </button>
+                    <div className="mb-10 text-left">
+                        <h3 className="text-gray-500 text-[10px] uppercase tracking-widest font-black mb-4 text-center">Từ vựng trong phiên học ({studiedWords.length})</h3>
+                        <div className="grid gap-3 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {studiedWords.map((word, idx) => (
+                                <div key={idx} className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
+                                    <div className="w-10 h-10 rounded-xl bg-primary-500/20 text-primary-400 flex items-center justify-center text-xs font-bold shadow-inner">
+                                        {idx + 1}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <div className="font-black text-white uppercase group-hover:text-primary-400 transition-colors text-base">{word.term}</div>
+                                            {word.type && <span className="text-[8px] bg-white/10 px-1.5 py-0.5 rounded text-gray-400 uppercase font-bold">{word.type}</span>}
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); speak(word.term); }}
+                                                className="p-1.5 glass-effect rounded-full hover:bg-white/10 text-primary-400 transition-all active:scale-90"
+                                                title="Nghe phát âm"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        {word.phonetic && <div className="text-xs text-gray-500 italic mb-1 uppercase tracking-wider">{word.phonetic}</div>}
+                                        <div className="text-sm text-gray-300 line-clamp-1">{word.definition}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button
+                            className="w-full py-5 bg-white/5 border border-white/10 rounded-2xl font-bold text-xl text-gray-300 hover:bg-white/10 transition-all"
+                            onClick={onExit}
+                        >
+                            Thoát ra
+                        </button>
+                        <button
+                            className="w-full py-5 bg-gradient-primary rounded-2xl font-bold text-xl text-white hover:shadow-2xl hover:shadow-primary-500/40 hover:-translate-y-1 transition-all"
+                            onClick={() => {
+                                setStats({ correct: 0, total: 0 });
+                                setCompletedCount(0);
+                                setMasteredWords([]);
+                                setStudiedWords([]);
+                                setSessionStats({});
+                                setShowSessionComplete(false);
+                                setShowBatchPreview(true);
+                                setIsInitialized(false);
+                            }}
+                        >
+                            Tiếp tục học
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -251,7 +351,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                     <button onClick={onExit} className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold text-gray-300">← Thoát</button>
                     <div className="glass-effect px-6 py-3 rounded-xl border-primary-500/20 text-center">
                         <span className="text-gray-500 text-[10px] uppercase tracking-wider block mb-1 font-bold">Phiên học hôm nay</span>
-                        <span className="text-xl font-black text-white">{activeBatch.length} từ</span>
+                        <span className="text-xl font-black text-white">{queue.length} từ</span>
                     </div>
                 </div>
 
@@ -281,7 +381,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
 
                     <h2 className="text-2xl md:text-3xl font-black text-white mb-6 text-center">Danh sách từ vựng:</h2>
                     <div className="grid gap-3 mb-10 overflow-y-auto max-h-[40vh] pr-2 custom-scrollbar">
-                        {activeBatch.map((word, idx) => (
+                        {queue.map((word, idx) => (
                             <div key={idx} className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
                                 <span className={`w-12 h-8 rounded-lg ${word.mode === 'mcq' ? 'bg-primary-500/20 text-primary-400' : 'bg-success-500/20 text-success-400'} flex items-center justify-center font-bold text-[8px]`}>
                                     {word.mode === 'mcq' ? 'MCQ' : 'WRITE'}
@@ -311,13 +411,13 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
         );
     }
 
-    const currentWord = activeBatch[currentIndex];
+    const currentWord = queue[0];
     if (!currentWord) return null;
 
     const isMCQ = currentWord.mode === 'mcq';
     const isTermToDef = currentWord.qType === 'term-to-def';
     const questionText = isTermToDef ? currentWord.term : currentWord.definition;
-    const progressTotal = ((currentIndex) / activeBatch.length) * 100;
+    const progressTotal = (stats.total / 10) * 100;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-8 font-sans">
@@ -335,7 +435,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                             Tiến độ phiên học
                         </span>
                         <div className="flex items-center gap-3">
-                            <span className="text-lg md:text-xl font-black text-white">{currentIndex + 1}<span className="text-gray-600 text-sm font-normal">/{activeBatch.length}</span></span>
+                            <span className="text-lg md:text-xl font-black text-white">{stats.total}<span className="text-gray-600 text-sm font-normal">/10</span></span>
                             <div className="flex-1 h-1.5 md:h-2 bg-gray-800 rounded-full overflow-hidden">
                                 <div className="h-full bg-gradient-primary transition-all duration-500" style={{ width: `${progressTotal}%` }} />
                             </div>
@@ -491,26 +591,24 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                                             {renderDiff(lastUserAnswer, isTermToDef ? currentWord.definition : currentWord.term)}
                                         </div>
                                     )}
-                                    {(!isCorrect || isTypo) && (
-                                        <div className="mt-4 p-6 bg-black/30 rounded-[1.5rem] w-full border border-white/5">
-                                            <p className="text-gray-500 text-[10px] uppercase font-black tracking-widest mb-3">Đáp án chuẩn là:</p>
-                                            <div className="flex items-center justify-center gap-4">
-                                                <p className="text-4xl font-black text-white tracking-tight break-words">
-                                                    {isTermToDef ? currentWord.definition : currentWord.term}
-                                                </p>
-                                                {!isTermToDef && (
-                                                    <button
-                                                        onClick={() => speak(currentWord.term)}
-                                                        className="p-2 glass-effect rounded-full hover:bg-white/10 text-primary-400 transition-all"
-                                                    >
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                                                        </svg>
-                                                    </button>
-                                                )}
-                                            </div>
+                                    <div className="mt-4 p-6 bg-black/30 rounded-[1.5rem] w-full border border-white/5">
+                                        <p className="text-gray-500 text-[10px] uppercase font-black tracking-widest mb-3">Đáp án chuẩn là:</p>
+                                        <div className="flex items-center justify-center gap-4">
+                                            <p className="text-4xl font-black text-white tracking-tight break-words">
+                                                {isTermToDef ? currentWord.definition : currentWord.term}
+                                            </p>
+                                            {!isTermToDef && (
+                                                <button
+                                                    onClick={() => speak(currentWord.term)}
+                                                    className="p-2 glass-effect rounded-full hover:bg-white/10 text-primary-400 transition-all"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                                    </svg>
+                                                </button>
+                                            )}
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             )}
 
