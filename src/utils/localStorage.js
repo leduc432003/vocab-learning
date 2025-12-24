@@ -207,6 +207,10 @@ export const storage = {
 
                 // If wrong in MCQ, it stays 'not-learned'
                 // If wrong in Written, it stays 'learning'
+                // If wrong in review, it becomes 'not-learned'
+                if (mode === 'review-mcq' || mode === 'review-written' || mode === 'review') {
+                    word.learningStatus = 'not-learned';
+                }
             }
 
             // Calculate next review date based on mastery level

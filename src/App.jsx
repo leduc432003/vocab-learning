@@ -142,6 +142,18 @@ function App() {
     );
   }
 
+  if (currentMode === 'review') {
+    const learnedWords = vocabulary.filter(w => w.learningStatus === 'learned');
+    return (
+      <LearnMode
+        vocabulary={learnedWords}
+        onUpdateStats={handleUpdateStats}
+        onExit={() => setCurrentMode('browse')}
+        isReview={true}
+      />
+    );
+  }
+
   if (currentMode === 'write') {
     return (
       <WriteMode
@@ -278,6 +290,16 @@ function App() {
               <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">✍️</div>
               <div className="font-semibold">Write</div>
               <div className="text-xs text-gray-500 mt-1">Type Answer</div>
+            </button>
+
+            <button
+              onClick={() => setCurrentMode('review')}
+              disabled={vocabulary.filter(w => w.learningStatus === 'learned').length === 0}
+              className="p-6 glass-effect rounded-xl hover:bg-white/10 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">🔄</div>
+              <div className="font-semibold">Review</div>
+              <div className="text-xs text-gray-500 mt-1">Learned Words</div>
             </button>
 
             <button

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 
-export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
+export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview = false }) {
     // Session Setup states
     const [showSetup, setShowSetup] = useState(false);
     const [showBatchPreview, setShowBatchPreview] = useState(true);
@@ -49,7 +49,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
         // Pick 10 words as requested
         const sessionWords = sortedVocab.slice(0, 10).map(w => ({
             ...w,
-            mode: (w.masteryLevel < 2 || w.learningStatus === 'not-learned') ? 'mcq' : 'written'
+            mode: isReview ? 'written' : ((w.masteryLevel < 2 || w.learningStatus === 'not-learned') ? 'mcq' : 'written')
         }));
 
         setQueue(sessionWords);
@@ -148,7 +148,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
         setLastUserAnswer(userAnswer);
 
         if (user === target) {
-            handleAnswer(true, 'learn-written');
+            handleAnswer(true, isReview ? 'review-written' : 'learn-written');
             return;
         }
 
@@ -156,9 +156,9 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
         const threshold = target.length <= 4 ? 0 : target.length <= 8 ? 1 : 2;
 
         if (distance <= threshold) {
-            handleAnswer(false, 'learn-written', null, true);
+            handleAnswer(false, isReview ? 'review-written' : 'learn-written', null, true);
         } else {
-            handleAnswer(false, 'learn-written');
+            handleAnswer(false, isReview ? 'review-written' : 'learn-written');
         }
     };
 
@@ -183,7 +183,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
         }));
 
         // Notify parent that this was actually correct
-        onUpdateStats(currentWord.id, true, 'learn-written');
+        onUpdateStats(currentWord.id, true, isReview ? 'review-written' : 'learn-written');
     };
 
     const renderDiff = (user, target) => {
@@ -234,8 +234,8 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                 const upgradedWord = { ...currentWord, mode: 'written' };
                 const insertPos = Math.min(5, newQueue.length);
                 newQueue.splice(insertPos, 0, upgradedWord);
-            } else if (totalCorrect < 2) {
-                // If Written but only 1 correct so far, put back
+            } else if (!isReview && totalCorrect < 2) {
+                // Nếu là chế độ Học và mới đúng 1 lần hình thức Viết -> bắt làm lại để chắc chắn
                 newQueue.push(currentWord);
             } else {
                 // "Đúng nhiều" (at least 2 times, or passed from MCQ to Written) -> mark as mastered
@@ -348,7 +348,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                             Thoát ra
                         </button>
                         <button
-                            className="w-full py-5 bg-gradient-primary rounded-2xl font-bold text-xl text-white hover:shadow-2xl hover:shadow-primary-500/40 hover:-translate-y-1 transition-all"
+                            className={`w-full py-5 bg-gradient-primary rounded-2xl font-bold text-xl text-white hover:shadow-2xl hover:shadow-primary-500/40 hover:-translate-y-1 transition-all`}
                             onClick={() => {
                                 setStats({ correct: 0, total: 0 });
                                 setCompletedCount(0);
@@ -360,7 +360,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                                 setIsInitialized(false);
                             }}
                         >
-                            Tiếp tục học
+                            {isReview ? 'Ôn tập tiếp' : 'Tiếp tục học'}
                         </button>
                     </div>
                 </div>
@@ -374,7 +374,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                 <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
                     <button onClick={onExit} className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold text-gray-300">← Thoát</button>
                     <div className="glass-effect px-6 py-3 rounded-xl border-primary-500/20 text-center">
-                        <span className="text-gray-500 text-[10px] uppercase tracking-wider block mb-1 font-bold">Phiên học hôm nay</span>
+                        <span className="text-gray-500 text-[10px] uppercase tracking-wider block mb-1 font-bold">{isReview ? 'Phiên ôn tập' : 'Phiên học hôm nay'}</span>
                         <span className="text-xl font-black text-white">{queue.length} từ</span>
                     </div>
                 </div>
@@ -428,7 +428,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                         Bắt đầu ngay! 🚀
                     </button>
                     <p className="text-center text-gray-500 text-[10px] mt-6 uppercase tracking-widest font-black">
-                        {studyDirection === 'both' ? 'Học kết hợp Từ - Nghĩa và Nghĩa - Từ' : studyDirection === 'term-to-def' ? 'Chuyên học Từ sang Nghĩa' : 'Chuyên học Nghĩa sang Từ'}
+                        {studyDirection === 'both' ? (isReview ? 'Ôn tập kết hợp Từ - Nghĩa và Nghĩa - Từ' : 'Học kết hợp Từ - Nghĩa và Nghĩa - Từ') : studyDirection === 'term-to-def' ? (isReview ? 'Chuyên ôn tập Từ sang Nghĩa' : 'Chuyên học Từ sang Nghĩa') : (isReview ? 'Chuyên ôn tập Nghĩa sang Từ' : 'Chuyên học Nghĩa sang Từ')}
                     </p>
                 </div>
             </div>
@@ -524,7 +524,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                                 {options.map((option, idx) => (
                                     <button
                                         key={idx}
-                                        onClick={() => handleAnswer(option.id === currentWord.id, 'learn-mcq', option.id)}
+                                        onClick={() => handleAnswer(option.id === currentWord.id, isReview ? 'review-mcq' : 'learn-mcq', option.id)}
                                         className="p-5 md:p-7 text-left glass-effect rounded-[1.2rem] md:rounded-[1.5rem] hover:bg-white/[0.08] hover:border-primary-500/50 transition-all group relative overflow-hidden"
                                     >
                                         <div className="flex items-center gap-4 md:gap-5 relative z-10">
