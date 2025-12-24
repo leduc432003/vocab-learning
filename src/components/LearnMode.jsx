@@ -162,6 +162,30 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
         }
     };
 
+    const handleOverride = () => {
+        setIsCorrect(true);
+        const currentWord = queue[0];
+        if (!currentWord) return;
+
+        // Update session tracking - increment correct count since it was false before
+        setSessionStats(prev => ({
+            ...prev,
+            [currentWord.id]: {
+                ...prev[currentWord.id],
+                correct: (prev[currentWord.id]?.correct || 0) + 1
+            }
+        }));
+
+        // Update overall session stats
+        setStats(prev => ({
+            ...prev,
+            correct: prev.correct + 1
+        }));
+
+        // Notify parent that this was actually correct
+        onUpdateStats(currentWord.id, true, 'learn-written');
+    };
+
     const renderDiff = (user, target) => {
         const userClean = user.trim().toLowerCase();
         const targetClean = target.trim().toLowerCase();
@@ -609,6 +633,15 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit }) {
                                             )}
                                         </div>
                                     </div>
+                                    {!isCorrect && !isTypo && (
+                                        <button
+                                            onClick={handleOverride}
+                                            className="mt-6 text-gray-400 hover:text-white text-xs font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group"
+                                        >
+                                            <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center group-hover:border-white group-hover:bg-white group-hover:text-black transition-all">✓</span>
+                                            Tôi đã trả lời đúng
+                                        </button>
+                                    )}
                                 </div>
                             )}
 

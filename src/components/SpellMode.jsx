@@ -117,6 +117,12 @@ export default function SpellMode({ vocabulary, onUpdateStats, onExit }) {
         }
     };
 
+    const handleOverride = () => {
+        setIsCorrect(true);
+        setScore(prev => ({ ...prev, correct: prev.correct + 1 }));
+        onUpdateStats(currentCard.id, true);
+    };
+
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             if (!showResult) {
@@ -223,6 +229,15 @@ export default function SpellMode({ vocabulary, onUpdateStats, onExit }) {
                                             <p className="text-4xl font-black text-white tracking-tight">{currentCard.term}</p>
                                             {currentCard.phonetic && <p className="text-gray-400 italic mt-1">{currentCard.phonetic}</p>}
                                         </div>
+                                    )}
+                                    {!isCorrect && (
+                                        <button
+                                            onClick={handleOverride}
+                                            className="mt-4 text-gray-500 hover:text-white text-xs font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group"
+                                        >
+                                            <span className="w-4 h-4 rounded-full border border-gray-600 flex items-center justify-center group-hover:border-white group-hover:bg-white group-hover:text-black transition-all">✓</span>
+                                            Tôi đã trả lời đúng
+                                        </button>
                                     )}
                                 </div>
                             </div>
