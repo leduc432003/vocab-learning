@@ -20,11 +20,11 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
             {/* Current Set Display */}
             <button
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center gap-3 px-6 py-3 glass-effect rounded-xl hover:bg-white/10 transition-all group"
+                className="flex items-center gap-3 px-6 py-3 glass-effect rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-all group border border-gray-200 dark:border-white/10"
             >
                 <div className="text-left flex-1">
-                    <div className="text-sm text-gray-400">Current Set</div>
-                    <div className="font-semibold text-white group-hover:text-gradient-primary transition-all">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Current Set</div>
+                    <div className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-all">
                         {currentSet?.name || 'No Set Selected'}
                     </div>
                 </div>
@@ -45,13 +45,13 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                         className="fixed inset-0 z-40"
                         onClick={() => setShowDropdown(false)}
                     />
-                    <div className="absolute top-full mt-2 left-0 w-80 glass-effect rounded-xl shadow-2xl z-50 overflow-hidden">
+                    <div className="absolute top-full mt-2 left-0 w-80 glass-effect rounded-xl shadow-2xl z-50 overflow-hidden bg-white/90 dark:bg-gray-900/90 border border-gray-200 dark:border-white/10">
                         <div className="max-h-96 overflow-y-auto">
                             {sets.map(set => (
                                 <div
                                     key={set.id}
-                                    className={`p-4 hover:bg-white/5 transition-all cursor-pointer border-l-4 ${set.id === currentSet?.id
-                                        ? 'border-primary-500 bg-primary-500/10'
+                                    className={`p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-all cursor-pointer border-l-4 ${set.id === currentSet?.id
+                                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-500/10'
                                         : 'border-transparent'
                                         }`}
                                     onClick={() => {
@@ -61,11 +61,11 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                                 >
                                     <div className="flex items-start justify-between">
                                         <div className="flex-1">
-                                            <div className="font-semibold text-white">{set.name}</div>
+                                            <div className="font-semibold text-gray-900 dark:text-white">{set.name}</div>
                                             {set.description && (
-                                                <div className="text-sm text-gray-400 mt-1">{set.description}</div>
+                                                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{set.description}</div>
                                             )}
-                                            <div className="text-xs text-gray-500 mt-2">
+                                            <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                                                 {set.words?.length || 0} words
                                             </div>
                                         </div>
@@ -87,7 +87,7 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                             ))}
                         </div>
 
-                        <div className="border-t border-white/10 p-3">
+                        <div className="border-t border-gray-100 dark:border-white/10 p-3">
                             <button
                                 onClick={() => {
                                     setShowDropdown(false);
@@ -104,13 +104,13 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
 
             {/* Create Set Modal */}
             {showCreateModal && (
-                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="glass-effect rounded-2xl p-8 max-w-md w-full">
-                        <h2 className="text-2xl font-bold text-gradient-primary mb-6">Create New Set</h2>
+                <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="glass-effect rounded-2xl p-8 max-w-md w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Create New Set</h2>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Set Name *
                                 </label>
                                 <input
@@ -118,13 +118,13 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                                     value={newSetName}
                                     onChange={(e) => setNewSetName(e.target.value)}
                                     placeholder="e.g., IELTS Vocabulary"
-                                    className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
+                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all shadow-inner"
                                     autoFocus
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                     Description (Optional)
                                 </label>
                                 <textarea
@@ -132,7 +132,7 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                                     onChange={(e) => setNewSetDescription(e.target.value)}
                                     placeholder="What is this set about?"
                                     rows={3}
-                                    className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 resize-none"
+                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all shadow-inner resize-none"
                                 />
                             </div>
                         </div>
@@ -144,7 +144,7 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                                     setNewSetName('');
                                     setNewSetDescription('');
                                 }}
-                                className="flex-1 px-6 py-3 glass-effect rounded-xl font-semibold hover:bg-white/10 transition-all"
+                                className="flex-1 px-6 py-3 glass-effect rounded-xl font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-gray-200 dark:border-white/10"
                             >
                                 Cancel
                             </button>

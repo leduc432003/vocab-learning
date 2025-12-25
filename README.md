@@ -1,4 +1,4 @@
-# 📚 VocabMaster - Ứng dụng Học Từ Vựng
+# 📚 Học từ vựng cùng Đức - Ứng dụng Học Từ Vựng
 
 Ứng dụng web hiện đại giúp bạn học và ghi nhớ từ vựng tiếng Anh một cách hiệu quả, tương tự như Quizlet.
 

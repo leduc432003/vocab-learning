@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-gray-950 text-white font-sans;
+    @apply bg-gray-50 text-gray-900 dark:bg-[#020617] dark:text-white font-sans transition-colors duration-300;
   }
 }
 
@@ -24,11 +24,11 @@
   }
 
   .glass-effect {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+    @apply bg-white/80 dark:bg-white/5 backdrop-blur-lg border border-gray-200 dark:border-white/10 shadow-xl dark:shadow-none;
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:bg-white/8 hover:border-primary-500/30 hover:-translate-y-1 hover:shadow-lg;
+    @apply transition-all duration-300 hover:bg-white dark:hover:bg-white/8 hover:border-primary-500/30 dark:hover:border-primary-500/30 hover:-translate-y-1 hover:shadow-lg;
   }
 
   /* 3D Transform Utilities */

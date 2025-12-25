@@ -1,8 +1,8 @@
-# 🚀 VocabMaster Pro - Complete Guide
+# 🚀 Học từ vựng cùng Đức - Complete Guide
 
 ## 🌟 Tổng quan
 
-VocabMaster Pro là ứng dụng học từ vựng toàn diện với 6 chế độ học tập khác nhau, được thiết kế dựa trên phương pháp học Quizlet và các nguyên lý khoa học về ghi nhớ.
+Học từ vựng cùng Đức là ứng dụng học từ vựng toàn diện với 6 chế độ học tập khác nhau, được thiết kế dựa trên phương pháp học Quizlet và các nguyên lý khoa học về ghi nhớ.
 
 **Ứng dụng đang chạy tại:** http://localhost:5173
 

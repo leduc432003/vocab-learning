@@ -294,5 +294,13 @@ export const storage = {
         localStorage.removeItem(SETS_KEY);
         localStorage.removeItem(CURRENT_SET_KEY);
         return true;
+    },
+
+    getTheme: () => {
+        return localStorage.getItem('theme') || 'dark';
+    },
+
+    setTheme: (theme) => {
+        localStorage.setItem('theme', theme);
     }
 };
