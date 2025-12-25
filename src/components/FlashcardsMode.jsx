@@ -8,6 +8,17 @@ export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar
     const [sessionDone, setSessionDone] = useState(false);
     const [status, setStatus] = useState(null);
     const [isStudying, setIsStudying] = useState(false);
+    const [isShuffle, setIsShuffle] = useState(false);
+
+    const handleStart = () => {
+        if (cards.length === 0) return;
+
+        if (isShuffle) {
+            const shuffled = [...cards].sort(() => Math.random() - 0.5);
+            setCards(shuffled);
+        }
+        setIsStudying(true);
+    };
 
     useEffect(() => {
         const counts = storage.getStatusCounts();
@@ -101,9 +112,26 @@ export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar
                             </div>
                         </div>
 
+                        <div className="flex justify-center mb-8">
+                            <div className="bg-white/5 p-1 rounded-2xl flex border border-white/10">
+                                <button
+                                    onClick={() => setIsShuffle(false)}
+                                    className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${!isShuffle ? 'bg-primary-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                                >
+                                    Thường
+                                </button>
+                                <button
+                                    onClick={() => setIsShuffle(true)}
+                                    className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${isShuffle ? 'bg-primary-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                                >
+                                    Trộn thẻ
+                                </button>
+                            </div>
+                        </div>
+
                         <button
-                            onClick={() => cards.length > 0 && setIsStudying(true)}
-                            className="w-full py-6 bg-white text-black rounded-3xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-white/10"
+                            onClick={handleStart}
+                            className={`w-full py-6 rounded-3xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl ${cards.length > 0 ? 'bg-white text-black shadow-white/10' : 'bg-gray-800 text-gray-500 cursor-not-allowed'}`}
                         >
                             {cards.length > 0 ? 'Học ngay' : 'Hôm nay đã học xong!'}
                         </button>
