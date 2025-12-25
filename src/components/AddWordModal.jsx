@@ -6,6 +6,14 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
         phonetic: '',
         definition: '',
         type: '',
+        example: '',
+        exampleDefinition: '',
+        synonym: '',
+        antonym: '',
+        collocation: '',
+        note: '',
+        level: '',
+        topic: '',
         image: ''
     });
 
@@ -19,6 +27,14 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                 phonetic: '',
                 definition: '',
                 type: '',
+                example: '',
+                exampleDefinition: '',
+                synonym: '',
+                antonym: '',
+                collocation: '',
+                note: '',
+                level: '',
+                topic: '',
                 image: ''
             });
         }
@@ -49,6 +65,14 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                 phonetic: '',
                 definition: '',
                 type: '',
+                example: '',
+                exampleDefinition: '',
+                synonym: '',
+                antonym: '',
+                collocation: '',
+                note: '',
+                level: '',
+                topic: '',
                 image: ''
             });
             onClose();
@@ -125,27 +149,155 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                         />
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label htmlFor="type" className="block mb-2 text-gray-300 font-medium text-sm">
+                                Word Type
+                            </label>
+                            <select
+                                id="type"
+                                name="type"
+                                className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                                value={formData.type}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select type...</option>
+                                <option value="noun">Noun</option>
+                                <option value="verb">Verb</option>
+                                <option value="adjective">Adjective</option>
+                                <option value="adverb">Adverb</option>
+                                <option value="pronoun">Pronoun</option>
+                                <option value="preposition">Preposition</option>
+                                <option value="conjunction">Conjunction</option>
+                                <option value="interjection">Interjection</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label htmlFor="level" className="block mb-2 text-gray-300 font-medium text-sm">
+                                Level
+                            </label>
+                            <select
+                                id="level"
+                                name="level"
+                                className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                                value={formData.level}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select level...</option>
+                                <option value="A1">A1 - Beginner</option>
+                                <option value="A2">A2 - Elementary</option>
+                                <option value="B1">B1 - Intermediate</option>
+                                <option value="B2">B2 - Upper Intermediate</option>
+                                <option value="C1">C1 - Advanced</option>
+                                <option value="C2">C2 - Proficiency</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div>
-                        <label htmlFor="type" className="block mb-2 text-gray-300 font-medium text-sm">
-                            Word Type
+                        <label htmlFor="example" className="block mb-2 text-gray-300 font-medium text-sm">
+                            Example Sentence
                         </label>
-                        <select
-                            id="type"
-                            name="type"
-                            className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
-                            value={formData.type}
+                        <textarea
+                            id="example"
+                            name="example"
+                            className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all resize-vertical min-h-[80px]"
+                            value={formData.example}
                             onChange={handleChange}
-                        >
-                            <option value="">Select type...</option>
-                            <option value="noun">Noun</option>
-                            <option value="verb">Verb</option>
-                            <option value="adjective">Adjective</option>
-                            <option value="adverb">Adverb</option>
-                            <option value="pronoun">Pronoun</option>
-                            <option value="preposition">Preposition</option>
-                            <option value="conjunction">Conjunction</option>
-                            <option value="interjection">Interjection</option>
-                        </select>
+                            placeholder="e.g., I love the serendipity of findind a $20 bill in an old coat."
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="exampleDefinition" className="block mb-2 text-gray-300 font-medium text-sm">
+                            Example Meaning (Vietnamese)
+                        </label>
+                        <input
+                            type="text"
+                            id="exampleDefinition"
+                            name="exampleDefinition"
+                            className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all font-medium"
+                            value={formData.exampleDefinition}
+                            onChange={handleChange}
+                            placeholder="Dịch nghĩa của câu ví dụ trên..."
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label htmlFor="synonym" className="block mb-2 text-gray-300 font-medium text-sm">
+                                Synonyms
+                            </label>
+                            <input
+                                type="text"
+                                id="synonym"
+                                name="synonym"
+                                className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                                value={formData.synonym}
+                                onChange={handleChange}
+                                placeholder="Similar words..."
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="antonym" className="block mb-2 text-gray-300 font-medium text-sm">
+                                Antonyms
+                            </label>
+                            <input
+                                type="text"
+                                id="antonym"
+                                name="antonym"
+                                className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                                value={formData.antonym}
+                                onChange={handleChange}
+                                placeholder="Opposite words..."
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label htmlFor="collocation" className="block mb-2 text-gray-300 font-medium text-sm">
+                                Collocations
+                            </label>
+                            <input
+                                type="text"
+                                id="collocation"
+                                name="collocation"
+                                className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                                value={formData.collocation}
+                                onChange={handleChange}
+                                placeholder="Words usually used together..."
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="topic" className="block mb-2 text-gray-300 font-medium text-sm">
+                                Topic
+                            </label>
+                            <input
+                                type="text"
+                                id="topic"
+                                name="topic"
+                                className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                                value={formData.topic}
+                                onChange={handleChange}
+                                placeholder="e.g., Nature, Technology..."
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label htmlFor="note" className="block mb-2 text-gray-300 font-medium text-sm">
+                            Study Notes / Mnemonics
+                        </label>
+                        <textarea
+                            id="note"
+                            name="note"
+                            className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all resize-vertical min-h-[80px]"
+                            value={formData.note}
+                            onChange={handleChange}
+                            placeholder="Mẹo nhớ hoặc ghi chú thêm..."
+                        />
                     </div>
 
                     <div>

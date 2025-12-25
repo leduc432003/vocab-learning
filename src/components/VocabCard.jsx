@@ -1,133 +1,169 @@
 import { useState } from 'react';
 
-const VocabCard = ({ word, onEdit, onDelete, onToggleStar }) => {
+export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
     const [isFlipped, setIsFlipped] = useState(false);
 
-    const accuracy = word.reviewCount > 0
-        ? Math.round((word.correctCount / word.reviewCount) * 100)
-        : 0;
+    const speak = (e, text) => {
+        e.stopPropagation();
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            speechSynthesis.speak(utterance);
+        }
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return null;
+        const date = new Date(dateString);
+        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
+    const renderExampleWithBold = (text) => {
+        if (!text) return null;
+        const parts = text.split(/(\*\*.*?\*\*)/g);
+        return parts.map((part, i) => {
+            if (part && part.startsWith('**') && part.endsWith('**')) {
+                return <strong key={i} className="text-primary-400 font-black not-italic">{part.slice(2, -2)}</strong>;
+            }
+            return part;
+        });
+    };
 
     return (
-        <div className="relative">
-            <div
-                className={`relative w-full h-72 cursor-pointer transition-transform duration-600 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}
-                onClick={() => setIsFlipped(!isFlipped)}
-                style={{ transformStyle: 'preserve-3d' }}
-            >
-                {/* Front of card */}
-                <div
-                    className="absolute w-full h-full backface-hidden glass-effect rounded-2xl p-6 flex flex-col justify-center items-center shadow-lg hover:shadow-xl transition-all"
-                    style={{ backfaceVisibility: 'hidden' }}
-                >
-                    <div className="absolute top-4 left-4">
-                        {(!word.learningStatus || word.learningStatus === 'not-learned') && (
-                            <span className="px-2 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded text-[10px] uppercase font-bold">Chưa học</span>
-                        )}
-                        {word.learningStatus === 'learning' && (
-                            <span className="px-2 py-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded text-[10px] uppercase font-bold">Đang học</span>
-                        )}
-                        {word.learningStatus === 'learned' && (
-                            <span className="px-2 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded text-[10px] uppercase font-bold">Đã học</span>
-                        )}
-                    </div>
-                    <div className="text-center w-full">
-                        {word.image && (
-                            <img
-                                src={word.image}
-                                alt={word.term}
-                                className="w-24 h-24 object-cover rounded-xl mb-4 border-2 border-white/10 mx-auto"
-                            />
-                        )}
-                        <div className="flex items-center justify-center gap-3">
-                            <div className="text-3xl font-bold text-gradient-primary mb-2">
-                                {word.term}
-                            </div>
+        <div
+            className="group h-[320px] md:h-[400px] perspective-2000 cursor-pointer"
+            onClick={() => setIsFlipped(!isFlipped)}
+        >
+            <div className={`relative w-full h-full transition-transform duration-700 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+
+                {/* FRONT SIDE */}
+                <div className="absolute inset-0 backface-hidden">
+                    <div className="h-full glass-effect rounded-[2.5rem] border border-white/10 flex flex-col p-8 transition-all group-hover:bg-white/[0.07] group-hover:border-primary-500/30 shadow-xl overflow-hidden relative">
+                        {/* Status Label */}
+                        <div className="flex justify-between items-start mb-4">
+                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${word.learningStatus === 'learned' ? 'text-emerald-400 border-emerald-500/30' :
+                                word.learningStatus === 'learning' ? 'text-amber-400 border-amber-500/30' :
+                                    'text-blue-400 border-blue-500/30'
+                                }`}>
+                                {word.learningStatus === 'learned' ? 'Đã thuộc' : word.learningStatus === 'learning' ? 'Đang học' : 'Từ mới'}
+                            </span>
+
                             <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    const utterance = new SpeechSynthesisUtterance(word.term);
-                                    utterance.lang = 'en-US';
-                                    window.speechSynthesis.speak(utterance);
-                                }}
-                                className="mb-2 p-2 glass-effect rounded-full hover:bg-white/10 text-primary-400 transition-all transform active:scale-90"
-                                title="Nghe phát âm"
+                                onClick={(e) => { e.stopPropagation(); onToggleStar(word.id); }}
+                                className={`text-xl transition-transform hover:scale-125 ${word.starred ? 'text-yellow-400' : 'text-gray-600 opacity-20 group-hover:opacity-100'}`}
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                                </svg>
+                                {word.starred ? '⭐' : '☆'}
                             </button>
                         </div>
-                        {word.phonetic && (
-                            <div className="text-gray-400 italic text-base mb-4">
-                                {word.phonetic}
+
+                        {/* Content */}
+                        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4">
+                            {word.image && (
+                                <img src={word.image} alt="" className="w-20 h-20 md:w-32 md:h-32 object-cover rounded-2xl mb-2 shadow-2xl border border-white/10" />
+                            )}
+
+                            <div className="flex items-center justify-center gap-3">
+                                <h3 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-tight group-hover:scale-105 transition-transform duration-500 line-clamp-2">
+                                    {word.term}
+                                </h3>
+                                <button
+                                    onClick={(e) => speak(e, word.term)}
+                                    className="p-2 md:p-3 rounded-xl bg-white/5 hover:bg-primary-500/20 text-xl md:text-2xl transition-all active:scale-90 border border-white/5 hover:border-primary-500/30"
+                                    title="Phát âm"
+                                >
+                                    🔊
+                                </button>
                             </div>
-                        )}
-                    </div>
-                    <div className="absolute bottom-4 text-xs text-gray-500">
-                        Click to flip
+
+                            <div className="flex flex-wrap justify-center gap-2 opacity-60">
+                                {word.phonetic && <span className="text-sm md:text-base text-primary-400 font-medium italic">{word.phonetic}</span>}
+                                {word.type && <span className="px-2 py-0.5 bg-white/10 rounded text-[9px] font-black text-gray-400 uppercase tracking-widest">{word.type}</span>}
+                            </div>
+                        </div>
+
+                        {/* Quick Actions (Bottom) */}
+                        <div className="flex justify-center gap-4 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onEdit(word); }}
+                                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+                            >✏️</button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onDelete(word.id); }}
+                                className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center hover:bg-rose-500/20 text-rose-500 transition-colors"
+                            >🗑️</button>
+                        </div>
                     </div>
                 </div>
 
-                {/* Back of card */}
-                <div
-                    className="absolute w-full h-full backface-hidden glass-effect rounded-2xl p-6 flex flex-col justify-center items-center shadow-lg hover:shadow-xl transition-all rotate-y-180"
-                    style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-                >
-                    <div className="text-xl text-white text-center mb-4">
-                        {word.definition}
-                    </div>
-                    {word.type && (
-                        <div className="mb-4">
-                            <span className="px-3 py-1 bg-white/10 border border-white/20 rounded-full text-sm">
-                                {word.type}
-                            </span>
+                {/* BACK SIDE */}
+                <div className="absolute inset-0 backface-hidden rotate-y-180">
+                    <div className="h-full bg-white text-gray-900 rounded-[2.5rem] flex flex-col p-8 transition-all shadow-2xl relative overflow-hidden">
+                        {/* Word Ref */}
+                        <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                            <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{word.term}</span>
+                            {word.nextReview && (
+                                <span className="text-[10px] font-bold text-primary-600 bg-primary-50 px-2 py-1 rounded-lg">
+                                    Ôn lại: {formatDate(word.nextReview)}
+                                </span>
+                            )}
                         </div>
-                    )}
-                    {word.reviewCount > 0 && (
-                        <div className="flex gap-8 pt-4 border-t border-white/10 w-full justify-center">
-                            <div className="flex flex-col items-center">
-                                <span className="text-xs text-gray-500 uppercase tracking-wide">Reviewed</span>
-                                <span className="text-xl font-bold text-gradient-success">{word.reviewCount}</span>
+
+                        {/* Scrollable Definition & Details */}
+                        <div className="flex-1 overflow-y-auto no-scrollbar space-y-4">
+                            <div>
+                                <h4 className="text-lg md:text-2xl font-black text-gray-800 leading-tight">
+                                    {word.definition}
+                                </h4>
                             </div>
-                            <div className="flex flex-col items-center">
-                                <span className="text-xs text-gray-500 uppercase tracking-wide">Accuracy</span>
-                                <span className="text-xl font-bold text-gradient-success">{accuracy}%</span>
-                            </div>
+
+                            {word.example && (
+                                <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 italic">
+                                    <div className="text-[9px] font-black text-primary-500 uppercase tracking-widest mb-1">Ví dụ</div>
+                                    <p className="text-gray-600 text-sm md:text-base leading-snug">
+                                        "{renderExampleWithBold(word.example)}"
+                                    </p>
+                                    {word.exampleDefinition && (
+                                        <p className="text-gray-400 text-xs mt-2 border-t border-gray-200 pt-2">
+                                            {renderExampleWithBold(word.exampleDefinition)}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
+                            {(word.synonym || word.antonym) && (
+                                <div className="grid grid-cols-2 gap-2">
+                                    {word.synonym && (
+                                        <div className="bg-emerald-50 p-3 rounded-xl">
+                                            <span className="block text-[8px] font-black text-emerald-600 uppercase tracking-widest mb-1">Đồng nghĩa</span>
+                                            <span className="text-xs font-bold text-emerald-700">{word.synonym}</span>
+                                        </div>
+                                    )}
+                                    {word.antonym && (
+                                        <div className="bg-rose-50 p-3 rounded-xl">
+                                            <span className="block text-[8px] font-black text-rose-600 uppercase tracking-widest mb-1">Trái nghĩa</span>
+                                            <span className="text-xs font-bold text-rose-700">{word.antonym}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {word.note && (
+                                <div className="p-3 bg-blue-50 rounded-xl">
+                                    <span className="block text-[9px] font-black text-blue-500 uppercase tracking-widest mb-1">Ghi chú</span>
+                                    <p className="text-[11px] text-blue-800 leading-tight">{word.note}</p>
+                                </div>
+                            )}
                         </div>
-                    )}
-                    <div className="absolute bottom-4 text-xs text-gray-500">
-                        Click to flip
+
+                        {/* Hint to Flip Back */}
+                        <div className="mt-4 text-center">
+                            <span className="text-[8px] font-black text-gray-300 uppercase tracking-widest animate-pulse italic">Chạm để lật lại</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Action buttons */}
-            <div className="flex gap-2 justify-center mt-4">
-                <button
-                    className={`w-10 h-10 glass-effect rounded-full flex items-center justify-center text-lg hover:bg-white/10 hover:border-primary-500/50 transition-all hover:-translate-y-0.5 ${word.starred ? 'bg-yellow-500/20 border-yellow-500/50' : ''
-                        }`}
-                    onClick={() => onToggleStar(word.id)}
-                    title={word.starred ? 'Unstar' : 'Star'}
-                >
-                    {word.starred ? '⭐' : '☆'}
-                </button>
-                <button
-                    className="w-10 h-10 glass-effect rounded-full flex items-center justify-center text-lg hover:bg-white/10 hover:border-primary-500/50 transition-all hover:-translate-y-0.5"
-                    onClick={() => onEdit(word)}
-                    title="Edit"
-                >
-                    ✏️
-                </button>
-                <button
-                    className="w-10 h-10 glass-effect rounded-full flex items-center justify-center text-lg hover:bg-white/10 hover:border-primary-500/50 transition-all hover:-translate-y-0.5"
-                    onClick={() => onDelete(word.id)}
-                    title="Delete"
-                >
-                    🗑️
-                </button>
             </div>
         </div>
     );
-};
-
-export default VocabCard;
+}

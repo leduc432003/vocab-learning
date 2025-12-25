@@ -1,16 +1,19 @@
 const SETS_KEY = 'vocab_sets';
 const CURRENT_SET_KEY = 'current_set_id';
 
+// SRS Constants
+const LEARNING_STEPS = [10, 1440]; // 10 minutes, 1 day (in minutes)
+const REVIEW_INTERVALS = [3, 7, 15, 30, 90, 180, 365]; // in days
+const DEFAULT_EASE = 2.5;
+
 export const storage = {
     // ==================== SETS MANAGEMENT ====================
 
-    // Get all sets
     getSets: () => {
         try {
             const data = localStorage.getItem(SETS_KEY);
             const sets = data ? JSON.parse(data) : [];
 
-            // Create default set if none exists
             if (sets.length === 0) {
                 const defaultSet = {
                     id: Date.now().toString(),
@@ -31,7 +34,6 @@ export const storage = {
         }
     },
 
-    // Save all sets
     saveSets: (sets) => {
         try {
             localStorage.setItem(SETS_KEY, JSON.stringify(sets));
@@ -42,24 +44,20 @@ export const storage = {
         }
     },
 
-    // Get current set ID
     getCurrentSetId: () => {
         return localStorage.getItem(CURRENT_SET_KEY);
     },
 
-    // Set current set
     setCurrentSet: (setId) => {
         localStorage.setItem(CURRENT_SET_KEY, setId);
     },
 
-    // Get current set
     getCurrentSet: () => {
         const sets = storage.getSets();
         const currentId = storage.getCurrentSetId();
         return sets.find(s => s.id === currentId) || sets[0];
     },
 
-    // Create new set
     createSet: (name, description = '') => {
         const sets = storage.getSets();
         const newSet = {
@@ -74,7 +72,6 @@ export const storage = {
         return newSet;
     },
 
-    // Update set
     updateSet: (setId, updates) => {
         const sets = storage.getSets();
         const index = sets.findIndex(s => s.id === setId);
@@ -86,35 +83,24 @@ export const storage = {
         return null;
     },
 
-    // Delete set
     deleteSet: (setId) => {
         const sets = storage.getSets();
         const filtered = sets.filter(s => s.id !== setId);
-
-        // Don't allow deleting the last set
-        if (filtered.length === 0) {
-            return false;
-        }
-
+        if (filtered.length === 0) return false;
         storage.saveSets(filtered);
-
-        // If deleted current set, switch to first available
         if (storage.getCurrentSetId() === setId) {
             storage.setCurrentSet(filtered[0].id);
         }
-
         return true;
     },
 
     // ==================== VOCABULARY MANAGEMENT ====================
 
-    // Get vocabulary from current set
     getVocabulary: () => {
         const currentSet = storage.getCurrentSet();
         return currentSet ? currentSet.words : [];
     },
 
-    // Save vocabulary to current set
     saveVocabulary: (words) => {
         const sets = storage.getSets();
         const currentId = storage.getCurrentSetId();
@@ -128,7 +114,6 @@ export const storage = {
         return false;
     },
 
-    // Add word to current set
     addWord: (word) => {
         const vocabulary = storage.getVocabulary();
         const newWord = {
@@ -139,16 +124,19 @@ export const storage = {
             correctCount: 0,
             lastReviewed: null,
             starred: false,
-            masteryLevel: 0, // 0-5 for spaced repetition
+            // SRS properties
+            srsStage: 'new', // 'new', 'learning', 'review', 'lapse'
+            srsInterval: 0, // current interval in days (or 0 for new)
+            srsEase: DEFAULT_EASE,
+            srsStepIndex: 0, // for learning/lapse stages
             nextReview: new Date().toISOString(),
-            learningStatus: 'not-learned' // 'not-learned', 'learning', 'learned'
+            learningStatus: 'not-learned'
         };
         vocabulary.push(newWord);
         storage.saveVocabulary(vocabulary);
         return newWord;
     },
 
-    // Update word
     updateWord: (id, updates) => {
         const vocabulary = storage.getVocabulary();
         const index = vocabulary.findIndex(word => word.id === id);
@@ -160,7 +148,6 @@ export const storage = {
         return null;
     },
 
-    // Delete word
     deleteWord: (id) => {
         const vocabulary = storage.getVocabulary();
         const filtered = vocabulary.filter(word => word.id !== id);
@@ -168,7 +155,6 @@ export const storage = {
         return true;
     },
 
-    // Toggle star
     toggleStar: (id) => {
         const vocabulary = storage.getVocabulary();
         const index = vocabulary.findIndex(word => word.id === id);
@@ -180,55 +166,83 @@ export const storage = {
         return null;
     },
 
-    // Update learning stats with spaced repetition and learning status
-    updateStats: (id, isCorrect, mode = 'generic') => {
+    // New Anki-style update function
+    updateSRS: (id, rating) => {
         const vocabulary = storage.getVocabulary();
         const index = vocabulary.findIndex(word => word.id === id);
-        if (index !== -1) {
-            const word = vocabulary[index];
-            word.reviewCount += 1;
+        if (index === -1) return null;
 
-            if (isCorrect) {
-                word.correctCount += 1;
-                // Increase mastery level (max 5)
-                word.masteryLevel = Math.min(5, word.masteryLevel + 1);
+        const word = vocabulary[index];
+        const now = new Date();
+        let nextInterval = 0; // in minutes (if < 1440) or days
 
-                // Learning Status logic based on user request
-                // Step 1: MCQ -> 'learning'
-                // Step 2: Written -> 'learned'
-                if (mode === 'learn-mcq' && (!word.learningStatus || word.learningStatus === 'not-learned')) {
-                    word.learningStatus = 'learning';
-                } else if (mode === 'learn-written' && word.learningStatus === 'learning') {
+        word.reviewCount += 1;
+        word.lastReviewed = now.toISOString();
+
+        // SRS Logic
+        switch (word.srsStage) {
+            case 'new':
+            case 'learning':
+            case 'lapse':
+                if (rating === 'again') {
+                    word.srsStage = (word.srsStage === 'review') ? 'lapse' : word.srsStage;
+                    word.srsStepIndex = 0;
+                    nextInterval = LEARNING_STEPS[0]; // 10m
+                } else if (rating === 'hard') {
+                    nextInterval = (LEARNING_STEPS[word.srsStepIndex] + (LEARNING_STEPS[word.srsStepIndex + 1] || LEARNING_STEPS[word.srsStepIndex])) / 2;
+                } else if (rating === 'good') {
+                    word.srsStepIndex += 1;
+                    if (word.srsStepIndex >= LEARNING_STEPS.length) {
+                        word.srsStage = 'review';
+                        word.srsInterval = REVIEW_INTERVALS[0]; // Start matching review intervals
+                        nextInterval = word.srsInterval * 1440;
+                        word.learningStatus = 'learned';
+                    } else {
+                        nextInterval = LEARNING_STEPS[word.srsStepIndex];
+                        word.learningStatus = 'learning';
+                    }
+                } else if (rating === 'easy') {
+                    word.srsStage = 'review';
+                    word.srsInterval = REVIEW_INTERVALS[1] || 7; // Skip a bit
+                    nextInterval = word.srsInterval * 1440;
                     word.learningStatus = 'learned';
                 }
-            } else {
-                // Decrease mastery level (min 0)
-                word.masteryLevel = Math.max(0, word.masteryLevel - 1);
+                break;
 
-                // If wrong in MCQ, it stays 'not-learned'
-                // If wrong in Written, it stays 'learning'
-                // If wrong in review, it becomes 'not-learned'
-                if (mode === 'review-mcq' || mode === 'review-written' || mode === 'review') {
-                    word.learningStatus = 'not-learned';
+            case 'review':
+                if (rating === 'again') {
+                    word.srsStage = 'lapse';
+                    word.srsStepIndex = 0;
+                    word.srsEase = Math.max(1.3, word.srsEase - 0.2);
+                    nextInterval = LEARNING_STEPS[0];
+                    word.learningStatus = 'learning';
+                } else if (rating === 'hard') {
+                    word.srsEase = Math.max(1.3, word.srsEase - 0.15);
+                    word.srsInterval = Math.max(1, Math.round(word.srsInterval * 1.2));
+                    nextInterval = word.srsInterval * 1440;
+                } else if (rating === 'good') {
+                    word.srsInterval = Math.round(word.srsInterval * word.srsEase);
+                    nextInterval = word.srsInterval * 1440;
+                } else if (rating === 'easy') {
+                    word.srsEase += 0.15;
+                    word.srsInterval = Math.round(word.srsInterval * word.srsEase * 1.3);
+                    nextInterval = word.srsInterval * 1440;
                 }
-            }
-
-            // Calculate next review date based on mastery level
-            const intervals = [1, 3, 7, 14, 30, 60]; // days
-            const daysUntilNext = intervals[word.masteryLevel];
-            const nextReview = new Date();
-            nextReview.setDate(nextReview.getDate() + daysUntilNext);
-
-            word.lastReviewed = new Date().toISOString();
-            word.nextReview = nextReview.toISOString();
-
-            storage.saveVocabulary(vocabulary);
-            return word;
+                break;
         }
-        return null;
+
+        const nextReviewDate = new Date(now.getTime() + nextInterval * 60000);
+        word.nextReview = nextReviewDate.toISOString();
+
+        storage.saveVocabulary(vocabulary);
+        return word;
     },
 
-    // Import words to current set
+    updateStats: (id, isCorrect, mode = 'generic') => {
+        // Fallback for non-flashcard modes or simple correct/incorrect
+        return storage.updateSRS(id, isCorrect ? 'good' : 'again');
+    },
+
     importWords: (words) => {
         const vocabulary = storage.getVocabulary();
         const newWords = words.map(word => ({
@@ -239,7 +253,11 @@ export const storage = {
             correctCount: 0,
             lastReviewed: null,
             starred: false,
-            masteryLevel: 0,
+            // SRS
+            srsStage: 'new',
+            srsInterval: 0,
+            srsEase: DEFAULT_EASE,
+            srsStepIndex: 0,
             nextReview: new Date().toISOString(),
             learningStatus: 'not-learned'
         }));
@@ -248,30 +266,30 @@ export const storage = {
         return newWords;
     },
 
-    // Get words counts by status
     getStatusCounts: () => {
         const vocabulary = storage.getVocabulary();
+        const now = new Date();
         return {
-            notLearned: vocabulary.filter(w => !w.learningStatus || w.learningStatus === 'not-learned').length,
-            learning: vocabulary.filter(w => w.learningStatus === 'learning').length,
-            learned: vocabulary.filter(w => w.learningStatus === 'learned').length
+            notLearned: vocabulary.filter(w => w.srsStage === 'new').length,
+            learning: vocabulary.filter(w => w.srsStage === 'learning' || w.srsStage === 'lapse').length,
+            learned: vocabulary.filter(w => w.srsStage === 'review').length,
+            due: vocabulary.filter(w => new Date(w.nextReview) <= now).length
         };
     },
 
-    // Get words due for review
     getDueWords: () => {
         const vocabulary = storage.getVocabulary();
         const now = new Date();
-        return vocabulary.filter(word => new Date(word.nextReview) <= now);
+        // Return words that are either new OR due for review
+        return vocabulary.filter(word => word.srsStage === 'new' || new Date(word.nextReview) <= now)
+            .sort((a, b) => new Date(a.nextReview) - new Date(b.nextReview));
     },
 
-    // Get starred words
     getStarredWords: () => {
         const vocabulary = storage.getVocabulary();
         return vocabulary.filter(word => word.starred);
     },
 
-    // Clear all data
     clearAll: () => {
         localStorage.removeItem(SETS_KEY);
         localStorage.removeItem(CURRENT_SET_KEY);

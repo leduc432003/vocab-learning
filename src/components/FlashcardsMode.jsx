@@ -1,27 +1,20 @@
 import { useState, useEffect } from 'react';
+import { storage } from '../utils/localStorage';
 
 export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar, onExit }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
-    const [isShuffled, setIsShuffled] = useState(false);
-    const [showEnglishFirst, setShowEnglishFirst] = useState(true);
-    const [cards, setCards] = useState(vocabulary);
-    const [starredOnly, setStarredOnly] = useState(false);
+    const [cards, setCards] = useState([]);
+    const [sessionDone, setSessionDone] = useState(false);
+    const [status, setStatus] = useState(null);
+    const [isStudying, setIsStudying] = useState(false);
 
     useEffect(() => {
-        let filtered = starredOnly ? vocabulary.filter(w => w.starred) : vocabulary;
-        setCards(isShuffled ? shuffleArray([...filtered]) : filtered);
-        setCurrentIndex(0);
-    }, [isShuffled, vocabulary, starredOnly]);
-
-    const shuffleArray = (array) => {
-        const newArray = [...array];
-        for (let i = newArray.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-        }
-        return newArray;
-    };
+        const counts = storage.getStatusCounts();
+        setStatus(counts);
+        const dueCards = storage.getDueWords();
+        setCards(dueCards);
+    }, [vocabulary]);
 
     const speak = (text) => {
         if ('speechSynthesis' in window) {
@@ -32,46 +25,107 @@ export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar
         }
     };
 
-    const handleNext = () => {
-        setIsFlipped(false);
-        setCurrentIndex((prev) => (prev + 1) % cards.length);
+    const renderExampleWithBold = (text) => {
+        if (!text) return null;
+        const parts = text.split(/(\*\*.*?\*\*)/g);
+        return parts.map((part, i) => {
+            if (part && part.startsWith('**') && part.endsWith('**')) {
+                return <strong key={i} className="text-primary-400 font-black not-italic">{part.slice(2, -2)}</strong>;
+            }
+            return part;
+        });
     };
 
-    const handlePrevious = () => {
-        setIsFlipped(false);
-        setCurrentIndex((prev) => (prev - 1 + cards.length) % cards.length);
+    useEffect(() => {
+        if (isStudying && !isFlipped && cards[currentIndex]) {
+            speak(cards[currentIndex].term);
+        }
+    }, [currentIndex, isStudying, isFlipped]);
+
+    const handleRate = (rating) => {
+        const currentCard = cards[currentIndex];
+        storage.updateSRS(currentCard.id, rating);
+
+        // Update stats immediately for visual feedback
+        setStatus(storage.getStatusCounts());
+
+        if (currentIndex < cards.length - 1) {
+            setIsFlipped(false);
+            setTimeout(() => {
+                setCurrentIndex(prev => prev + 1);
+            }, 300);
+        } else {
+            setSessionDone(true);
+        }
     };
 
     const handleKeyPress = (e) => {
+        if (!isStudying || sessionDone) return;
         if (e.key === ' ' || e.key === 'Enter') {
             e.preventDefault();
             setIsFlipped(!isFlipped);
-        } else if (e.key === 'ArrowRight') {
-            handleNext();
-        } else if (e.key === 'ArrowLeft') {
-            handlePrevious();
+        }
+        if (isFlipped) {
+            if (e.key === '1') handleRate('again');
+            if (e.key === '2') handleRate('hard');
+            if (e.key === '3') handleRate('good');
+            if (e.key === '4') handleRate('easy');
         }
     };
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [isFlipped, currentIndex]);
+    }, [isFlipped, currentIndex, sessionDone, isStudying]);
 
-    if (cards.length === 0) {
+    if (!isStudying) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="text-6xl mb-4">📭</div>
-                    <h2 className="text-2xl font-bold text-gray-300 mb-2">No cards to study</h2>
-                    <p className="text-gray-500 mb-6">
-                        {starredOnly ? 'No starred cards found' : 'Add some vocabulary first'}
-                    </p>
-                    <button
-                        onClick={onExit}
-                        className="px-6 py-3 bg-gradient-primary rounded-xl font-semibold text-white"
-                    >
-                        Go Back
+            <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4 font-sans">
+                <div className="max-w-md w-full relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-[3rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                    <div className="relative glass-effect rounded-[2.5rem] p-10 border border-white/10 shadow-2xl animate-fade-in text-center">
+                        <h1 className="text-4xl font-black text-white mb-6 tracking-tight">English Deck</h1>
+
+                        <div className="grid grid-cols-1 gap-4 mb-12">
+                            <div className="flex justify-between items-center p-5 rounded-3xl bg-blue-500/10 border border-blue-500/20">
+                                <span className="text-blue-400 font-bold uppercase text-[10px] tracking-widest">Từ mới</span>
+                                <span className="text-blue-400 text-3xl font-black">{status?.notLearned || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center p-5 rounded-3xl bg-amber-500/10 border border-amber-500/20">
+                                <span className="text-amber-500 font-bold uppercase text-[10px] tracking-widest">Đang học</span>
+                                <span className="text-amber-500 text-3xl font-black">{status?.learning || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center p-5 rounded-3xl bg-emerald-500/10 border border-emerald-500/20">
+                                <span className="text-emerald-500 font-bold uppercase text-[10px] tracking-widest">Đến hạn</span>
+                                <span className="text-emerald-500 text-3xl font-black">{status?.due || 0}</span>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => cards.length > 0 && setIsStudying(true)}
+                            className="w-full py-6 bg-white text-black rounded-3xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-white/10"
+                        >
+                            {cards.length > 0 ? 'Học ngay' : 'Hôm nay đã học xong!'}
+                        </button>
+
+                        <button onClick={onExit} className="mt-8 text-gray-500 hover:text-white transition-colors text-sm font-bold">
+                            Để sau
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (sessionDone) {
+        return (
+            <div className="min-h-screen bg-[#020617] flex items-center justify-center">
+                <div className="text-center animate-slide-up">
+                    <div className="text-9xl mb-8 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">🏅</div>
+                    <h2 className="text-5xl font-black text-white mb-4 tracking-tight">Hoàn thành phiên học!</h2>
+                    <p className="text-gray-400 mb-10 text-lg">Bạn đã hoàn thành các từ cần học hôm nay.</p>
+                    <button onClick={onExit} className="px-12 py-5 bg-gradient-primary rounded-3xl font-black text-white text-lg hover:shadow-[0_0_50px_rgba(var(--primary-rgb),0.4)] transition-all">
+                        Quay lại trang chủ
                     </button>
                 </div>
             </div>
@@ -81,185 +135,198 @@ export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar
     const currentCard = cards[currentIndex];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
-            {/* Header */}
-            <div className="max-w-4xl mx-auto mb-8">
-                <div className="flex items-center justify-between mb-6">
-                    <button
-                        onClick={onExit}
-                        className="px-6 py-3 glass-effect rounded-xl font-semibold hover:bg-white/10 transition-all"
-                    >
-                        ← Back
+        <div className="h-[100dvh] bg-[#020617] flex flex-col p-2 md:p-8 font-sans overflow-hidden">
+            <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col h-full">
+                {/* Minimal Header - More compact on mobile */}
+                <div className="flex items-center justify-between mb-4 md:mb-8">
+                    <button onClick={() => setIsStudying(false)} className="px-3 py-1 text-gray-400 hover:text-white font-bold text-sm transition-colors">
+                        ← Thoát
                     </button>
-
-                    <div className="text-center">
-                        <h1 className="text-3xl font-bold text-gradient-primary">Flashcards</h1>
-                        <p className="text-gray-400 mt-1">
-                            {currentIndex + 1} / {cards.length}
-                        </p>
+                    <div className="flex gap-3 md:gap-8 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 scale-90 md:scale-100">
+                        <div className="flex flex-col items-center">
+                            <span className="text-[9px] font-black text-blue-400 uppercase tracking-tighter">Mới</span>
+                            <span className="text-xs font-black text-white">{status?.notLearned}</span>
+                        </div>
+                        <div className="h-3 w-px bg-white/10 self-center"></div>
+                        <div className="flex flex-col items-center">
+                            <span className="text-[9px] font-black text-amber-500 uppercase tracking-tighter">Đang học</span>
+                            <span className="text-xs font-black text-white">{status?.learning}</span>
+                        </div>
+                        <div className="h-3 w-px bg-white/10 self-center"></div>
+                        <div className="flex flex-col items-center">
+                            <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">Đến hạn</span>
+                            <span className="text-xs font-black text-white">{status?.due}</span>
+                        </div>
                     </div>
-
-                    <div className="w-32" /> {/* Spacer for alignment */}
                 </div>
 
-                {/* Controls */}
-                <div className="flex gap-3 flex-wrap justify-center">
-                    <button
-                        onClick={() => setIsShuffled(!isShuffled)}
-                        className={`px-4 py-2 rounded-lg font-semibold transition-all ${isShuffled
-                            ? 'bg-primary-500 text-white'
-                            : 'glass-effect hover:bg-white/10'
-                            }`}
-                    >
-                        🔀 {isShuffled ? 'Shuffled' : 'Shuffle'}
-                    </button>
+                {/* Main Study Area */}
+                <div className="flex-1 flex flex-col items-center justify-center gap-4 md:gap-8 relative min-h-0">
+                    <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] transition-all duration-1000 opacity-10 ${isFlipped ? 'bg-indigo-600' : 'bg-primary-600'}`}></div>
 
-                    <button
-                        onClick={() => setShowEnglishFirst(!showEnglishFirst)}
-                        className="px-4 py-2 glass-effect rounded-lg font-semibold hover:bg-white/10 transition-all"
-                    >
-                        🔄 {showEnglishFirst ? 'EN → VI' : 'VI → EN'}
-                    </button>
-
-                    <button
-                        onClick={() => setStarredOnly(!starredOnly)}
-                        className={`px-4 py-2 rounded-lg font-semibold transition-all ${starredOnly
-                            ? 'bg-yellow-500 text-white'
-                            : 'glass-effect hover:bg-white/10'
-                            }`}
-                    >
-                        ⭐ {starredOnly ? 'Starred Only' : 'All Cards'}
-                    </button>
-
-                    <button
-                        onClick={() => speak(currentCard.term)}
-                        className="px-4 py-2 glass-effect rounded-lg font-semibold hover:bg-white/10 transition-all"
-                    >
-                        🔊 Speak
-                    </button>
-                </div>
-            </div>
-
-            {/* Flashcard */}
-            <div className="max-w-2xl mx-auto">
-                <div
-                    className="relative h-96 cursor-pointer perspective-1000"
-                    onClick={() => setIsFlipped(!isFlipped)}
-                >
                     <div
-                        className={`absolute inset-0 transition-all duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''
-                            }`}
+                        className="relative w-full max-w-2xl h-full max-h-[75vh] md:max-h-none md:aspect-[16/10] perspective-2000 cursor-pointer"
+                        onClick={() => setIsFlipped(!isFlipped)}
                     >
-                        {/* Front */}
-                        <div className="absolute inset-0 backface-hidden">
-                            <div className="h-full glass-effect rounded-3xl p-12 flex flex-col items-center justify-center border-2 border-primary-500/30 hover:border-primary-500/50 transition-all">
-                                <div className="absolute top-6 right-6">
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onToggleStar(currentCard.id);
-                                        }}
-                                        className="text-3xl hover:scale-125 transition-transform"
-                                    >
-                                        {currentCard.starred ? '⭐' : '☆'}
-                                    </button>
-                                </div>
-
-                                <div className="text-center">
+                        <div className={`relative w-full h-full preserve-3d transition-transform duration-700 ${isFlipped ? 'rotate-y-180' : ''}`}>
+                            {/* FRONT SIDE */}
+                            <div className="absolute inset-0 backface-hidden">
+                                <div className="h-full glass-effect rounded-[2.5rem] md:rounded-[3.5rem] border border-white/10 flex flex-col items-center justify-center p-6 md:p-10 shadow-2xl relative overflow-hidden group">
                                     {currentCard.image && (
-                                        <img
-                                            src={currentCard.image}
-                                            alt={currentCard.term}
-                                            className="w-32 h-32 object-cover rounded-2xl mb-6 mx-auto border-2 border-primary-500/20 shadow-xl"
-                                        />
-                                    )}
-                                    <div className="text-6xl font-bold text-white mb-4">
-                                        {showEnglishFirst ? currentCard.term : currentCard.definition}
-                                    </div>
-                                    {showEnglishFirst && currentCard.phonetic && (
-                                        <div className="text-2xl text-primary-400 mb-4">
-                                            {currentCard.phonetic}
+                                        <div className="mb-6 md:mb-10 relative group-hover:scale-105 transition-transform duration-500">
+                                            <div className="absolute -inset-4 bg-primary-500/20 blur-2xl rounded-full"></div>
+                                            <img src={currentCard.image} alt="" className="w-28 h-28 md:w-56 md:h-56 object-cover rounded-3xl relative shadow-2xl border-2 border-white/10" />
                                         </div>
                                     )}
-                                    {currentCard.type && (
-                                        <div className="inline-block px-4 py-2 bg-secondary-500/20 rounded-full text-secondary-400 text-sm font-semibold">
-                                            {currentCard.type}
-                                        </div>
-                                    )}
-                                </div>
 
-                                <div className="absolute bottom-8 text-gray-500 text-sm">
-                                    Click or press Space to flip
+                                    <div className="text-center w-full max-w-full px-2">
+                                        <div className="flex items-center justify-center gap-4 flex-wrap">
+                                            <h2 className={`font-black text-white tracking-tighter leading-tight break-words max-w-full ${currentCard.term.length > 15 ? 'text-3xl md:text-6xl' :
+                                                currentCard.term.length > 10 ? 'text-4xl md:text-7xl' :
+                                                    'text-5xl md:text-8xl'
+                                                }`}>
+                                                {currentCard.term}
+                                            </h2>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); speak(currentCard.term); }}
+                                                className="w-12 h-12 md:w-16 md:h-16 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-2xl md:text-3xl border border-white/10 transition-all hover:scale-110 active:scale-90 shrink-0"
+                                            >
+                                                🔊
+                                            </button>
+                                        </div>
+                                        <div className="mt-4 flex flex-wrap justify-center gap-3 opacity-70">
+                                            {currentCard.phonetic && <span className="text-lg md:text-2xl text-primary-400 font-medium italic">{currentCard.phonetic}</span>}
+                                            {currentCard.type && <span className="px-3 py-1 bg-white/10 border border-white/10 rounded-lg text-[10px] font-black text-white/50 uppercase tracking-widest">{currentCard.type}</span>}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Back */}
-                        <div className="absolute inset-0 backface-hidden rotate-y-180">
-                            <div className="h-full glass-effect rounded-3xl p-6 md:p-12 flex flex-col items-center justify-center border-2 border-secondary-500/30 hover:border-secondary-500/50 transition-all">
-                                <div className="text-center px-4">
-                                    <div className="text-2xl md:text-5xl font-black text-white mb-4 md:mb-6 tracking-tight leading-tight">
-                                        {showEnglishFirst ? currentCard.definition : currentCard.term}
+                            {/* BACK SIDE (Optimized for no-scroll on mobile) */}
+                            <div className="absolute inset-0 backface-hidden rotate-y-180">
+                                <div className="h-full bg-[#0a0c16] rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-white/20 flex flex-col p-5 md:p-12 shadow-2xl overflow-y-auto md:overflow-hidden custom-scrollbar">
+                                    <div className="w-full h-full flex flex-col justify-between space-y-4 md:space-y-6">
+                                        {/* Header - Compact */}
+                                        <div className="text-center space-y-4">
+                                            <div className="flex items-center justify-center gap-3">
+                                                <div className="text-sm md:text-xl text-gray-500 font-black uppercase tracking-[0.2em]">{currentCard.term}</div>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); speak(currentCard.term); }}
+                                                    className="w-8 h-8 md:w-10 md:h-10 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center text-sm md:text-lg border border-white/10 transition-all active:scale-90"
+                                                >
+                                                    🔊
+                                                </button>
+                                            </div>
+                                            <div className="flex flex-wrap justify-center gap-2">
+                                                {currentCard.phonetic && <span className="text-primary-400 font-bold italic text-sm md:text-lg">{currentCard.phonetic}</span>}
+                                                {currentCard.type && <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[9px] font-black text-gray-400 uppercase tracking-widest">{currentCard.type}</span>}
+                                                {currentCard.level && <span className="px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded text-[9px] font-black text-indigo-400 uppercase tracking-widest">{currentCard.level}</span>}
+                                                {currentCard.topic && <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[9px] font-black text-emerald-400 uppercase tracking-widest">#{currentCard.topic}</span>}
+                                            </div>
+                                        </div>
+
+                                        {/* Definition - Key info */}
+                                        <div className="text-center px-2 w-full max-w-full overflow-hidden">
+                                            <h3 className={`font-black text-white leading-tight tracking-tight break-words ${currentCard.definition.length > 40 ? 'text-2xl md:text-4xl' :
+                                                currentCard.definition.length > 20 ? 'text-3xl md:text-5xl' :
+                                                    'text-4xl md:text-6xl'
+                                                }`}>
+                                                {currentCard.definition}
+                                            </h3>
+                                        </div>
+
+                                        {/* Details Area - Scrollable & Spacious */}
+                                        <div className="flex-1 overflow-y-auto no-scrollbar space-y-6 px-1">
+                                            {currentCard.example && (
+                                                <div className="border-l-2 border-primary-500/30 pl-4 py-1 text-left">
+                                                    <span className="block text-primary-500/40 text-[8px] font-black uppercase tracking-widest mb-1.5">Ngữ cảnh & Ví dụ</span>
+                                                    <p className="text-gray-300 italic text-base md:text-xl leading-relaxed font-serif">
+                                                        "{renderExampleWithBold(currentCard.example)}"
+                                                    </p>
+                                                    {currentCard.exampleDefinition && (
+                                                        <p className="text-primary-400/80 font-medium text-xs md:text-sm mt-2 italic">
+                                                            → {renderExampleWithBold(currentCard.exampleDefinition)}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                {currentCard.synonym && (
+                                                    <div className="text-left">
+                                                        <span className="block text-emerald-500/40 text-[8px] font-black uppercase tracking-widest mb-2 border-b border-emerald-500/10 pb-1">Từ đồng nghĩa</span>
+                                                        <div className="text-emerald-400 font-bold text-sm md:text-lg leading-relaxed">{currentCard.synonym}</div>
+                                                    </div>
+                                                )}
+                                                {currentCard.antonym && (
+                                                    <div className="text-left">
+                                                        <span className="block text-rose-500/40 text-[8px] font-black uppercase tracking-widest mb-2 border-b border-rose-500/10 pb-1">Trái nghĩa</span>
+                                                        <div className="text-rose-400 font-bold text-sm md:text-lg leading-relaxed">{currentCard.antonym}</div>
+                                                    </div>
+                                                )}
+                                                {currentCard.collocation && (
+                                                    <div className="text-left md:col-span-2">
+                                                        <span className="block text-amber-500/40 text-[8px] font-black uppercase tracking-widest mb-2 border-b border-amber-500/10 pb-1">Cụm từ đi kèm</span>
+                                                        <div className="text-amber-400 font-bold text-sm md:text-lg leading-relaxed">{currentCard.collocation}</div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {currentCard.note && (
+                                                <div className="text-left p-3 md:p-4 rounded-xl md:rounded-2xl bg-blue-500/5 border border-blue-500/10 shrink-0">
+                                                    <span className="block text-blue-500/40 text-[7px] md:text-[8px] font-black uppercase tracking-widest mb-1">Ghi chú</span>
+                                                    <p className="text-blue-200/80 text-[10px] md:text-sm leading-tight line-clamp-2">{currentCard.note}</p>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                    {!showEnglishFirst && currentCard.phonetic && (
-                                        <div className="text-xl text-primary-400 mb-4 font-medium italic">
-                                            {currentCard.phonetic}
-                                        </div>
-                                    )}
-                                    {currentCard.example && (
-                                        <div className="text-gray-400 italic mt-4 md:mt-6 max-w-md text-sm md:text-base">
-                                            "{currentCard.example}"
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="absolute bottom-6 md:bottom-8 text-gray-500 text-[10px] md:text-sm uppercase font-bold tracking-widest">
-                                    Chạm để lật lại
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Navigation */}
-                <div className="flex items-center justify-between mt-6 md:mt-8 gap-4">
-                    <button
-                        onClick={handlePrevious}
-                        className="flex-1 md:flex-none px-6 md:px-8 py-3 md:py-4 glass-effect rounded-xl font-bold hover:bg-white/10 transition-all group text-sm md:text-base flex items-center justify-center gap-2"
-                    >
-                        <span className="group-hover:-translate-x-1 inline-block transition-transform">←</span>
-                        <span className="hidden xs:inline">Trước</span>
-                    </button>
-
-                    <div className="hidden sm:flex gap-1.5 md:gap-2 overflow-hidden max-w-[150px] md:max-w-none">
-                        {cards.slice(Math.max(0, currentIndex - 2), Math.min(cards.length, currentIndex + 3)).map((_, idx) => {
-                            const actualIdx = cards.indexOf(_) === currentIndex;
-                            return (
-                                <div
-                                    key={idx}
-                                    className={`h-1.5 md:h-2 rounded-full transition-all ${actualIdx
-                                        ? 'w-6 md:w-8 bg-primary-500'
-                                        : 'w-1.5 md:w-2 bg-gray-600'
-                                        }`}
-                                />
-                            );
-                        })}
+                    {/* EVALUATION BAR - Very compact on mobile */}
+                    <div className={`w-full max-w-2xl transition-all duration-700 delay-100 ${isFlipped ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}>
+                        <div className="grid grid-cols-4 gap-2 md:gap-4 px-1">
+                            {[
+                                { id: 'again', label: 'Again', color: 'rose', time: '<10m', key: '1', classes: 'bg-rose-500/10 border-rose-500/20 text-rose-500' },
+                                { id: 'hard', label: 'Hard', color: 'amber', time: '1d', key: '2', classes: 'bg-amber-500/10 border-amber-500/20 text-amber-500' },
+                                { id: 'good', label: 'Good', color: 'indigo', time: '3d', key: '3', classes: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-500' },
+                                { id: 'easy', label: 'Easy', color: 'emerald', time: '7d', key: '4', classes: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' }
+                            ].map(btn => (
+                                <button
+                                    key={btn.id}
+                                    onClick={(e) => { e.stopPropagation(); handleRate(btn.id); }}
+                                    className="group flex flex-col items-center gap-1.5"
+                                >
+                                    <div className={`w-full py-2 md:py-6 ${btn.classes} border rounded-xl md:rounded-[2rem] transition-all flex flex-col items-center shadow-lg active:scale-90 hover:bg-opacity-20`}>
+                                        <span className="font-black text-[10px] md:text-xl uppercase tracking-tighter">{btn.label}</span>
+                                        <span className="text-[6px] md:text-[9px] opacity-60 font-black uppercase tracking-widest">{btn.time}</span>
+                                    </div>
+                                    <div className="hidden md:block text-[10px] text-gray-700 font-black font-mono">{btn.key}</div>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-
-                    <button
-                        onClick={handleNext}
-                        className="flex-1 md:flex-none px-6 md:px-8 py-3 md:py-4 glass-effect rounded-xl font-bold hover:bg-white/10 transition-all group text-sm md:text-base flex items-center justify-center gap-2"
-                    >
-                        <span className="hidden xs:inline">Tiếp</span>
-                        <span className="group-hover:translate-x-1 inline-block transition-transform">→</span>
-                    </button>
-                </div>
-
-                {/* Keyboard Shortcuts */}
-                <div className="mt-8 text-center text-sm text-gray-500">
-                    <p>⌨️ Keyboard: Space/Enter to flip • ← → to navigate</p>
                 </div>
             </div>
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .perspective-2000 { perspective: 2000px; }
+                .preserve-3d { transform-style: preserve-3d; }
+                .backface-hidden { backface-visibility: hidden; }
+                .rotate-y-180 { transform: rotateY(180deg); }
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+                .truncate-multiline-2 {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+            `}} />
         </div>
     );
 }
