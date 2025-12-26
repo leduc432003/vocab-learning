@@ -350,7 +350,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                                 type="button"
                                 onClick={async () => {
                                     const toastId = toast.loading('Đang tìm ảnh...');
-                                    const imageUrl = await searchImage(formData.term);
+                                    const imageUrl = await searchImage(formData.term, formData.topic);
                                     if (imageUrl) {
                                         setFormData(prev => ({ ...prev, image: imageUrl }));
                                         toast.success('Đã tìm thấy ảnh!', { id: toastId });
@@ -360,7 +360,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                                 }}
                                 className="mt-2 text-primary-400 text-sm hover:text-primary-300 flex items-center gap-1"
                             >
-                                🔍 Tự động tìm ảnh minh họa trên Pexels
+                                🔍 Tự động tìm ảnh minh họa
                             </button>
                         )}
                     </div>

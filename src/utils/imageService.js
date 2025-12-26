@@ -1,5 +1,6 @@
 const PEXELS_API_KEY = import.meta.env.VITE_PEXELS_API_KEY;
 const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
+const PIXABAY_API_KEY = import.meta.env.VITE_PIXABAY_API_KEY;
 
 /**
  * Search for an image on Pexels API
@@ -70,21 +71,61 @@ const searchUnsplashImage = async (query) => {
 };
 
 /**
- * Main search function that tries Pexels then Unsplash
+ * Search for an image on Pixabay API
  * @param {string} query - The search term
+ * @returns {Promise<string|null>} - The URL of the image or null
+ */
+const searchPixabayImage = async (query) => {
+    if (!query || !PIXABAY_API_KEY) return null;
+
+    try {
+        const response = await fetch(`https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=3&safesearch=true`);
+
+        if (!response.ok) {
+            console.warn('Pixabay API Error:', response.status);
+            return null;
+        }
+
+        const data = await response.json();
+
+        if (data.hits && data.hits.length > 0) {
+            // Get the first hit's webformatURL (max 640px)
+            return data.hits[0].webformatURL;
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error fetching Pixabay image:', error);
+        return null;
+    }
+};
+
+/**
+ * Main search function that tries Pexels, Pixabay then Unsplash
+ * @param {string} query - The search term
+ * @param {string} [topic] - Optional topic to refine search
  * @returns {Promise<string|null>} - The URL of the image
  */
-export const searchImage = async (query) => {
-    // 1. Try Unsplash first as requested
-    let result = await searchUnsplashImage(query);
+export const searchImage = async (query, topic) => {
+    // Combine topic and query for better results if topic exists
+    const searchCombined = topic ? `${topic} ${query}` : query;
 
-    // 2. Fallback to Pexels if Unsplash fails
-    if (!result) {
-        console.log(`Unsplash failed for "${query}", trying Pexels...`);
-        result = await searchPexelsImage(query);
+    // 1. Try Pexels first (using combined query)
+    let result = await searchPexelsImage(searchCombined);
+
+    // 2. Fallback to Pixabay if Pexels fails (using combined query)
+    if (!result || result === 'RATE_LIMIT') {
+        console.log(`Pexels failed for "${searchCombined}", trying Pixabay...`);
+        result = await searchPixabayImage(searchCombined);
     }
 
-    // If Pexels is also rate limited or failed, return null gracefully
+    // 3. Fallback to Unsplash if both failed (using original query for broader search)
+    if (!result) {
+        console.log(`Pixabay failed for "${searchCombined}", trying Unsplash...`);
+        result = await searchUnsplashImage(query);
+    }
+
+    // Return null if all services failed
     return result === 'RATE_LIMIT' ? null : result;
 };
 
@@ -112,7 +153,7 @@ export const fillMissingImages = async (vocabulary, onProgress) => {
         let searchTerm = cleanSearchTerm(word.term);
         if (!searchTerm) searchTerm = word.term;
 
-        const result = await searchImage(searchTerm);
+        const result = await searchImage(searchTerm, word.topic);
 
         if (result) {
             updated.push({ id: word.id, image: result });
