@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { storage } from './utils/localStorage';
-import { searchPexelsImage, fillMissingImages } from './utils/pexelsService';
+import { fillMissingImages } from './utils/imageService';
 import VocabCard from './components/VocabCard';
 import AddWordModal from './components/AddWordModal';
 import ImportModal from './components/ImportModal';

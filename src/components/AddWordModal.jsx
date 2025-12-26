@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { searchPexelsImage } from '../utils/pexelsService';
+import { searchImage } from '../utils/imageService';
 
 const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
     const [formData, setFormData] = useState({
@@ -350,7 +350,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                                 type="button"
                                 onClick={async () => {
                                     const toastId = toast.loading('Đang tìm ảnh...');
-                                    const imageUrl = await searchPexelsImage(formData.term);
+                                    const imageUrl = await searchImage(formData.term);
                                     if (imageUrl) {
                                         setFormData(prev => ({ ...prev, image: imageUrl }));
                                         toast.success('Đã tìm thấy ảnh!', { id: toastId });
