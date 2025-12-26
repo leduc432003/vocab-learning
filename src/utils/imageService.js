@@ -33,6 +33,7 @@ const searchPexelsImage = async (query) => {
             return data.photos[0].src.medium;
         }
 
+        console.log(`[Pexels] No photos found for query: "${query}"`);
         return null;
     } catch (error) {
         console.error('Error fetching Pexels image:', error);
@@ -104,11 +105,11 @@ const searchPixabayImage = async (query) => {
 
         if (data.hits && data.hits.length > 0) {
             // Get the first hit's webformatURL (max 640px)
-            console.log(`[Pixabay] Found ${data.hits.length} images`);
+            console.log(`[Pixabay] Found ${data.hits.length} images for "${query}"`);
             return data.hits[0].webformatURL;
         }
 
-        console.log('[Pixabay] No images found');
+        console.log(`[Pixabay] No images found for query: "${query}"`);
         return null;
     } catch (error) {
         console.error('[Pixabay] Error fetching image:', error);
