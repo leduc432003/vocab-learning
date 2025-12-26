@@ -11,7 +11,9 @@ const searchPexelsImage = async (query) => {
     if (!query) return null;
 
     try {
-        const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1`, {
+        // Encode query and replace %20 with + for proper URL formatting
+        const encodedQuery = encodeURIComponent(query).replace(/%20/g, '+');
+        const response = await fetch(`https://api.pexels.com/v1/search?query=${encodedQuery}&per_page=1`, {
             headers: {
                 Authorization: PEXELS_API_KEY
             }
@@ -48,8 +50,10 @@ const searchUnsplashImage = async (query) => {
     if (!query || !UNSPLASH_ACCESS_KEY) return null;
 
     try {
+        // Encode query and replace %20 with + for proper URL formatting
+        const encodedQuery = encodeURIComponent(query).replace(/%20/g, '+');
         // Use random photo endpoint with query as recommended in documentation
-        const response = await fetch(`https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&client_id=${UNSPLASH_ACCESS_KEY}`);
+        const response = await fetch(`https://api.unsplash.com/photos/random?query=${encodedQuery}&client_id=${UNSPLASH_ACCESS_KEY}`);
 
         if (!response.ok) {
             console.warn('Unsplash API Error:', response.status);
@@ -79,7 +83,9 @@ const searchPixabayImage = async (query) => {
     if (!query || !PIXABAY_API_KEY) return null;
 
     try {
-        const response = await fetch(`https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=3&safesearch=true`);
+        // Encode query and replace %20 with + for proper URL formatting
+        const encodedQuery = encodeURIComponent(query).replace(/%20/g, '+');
+        const response = await fetch(`https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodedQuery}&image_type=photo&per_page=3&safesearch=true`);
 
         if (!response.ok) {
             console.warn('Pixabay API Error:', response.status);
@@ -102,24 +108,26 @@ const searchPixabayImage = async (query) => {
 
 /**
  * Main search function that tries Pexels, Pixabay then Unsplash
+ * Priority: Pexels → Pixabay → Unsplash
  * @param {string} query - The search term
  * @param {string} [topic] - Optional topic to refine search
  * @returns {Promise<string|null>} - The URL of the image
  */
 export const searchImage = async (query, topic) => {
-    // Combine topic and query for Unsplash/Pixabay (using + separator)
-    const searchCombined = topic ? `${topic}+${query}` : query;
+    // Combine topic and query for all APIs (using space separator)
+    // Space will be properly encoded as %20 or + by encodeURIComponent
+    const searchCombined = topic ? `${topic} ${query}` : query;
 
-    // 1. Try Pexels first (using term only)
-    let result = await searchPexelsImage(query);
+    // 1. Try Pexels first (Priority 1 - using topic term)
+    let result = await searchPexelsImage(searchCombined);
 
-    // 2. Fallback to Pixabay if Pexels fails (using topic+term)
+    // 2. Fallback to Pixabay if Pexels fails (Priority 2 - using topic term)
     if (!result || result === 'RATE_LIMIT') {
-        console.log(`Pexels failed for "${query}", trying Pixabay...`);
+        console.log(`Pexels failed for "${searchCombined}", trying Pixabay...`);
         result = await searchPixabayImage(searchCombined);
     }
 
-    // 3. Fallback to Unsplash if both failed (using topic+term)
+    // 3. Fallback to Unsplash if both failed (Priority 3 - using topic term)
     if (!result) {
         console.log(`Pixabay failed for "${searchCombined}", trying Unsplash...`);
         result = await searchUnsplashImage(searchCombined);
