@@ -107,22 +107,22 @@ const searchPixabayImage = async (query) => {
  * @returns {Promise<string|null>} - The URL of the image
  */
 export const searchImage = async (query, topic) => {
-    // Combine topic and query for better results if topic exists (using + separator)
+    // Combine topic and query for Unsplash/Pixabay (using + separator)
     const searchCombined = topic ? `${topic}+${query}` : query;
 
-    // 1. Try Pexels first (using combined query)
-    let result = await searchPexelsImage(searchCombined);
+    // 1. Try Pexels first (using term only)
+    let result = await searchPexelsImage(query);
 
-    // 2. Fallback to Pixabay if Pexels fails (using combined query)
+    // 2. Fallback to Pixabay if Pexels fails (using topic+term)
     if (!result || result === 'RATE_LIMIT') {
-        console.log(`Pexels failed for "${searchCombined}", trying Pixabay...`);
+        console.log(`Pexels failed for "${query}", trying Pixabay...`);
         result = await searchPixabayImage(searchCombined);
     }
 
-    // 3. Fallback to Unsplash if both failed (using original query for broader search)
+    // 3. Fallback to Unsplash if both failed (using topic+term)
     if (!result) {
         console.log(`Pixabay failed for "${searchCombined}", trying Unsplash...`);
-        result = await searchUnsplashImage(query);
+        result = await searchUnsplashImage(searchCombined);
     }
 
     // Return null if all services failed
