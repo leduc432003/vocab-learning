@@ -79,28 +79,39 @@ const searchUnsplashImage = async (query) => {
  * @returns {Promise<string|null>} - The URL of the image or null
  */
 const searchPixabayImage = async (query) => {
-    if (!query || !PIXABAY_API_KEY) return null;
+    console.log(`[Pixabay] Called with query: "${query}", API Key exists: ${!!PIXABAY_API_KEY}`);
+
+    if (!query || !PIXABAY_API_KEY) {
+        console.warn('[Pixabay] Skipped - Missing query or API key');
+        return null;
+    }
 
     try {
         // Encode query and replace %20 with + for proper URL formatting
         const encodedQuery = encodeURIComponent(query).replace(/%20/g, '+');
-        const response = await fetch(`https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodedQuery}&image_type=photo&per_page=3&safesearch=true`);
+        const url = `https://pixabay.com/api/?key=${PIXABAY_API_KEY}&q=${encodedQuery}&image_type=photo&per_page=3&safesearch=true`;
+        console.log(`[Pixabay] Fetching: ${url}`);
+
+        const response = await fetch(url);
 
         if (!response.ok) {
-            console.warn('Pixabay API Error:', response.status);
+            console.warn('[Pixabay] API Error:', response.status);
             return null;
         }
 
         const data = await response.json();
+        console.log(`[Pixabay] Response:`, data);
 
         if (data.hits && data.hits.length > 0) {
             // Get the first hit's webformatURL (max 640px)
+            console.log(`[Pixabay] Found ${data.hits.length} images`);
             return data.hits[0].webformatURL;
         }
 
+        console.log('[Pixabay] No images found');
         return null;
     } catch (error) {
-        console.error('Error fetching Pixabay image:', error);
+        console.error('[Pixabay] Error fetching image:', error);
         return null;
     }
 };
