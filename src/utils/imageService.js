@@ -115,24 +115,34 @@ const searchPixabayImage = async (query) => {
 export const searchImage = async (query, topic) => {
     // Combine topic and query for Pixabay/Unsplash (using space separator)
     const searchCombined = topic ? `${topic} ${query}` : query;
+    let result = null;
 
     // 1. Try Pexels first (Priority 1 - using term only, no topic)
-    let result = await searchPexelsImage(query);
-
-    // 2. Fallback to Pixabay if Pexels fails (Priority 2 - using topic+term)
-    if (!result || result === 'RATE_LIMIT') {
-        console.log(`Pexels failed for "${query}", trying Pixabay...`);
-        result = await searchPixabayImage(searchCombined);
-    }
-
-    // 3. Fallback to Unsplash if both failed (Priority 3 - using topic+term)
     if (!result) {
-        console.log(`Pixabay failed for "${searchCombined}", trying Unsplash...`);
-        result = await searchUnsplashImage(searchCombined);
+        result = await searchPexelsImage(query);
+        if (!result || result === 'RATE_LIMIT') {
+            console.log(`Pexels failed for "${query}", trying next...`);
+            result = null; // Reset for next attempt
+        }
     }
 
-    // Return null if all services failed
-    return result === 'RATE_LIMIT' ? null : result;
+    // 2. Try Pixabay (Priority 2 - using topic+term)
+    if (!result) {
+        result = await searchPixabayImage(searchCombined);
+        if (!result) {
+            console.log(`Pixabay failed for "${searchCombined}", trying next...`);
+        }
+    }
+
+    // 3. Try Unsplash (Priority 3 - using topic+term)
+    if (!result) {
+        result = await searchUnsplashImage(searchCombined);
+        if (!result) {
+            console.log(`Unsplash failed for "${searchCombined}". All services failed.`);
+        }
+    }
+
+    return result;
 };
 
 /**
