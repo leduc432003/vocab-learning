@@ -11,9 +11,8 @@ const searchPexelsImage = async (query) => {
     if (!query) return null;
 
     try {
-        // Encode query and replace %20 with + for proper URL formatting
-        const encodedQuery = encodeURIComponent(query).replace(/%20/g, '+');
-        const response = await fetch(`https://api.pexels.com/v1/search?query=${encodedQuery}&per_page=1`, {
+        // Pexels uses standard URL encoding (spaces as %20)
+        const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1`, {
             headers: {
                 Authorization: PEXELS_API_KEY
             }
@@ -114,20 +113,19 @@ const searchPixabayImage = async (query) => {
  * @returns {Promise<string|null>} - The URL of the image
  */
 export const searchImage = async (query, topic) => {
-    // Combine topic and query for all APIs (using space separator)
-    // Space will be properly encoded as %20 or + by encodeURIComponent
+    // Combine topic and query for Pixabay/Unsplash (using space separator)
     const searchCombined = topic ? `${topic} ${query}` : query;
 
-    // 1. Try Pexels first (Priority 1 - using topic term)
-    let result = await searchPexelsImage(searchCombined);
+    // 1. Try Pexels first (Priority 1 - using term only, no topic)
+    let result = await searchPexelsImage(query);
 
-    // 2. Fallback to Pixabay if Pexels fails (Priority 2 - using topic term)
+    // 2. Fallback to Pixabay if Pexels fails (Priority 2 - using topic+term)
     if (!result || result === 'RATE_LIMIT') {
-        console.log(`Pexels failed for "${searchCombined}", trying Pixabay...`);
+        console.log(`Pexels failed for "${query}", trying Pixabay...`);
         result = await searchPixabayImage(searchCombined);
     }
 
-    // 3. Fallback to Unsplash if both failed (Priority 3 - using topic term)
+    // 3. Fallback to Unsplash if both failed (Priority 3 - using topic+term)
     if (!result) {
         console.log(`Pixabay failed for "${searchCombined}", trying Unsplash...`);
         result = await searchUnsplashImage(searchCombined);
