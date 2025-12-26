@@ -107,8 +107,8 @@ const searchPixabayImage = async (query) => {
  * @returns {Promise<string|null>} - The URL of the image
  */
 export const searchImage = async (query, topic) => {
-    // Combine topic and query for better results if topic exists
-    const searchCombined = topic ? `${topic} ${query}` : query;
+    // Combine topic and query for better results if topic exists (using + separator)
+    const searchCombined = topic ? `${topic}+${query}` : query;
 
     // 1. Try Pexels first (using combined query)
     let result = await searchPexelsImage(searchCombined);
