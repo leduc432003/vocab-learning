@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
+import { searchPexelsImage } from '../utils/pexelsService';
 
 const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
     const [formData, setFormData] = useState({
@@ -342,6 +344,24 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                                     ×
                                 </button>
                             </div>
+                        )}
+                        {!formData.image && formData.term && (
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    const toastId = toast.loading('Đang tìm ảnh...');
+                                    const imageUrl = await searchPexelsImage(formData.term);
+                                    if (imageUrl) {
+                                        setFormData(prev => ({ ...prev, image: imageUrl }));
+                                        toast.success('Đã tìm thấy ảnh!', { id: toastId });
+                                    } else {
+                                        toast.error('Không tìm thấy ảnh phù hợp', { id: toastId });
+                                    }
+                                }}
+                                className="mt-2 text-primary-400 text-sm hover:text-primary-300 flex items-center gap-1"
+                            >
+                                🔍 Tự động tìm ảnh minh họa trên Pexels
+                            </button>
                         )}
                     </div>
 

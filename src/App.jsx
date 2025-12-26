@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Toaster, toast } from 'react-hot-toast';
 import { storage } from './utils/localStorage';
+import { searchPexelsImage, fillMissingImages } from './utils/pexelsService';
 import VocabCard from './components/VocabCard';
 import AddWordModal from './components/AddWordModal';
 import ImportModal from './components/ImportModal';
@@ -23,7 +25,10 @@ function App() {
   const [currentMode, setCurrentMode] = useState('browse');
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, type: null, id: null, title: '', message: '' });
+  const [autoFillConfirm, setAutoFillConfirm] = useState({ isOpen: false, count: 0 });
   const [theme, setTheme] = useState(() => storage.getTheme());
+  const [isAutoFilling, setIsAutoFilling] = useState(false);
+  const [autoFillProgress, setAutoFillProgress] = useState({ current: 0, total: 0 });
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -126,7 +131,7 @@ function App() {
 
   const handleExport = () => {
     if (vocabulary.length === 0) {
-      alert('Không có từ vựng nào để xuất!');
+      toast.error('Không có từ vựng nào để xuất!');
       return;
     }
 
@@ -158,6 +163,82 @@ function App() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    toast.success('Xuất dữ liệu thành công!');
+  };
+
+  const handleAutoFillImages = async () => {
+    if (isAutoFilling) return;
+
+    const missingCount = vocabulary.filter(w => !w.image).length;
+    if (missingCount === 0) {
+      toast.success('Tất cả từ vựng đã có ảnh!');
+      return;
+    }
+
+    if (!missingCount) { // safety check
+      toast.success('Tất cả từ vựng đã có ảnh!');
+      return;
+    }
+
+    setAutoFillConfirm({ isOpen: true, count: missingCount });
+  };
+
+  const performAutoFill = async () => {
+    // Close dialog
+    setAutoFillConfirm({ ...autoFillConfirm, isOpen: false });
+
+    // Start process
+    setIsAutoFilling(true);
+    const missingCount = autoFillConfirm.count;
+    setAutoFillProgress({ current: 0, total: missingCount });
+    const toastId = toast.loading('Đang tìm kiếm ảnh...');
+
+    try {
+      const { updated, failed } = await fillMissingImages(vocabulary, (current, total) => {
+        setAutoFillProgress({ current, total });
+      });
+
+      if (updated.length > 0) {
+        const newVocab = [...vocabulary];
+        updated.forEach(update => {
+          const idx = newVocab.findIndex(w => w.id === update.id);
+          if (idx !== -1) {
+            newVocab[idx] = { ...newVocab[idx], image: update.image };
+          }
+        });
+        storage.saveVocabulary(newVocab);
+        loadData();
+      }
+
+      toast.dismiss(toastId);
+
+      let message = `Đã cập nhật ảnh cho ${updated.length} từ.`;
+      if (failed.length > 0) {
+        // Show a more persistent toast for mixed results
+        toast((t) => (
+          <div>
+            <p><b>Kết quả:</b></p>
+            <p>✅ Đã cập nhật: {updated.length}</p>
+            <p>⚠️ Không tìm thấy: {failed.length}</p>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="mt-2 text-xs bg-white text-black px-2 py-1 rounded"
+            >
+              Đóng
+            </button>
+          </div>
+        ), { duration: 6000 });
+      } else {
+        toast.success(message);
+      }
+
+    } catch (error) {
+      toast.dismiss(toastId);
+      console.error("Auto fill error:", error);
+      toast.error('Có lỗi xảy ra trong quá trình tìm ảnh.');
+    } finally {
+      setIsAutoFilling(false);
+    }
   };
 
   const handleCloseModal = () => {
@@ -353,6 +434,20 @@ function App() {
           </div>
 
           <div className="hidden md:flex gap-3">
+            {isAutoFilling ? (
+              <div className="px-8 py-5 glass-effect rounded-3xl font-black text-primary-400 flex items-center gap-3">
+                <div className="w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+                <span>{autoFillProgress.current}/{autoFillProgress.total}</span>
+              </div>
+            ) : (
+              <button
+                className="px-6 py-5 glass-effect rounded-3xl font-black hover:bg-gray-50 dark:hover:bg-white/10 transition-all border border-gray-200 dark:border-white/10 text-primary-500 hover:text-primary-400"
+                onClick={handleAutoFillImages}
+                title="Tự động tìm ảnh cho các từ chưa có"
+              >
+                🖼️ Auto-Fill
+              </button>
+            )}
             <button
               className="px-8 py-5 bg-white text-black rounded-3xl font-black hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/5"
               onClick={() => setShowAddModal(true)}
@@ -455,6 +550,32 @@ function App() {
         onCancel={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })}
         confirmText="Xóa ngay"
         cancelText="Hủy bỏ"
+      />
+      <ConfirmDialog
+        isOpen={autoFillConfirm.isOpen}
+        title="Tự động tìm ảnh"
+        message={`Tìm thấy ${autoFillConfirm.count} từ chưa có ảnh. Bạn có muốn hệ thống tự động tìm và cập nhật ảnh cho chúng không? Quá trình này có thể mất vài phút.`}
+        onConfirm={performAutoFill}
+        onCancel={() => setAutoFillConfirm({ ...autoFillConfirm, isOpen: false })}
+        confirmText="Bắt đầu tìm"
+        cancelText="Để sau"
+      />
+
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          style: {
+            background: '#333',
+            color: '#fff',
+            borderRadius: '10px',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10B981',
+              secondary: 'white',
+            },
+          },
+        }}
       />
 
       {/* Global Style Injections */}

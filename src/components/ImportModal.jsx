@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 const ImportModal = ({ isOpen, onClose, onImport }) => {
     const [importText, setImportText] = useState('');
@@ -43,7 +44,7 @@ const ImportModal = ({ isOpen, onClose, onImport }) => {
                 setImportText('');
                 onClose();
             } else {
-                alert('No valid words found. Please check the format.');
+                toast.error('Không tìm thấy từ hợp lệ. Vui lòng kiểm tra định dạng.');
             }
         }
     };
