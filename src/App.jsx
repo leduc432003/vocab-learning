@@ -522,6 +522,19 @@ function App() {
         >
           📥
         </button>
+        {isAutoFilling ? (
+          <div className="px-6 py-4 glass-effect rounded-2xl font-black shadow-2xl transition-all border border-gray-200 dark:border-white/10 text-primary-500 text-sm flex items-center gap-2">
+            <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+            <span>{autoFillProgress.current}/{autoFillProgress.total}</span>
+          </div>
+        ) : (
+          <button
+            className="px-6 py-4 glass-effect rounded-2xl font-black shadow-2xl active:scale-95 transition-all border border-gray-200 dark:border-white/10 text-primary-500 hover:text-primary-400 text-sm"
+            onClick={handleAutoFillImages}
+          >
+            🖼️
+          </button>
+        )}
         <button
           className="px-6 py-4 bg-secondary-500/10 border border-secondary-500/20 text-secondary-400 rounded-2xl font-black shadow-2xl active:scale-95 transition-all text-sm"
           onClick={handleExport}
