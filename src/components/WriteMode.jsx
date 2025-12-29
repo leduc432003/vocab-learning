@@ -8,11 +8,14 @@ export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
     const [score, setScore] = useState({ correct: 0, total: 0 });
     const [cards, setCards] = useState([]);
     const [showFinalSummary, setShowFinalSummary] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
+        if (isInitialized || vocabulary.length === 0) return;
         const shuffled = [...vocabulary].sort(() => Math.random() - 0.5);
         setCards(shuffled);
-    }, [vocabulary]);
+        setIsInitialized(true);
+    }, [vocabulary, isInitialized]);
 
     if (cards.length === 0) {
         return (

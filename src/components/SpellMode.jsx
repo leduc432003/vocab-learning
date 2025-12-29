@@ -9,11 +9,14 @@ export default function SpellMode({ vocabulary, onUpdateStats, onExit }) {
     const [cards, setCards] = useState([]);
     const [hasPlayed, setHasPlayed] = useState(false);
     const [showFinalSummary, setShowFinalSummary] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
+        if (isInitialized || vocabulary.length === 0) return;
         const shuffled = [...vocabulary].sort(() => Math.random() - 0.5);
         setCards(shuffled);
-    }, [vocabulary]);
+        setIsInitialized(true);
+    }, [vocabulary, isInitialized]);
 
     useEffect(() => {
         if (cards.length > 0 && !hasPlayed && !showFinalSummary) {

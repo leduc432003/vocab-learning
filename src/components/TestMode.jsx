@@ -7,10 +7,13 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
     const [showResult, setShowResult] = useState(false);
     const [stats, setStats] = useState({ correct: 0, total: 0 });
     const [showFinalSummary, setShowFinalSummary] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
+        if (isInitialized || vocabulary.length === 0) return;
         generateQuestions();
-    }, [vocabulary]);
+        setIsInitialized(true);
+    }, [vocabulary, isInitialized]);
 
     const generateQuestions = () => {
         const shuffled = [...vocabulary].sort(() => Math.random() - 0.5);
