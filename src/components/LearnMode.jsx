@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 
 export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview = false }) {
     // Session Setup states
-    const [showSetup, setShowSetup] = useState(false);
+    const [showSetup, setShowSetup] = useState(true);
+    const [setupConfig, setSetupConfig] = useState({ batchSize: 10, limitType: 'questions' }); // limitType: 'questions' | 'mastery'
     const [showBatchPreview, setShowBatchPreview] = useState(true);
     const [stats, setStats] = useState({ correct: 0, total: 0 });
     const [completedCount, setCompletedCount] = useState(0);
@@ -26,9 +27,12 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
     const [studiedWords, setStudiedWords] = useState([]); // All unique words studied in this session
 
     useEffect(() => {
-        if (isInitialized || vocabulary.length === 0) return;
+        // Only safety check, logic moved to handleStartSession
+        if (vocabulary.length === 0) return;
+    }, [vocabulary]);
 
-        // Sorting logic stays the same...
+    const handleStartSession = () => {
+        // Sorting logic
         const sortedVocab = [...vocabulary].sort((a, b) => {
             const masteryA = a.masteryLevel || 0;
             const masteryB = b.masteryLevel || 0;
@@ -46,16 +50,21 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
             return Math.random() - 0.5;
         });
 
-        // Pick 10 words as requested
-        const sessionWords = sortedVocab.slice(0, 10).map(w => ({
+        // Use batchSize from setup
+        const count = setupConfig.batchSize;
+        const sessionWords = sortedVocab.slice(0, count).map(w => ({
             ...w,
-            mode: isReview ? 'written' : ((w.masteryLevel < 2 || w.learningStatus === 'not-learned') ? 'mcq' : 'written')
+            stage: 'recognition',
+            mode: 'mcq',
+            qType: 'def-to-term'
         }));
 
         setQueue(sessionWords);
         setInitialQueueSize(sessionWords.length);
         setIsInitialized(true);
-    }, [vocabulary, isInitialized]);
+        setShowSetup(false);
+        setShowBatchPreview(true);
+    };
 
     const speak = (text) => {
         if ('speechSynthesis' in window) {
@@ -211,40 +220,77 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
 
     const nextQuestion = () => {
         const [currentWord, ...remainingQueue] = queue;
-        const wordStats = sessionStats[currentWord.id] || { correct: 0 };
 
         let newQueue = [...remainingQueue];
 
         if (!isCorrect) {
-            // Sai -> Reset session correct count for this word and put back in queue
+            // ❌ Wrong Answer
+
+            // Logic: If Wrong -> Always go back/stay at Step 1 (Recognition)
+            const downgradedWord = {
+                ...currentWord,
+                stage: 'recognition',
+                mode: 'mcq',
+                qType: 'def-to-term'
+            };
+
+            // Reset session stats for this word logic if needed
             setSessionStats(prev => ({
                 ...prev,
                 [currentWord.id]: { ...prev[currentWord.id], correct: 0 }
             }));
 
-            // Re-insert 3 positions away
+            // Re-insert: 3 positions away
             const insertPos = Math.min(3, newQueue.length);
-            newQueue.splice(insertPos, 0, currentWord);
-        } else {
-            // Đúng
-            const totalCorrect = wordStats.correct;
+            newQueue.splice(insertPos, 0, downgradedWord);
 
-            if (currentWord.mode === 'mcq') {
-                // If passed MCQ, switch to Written and put back in queue to confirm mastery
-                const upgradedWord = { ...currentWord, mode: 'written' };
+        } else {
+            // ✅ Correct Answer
+
+            if (currentWord.stage === 'recognition') {
+                // Step 1 Passed -> Move to Step 2: Recall (Written)
+                const upgradedWord = {
+                    ...currentWord,
+                    stage: 'recall',
+                    mode: 'written',
+                    qType: 'def-to-term'
+                };
+
+                // Re-insert: 5 positions away (spaced repetition)
                 const insertPos = Math.min(5, newQueue.length);
                 newQueue.splice(insertPos, 0, upgradedWord);
-            } else if (!isReview && totalCorrect < 2) {
-                // Nếu là chế độ Học và mới đúng 1 lần hình thức Viết -> bắt làm lại để chắc chắn
-                newQueue.push(currentWord);
+
             } else {
-                // "Đúng nhiều" (at least 2 times, or passed from MCQ to Written) -> mark as mastered
+                // Step 2 Passed (Recall) -> Mark as Mastered for this session
                 setCompletedCount(prev => prev + 1);
                 setMasteredWords(prev => [...prev, currentWord]);
+                // Do NOT add back to queue
             }
         }
 
-        if (stats.total >= 10 || newQueue.length === 0) {
+        // Check End Condition based on Limit Type
+        let shouldEnd = false;
+
+        if (setupConfig.limitType === 'questions') {
+            // Stop if Total Questions >= Limit (batchSize used as question limit in this mode)
+            // Note: stats.total has just been incremented in handleAnswer -> setStats
+            // But here we rely on the state which might not be updated yet in this closure?
+            // Actually handleAnswer updates state, but nextQuestion is called afterwards? 
+            // Wait, handleAnswer calls nextQuestion? No, user clicks "Continue".
+            // So stats.total is fresh.
+            if (stats.total >= setupConfig.batchSize) {
+                shouldEnd = true;
+            }
+        } else {
+            // 'mastery' mode: Stop when queue is empty (all learned) or hard cap 50?
+            // Actually original logic was queue.length === 0
+        }
+
+        if (newQueue.length === 0 && !showSessionComplete) {
+            shouldEnd = true;
+        }
+
+        if (shouldEnd) {
             setShowSessionComplete(true);
         } else {
             setQueue(newQueue);
@@ -253,19 +299,85 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
     };
 
     const startStudy = () => {
-        const finalizedQueue = queue.map(word => {
-            let qType = 'term-to-def';
-            if (studyDirection === 'def-to-term') {
-                qType = 'def-to-term';
-            } else if (studyDirection === 'both') {
-                qType = Math.random() > 0.5 ? 'term-to-def' : 'def-to-term';
-            }
-            return { ...word, qType };
-        });
-        setQueue(finalizedQueue);
+        // Just start, the queue is already initialized in useEffect
         setShowBatchPreview(false);
-        generateQuestion(finalizedQueue[0]);
+        generateQuestion(queue[0]);
     };
+
+    if (showSetup) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-950 p-6 font-sans">
+                <div className="max-w-md w-full glass-effect p-8 rounded-[2rem] animate-in zoom-in duration-300 border border-white/5 shadow-2xl">
+                    <div className="text-center mb-8">
+                        <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary-500/30">
+                            <span className="text-3xl">⚙️</span>
+                        </div>
+                        <h2 className="text-2xl font-black text-white">Thiết lập phiên học</h2>
+                        <p className="text-gray-400 text-sm mt-2">Tùy chỉnh mục tiêu của bạn</p>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-gray-500 text-xs font-bold uppercase tracking-widest mb-3">Số lượng mục tiêu</label>
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => setSetupConfig(p => ({ ...p, batchSize: Math.max(5, p.batchSize - 5) }))}
+                                    className="w-12 h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xl transition-all"
+                                >-</button>
+                                <div className="flex-1 h-12 bg-gray-900/50 rounded-xl border border-white/10 flex items-center justify-center text-xl font-black text-primary-400">
+                                    {setupConfig.batchSize}
+                                </div>
+                                <button
+                                    onClick={() => setSetupConfig(p => ({ ...p, batchSize: p.batchSize + 5 }))}
+                                    className="w-12 h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xl transition-all"
+                                >+</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-gray-500 text-xs font-bold uppercase tracking-widest mb-3">Chế độ giới hạn</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    onClick={() => setSetupConfig(p => ({ ...p, limitType: 'questions' }))}
+                                    className={`p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-2 transition-all ${setupConfig.limitType === 'questions' ? 'bg-primary-500/20 border-primary-500 text-white' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
+                                >
+                                    <span className="text-2xl">⚡</span>
+                                    <span className="text-xs font-bold">Số câu hỏi</span>
+                                </button>
+                                <button
+                                    onClick={() => setSetupConfig(p => ({ ...p, limitType: 'mastery' }))}
+                                    className={`p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-2 transition-all ${setupConfig.limitType === 'mastery' ? 'bg-success-500/20 border-success-500 text-white' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
+                                >
+                                    <span className="text-2xl">🎓</span>
+                                    <span className="text-xs font-bold">Số từ thuộc</span>
+                                </button>
+                            </div>
+                            <p className="text-center text-xs text-gray-500 mt-3 italic">
+                                {setupConfig.limitType === 'questions'
+                                    ? `Dừng sau khi bạn trả lời đủ ${setupConfig.batchSize} lần (tính cả MCQ và viết).`
+                                    : `Dừng sau khi bạn đã thuộc hết ${setupConfig.batchSize} từ vựng.`}
+                            </p>
+                        </div>
+
+                        <div className="pt-4">
+                            <button
+                                onClick={handleStartSession}
+                                className="w-full py-4 bg-gradient-primary rounded-xl font-black text-lg text-white hover:shadow-xl hover:shadow-primary-500/20 transform hover:-translate-y-1 transition-all"
+                            >
+                                Bắt đầu ngay
+                            </button>
+                            <button
+                                onClick={onExit}
+                                className="w-full py-4 mt-3 text-gray-500 font-bold hover:text-white transition-all"
+                            >
+                                Quay lại
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (queue.length === 0 && !showSessionComplete) {
         return (
@@ -372,7 +484,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
         return (
             <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-4 md:p-8 font-sans">
                 <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-                    <button onClick={onExit} className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold text-gray-300">← Thoát</button>
+                    <button onClick={() => setShowSetup(true)} className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold text-gray-300">← Cấu hình lại</button>
                     <div className="glass-effect px-6 py-3 rounded-xl border-primary-500/20 text-center">
                         <span className="text-gray-500 text-[10px] uppercase tracking-wider block mb-1 font-bold">{isReview ? 'Phiên ôn tập' : 'Phiên học hôm nay'}</span>
                         <span className="text-xl font-black text-white">{queue.length} từ</span>
@@ -380,35 +492,12 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                 </div>
 
                 <div className="max-w-2xl mx-auto glass-effect rounded-[2rem] p-6 md:p-10 border border-white/5 animate-in slide-in-from-bottom-10">
-                    <div className="mb-8">
-                        <h3 className="text-gray-500 text-[10px] uppercase tracking-widest font-black mb-4 text-center">Hướng học tập</h3>
-                        <div className="grid grid-cols-3 gap-3">
-                            {[
-                                { id: 'term-to-def', label: 'Anh → Việt', icon: '🇺🇸' },
-                                { id: 'def-to-term', label: 'Việt → Anh', icon: '🇻🇳' },
-                                { id: 'both', label: 'Linh hoạt', icon: '🔄' },
-                            ].map((dir) => (
-                                <button
-                                    key={dir.id}
-                                    onClick={() => setStudyDirection(dir.id)}
-                                    className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-1 ${studyDirection === dir.id
-                                        ? 'bg-primary-500/20 border-primary-500 text-white shadow-lg shadow-primary-500/10'
-                                        : 'bg-white/5 border-white/10 text-gray-500 hover:bg-white/10'
-                                        }`}
-                                >
-                                    <span className="text-xl">{dir.icon}</span>
-                                    <span className="text-[10px] font-bold">{dir.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
                     <h2 className="text-2xl md:text-3xl font-black text-white mb-6 text-center">Danh sách từ vựng:</h2>
                     <div className="grid gap-3 mb-10 overflow-y-auto max-h-[40vh] pr-2 custom-scrollbar">
                         {queue.map((word, idx) => (
                             <div key={idx} className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
-                                <span className={`w-12 h-8 rounded-lg ${word.mode === 'mcq' ? 'bg-primary-500/20 text-primary-400' : 'bg-success-500/20 text-success-400'} flex items-center justify-center font-bold text-[8px]`}>
-                                    {word.mode === 'mcq' ? 'MCQ' : 'WRITE'}
+                                <span className={`w-12 h-8 rounded-lg ${word.stage === 'recognition' ? 'bg-primary-500/20 text-primary-400' : 'bg-success-500/20 text-success-400'} flex items-center justify-center font-bold text-[8px]`}>
+                                    {word.stage === 'recognition' ? 'MCQ' : 'WRITE'}
                                 </span>
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2">
@@ -428,7 +517,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                         Bắt đầu ngay! 🚀
                     </button>
                     <p className="text-center text-gray-500 text-[10px] mt-6 uppercase tracking-widest font-black">
-                        {studyDirection === 'both' ? (isReview ? 'Ôn tập kết hợp Từ - Nghĩa và Nghĩa - Từ' : 'Học kết hợp Từ - Nghĩa và Nghĩa - Từ') : studyDirection === 'term-to-def' ? (isReview ? 'Chuyên ôn tập Từ sang Nghĩa' : 'Chuyên học Từ sang Nghĩa') : (isReview ? 'Chuyên ôn tập Nghĩa sang Từ' : 'Chuyên học Nghĩa sang Từ')}
+                        Lộ trình: Nhận diện (Chọn từ) → Ghi nhớ (Gõ từ)
                     </p>
                 </div>
             </div>
@@ -456,12 +545,22 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                 <div className="flex gap-4 flex-1 justify-end">
                     <div className="glass-effect px-4 md:px-6 py-3 rounded-xl border-primary-500/20 flex-1 md:min-w-[180px]">
                         <span className="text-gray-500 text-[8px] md:text-[10px] uppercase tracking-wider block mb-1 font-bold italic">
-                            Tiến độ phiên học
+                            {setupConfig.limitType === 'questions' ? 'Tiến độ (Số câu)' : 'Tiến độ (Số từ thuộc)'}
                         </span>
                         <div className="flex items-center gap-3">
-                            <span className="text-lg md:text-xl font-black text-white">{stats.total}<span className="text-gray-600 text-sm font-normal">/10</span></span>
+                            <span className="text-lg md:text-xl font-black text-white">
+                                {setupConfig.limitType === 'questions' ? stats.total : completedCount}
+                                <span className="text-gray-600 text-sm font-normal">/{setupConfig.batchSize}</span>
+                            </span>
                             <div className="flex-1 h-1.5 md:h-2 bg-gray-800 rounded-full overflow-hidden">
-                                <div className="h-full bg-gradient-primary transition-all duration-500" style={{ width: `${progressTotal}%` }} />
+                                <div
+                                    className="h-full bg-gradient-primary transition-all duration-500"
+                                    style={{
+                                        width: `${Math.min(100, (setupConfig.limitType === 'questions'
+                                            ? (stats.total / setupConfig.batchSize)
+                                            : (completedCount / setupConfig.batchSize)) * 100)}%`
+                                    }}
+                                />
                             </div>
                         </div>
                     </div>
