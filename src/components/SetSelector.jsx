@@ -20,7 +20,7 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
             {/* Current Set Display */}
             <button
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="flex items-center gap-3 px-6 py-3 glass-effect rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-all group border border-gray-200 dark:border-white/10"
+                className="flex items-center gap-2 md:gap-3 px-3 md:px-6 py-2 md:py-3 glass-effect rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-all group border border-gray-200 dark:border-white/10"
             >
                 <div className="text-left flex-1">
                     <div className="text-sm text-gray-500 dark:text-gray-400">Current Set</div>
@@ -48,7 +48,7 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                         className="fixed inset-0 z-40"
                         onClick={() => setShowDropdown(false)}
                     />
-                    <div className="absolute top-full mt-2 left-0 w-80 glass-effect rounded-xl shadow-2xl z-50 overflow-hidden bg-white/90 dark:bg-gray-900/90 border border-gray-200 dark:border-white/10">
+                    <div className="absolute top-full mt-2 left-0 right-0 md:left-0 md:right-auto md:w-80 glass-effect rounded-xl shadow-2xl z-50 overflow-hidden bg-white/90 dark:bg-gray-900/90 border border-gray-200 dark:border-white/10">
                         <div className="max-h-96 overflow-y-auto">
                             {sets.map(set => (
                                 <div

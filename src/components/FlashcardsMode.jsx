@@ -235,7 +235,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
 
                             {/* BACK SIDE (Optimized for no-scroll on mobile) */}
                             <div className="absolute inset-0 backface-hidden rotate-y-180">
-                                <div className="h-full bg-white dark:bg-[#0a0c16] rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-gray-200 dark:border-white/20 flex flex-col p-5 md:p-8 shadow-2xl overflow-y-auto md:overflow-hidden custom-scrollbar transition-colors">
+                                <div className="h-full bg-white dark:bg-[#0a0c16] rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-gray-200 dark:border-white/20 flex flex-col p-5 md:p-8 shadow-2xl overflow-y-auto md:overflow-hidden no-scrollbar transition-colors">
                                     <div className="w-full h-full flex flex-col justify-between space-y-4 md:space-y-4">
                                         {/* Header - Compact */}
                                         <div className="text-center space-y-4">
@@ -348,10 +348,8 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                 .preserve-3d { transform-style: preserve-3d; }
                 .backface-hidden { backface-visibility: hidden; }
                 .rotate-y-180 { transform: rotateY(180deg); }
-                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 10px; }
-                .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
+                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                .no-scrollbar::-webkit-scrollbar { display: none; }
                 .truncate-multiline-2 {
                     display: -webkit-box;
                     -webkit-line-clamp: 2;

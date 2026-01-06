@@ -422,8 +422,8 @@ export default function Page() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 md:px-8 pb-32">
-        {/* Study Modes Horizontal Scroll */}
-        <div className="my-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 pb-4">
+        {/* Study Modes Horizontal Scroll on Mobile, Grid on Desktop */}
+        <div className="my-8 md:my-12 flex md:grid md:grid-cols-3 lg:grid-cols-6 gap-4 pb-4 overflow-x-auto no-scrollbar snap-x snap-mandatory">
           {[
             { id: 'flashcards', label: 'Flashcards', icon: '🎴', desc: 'Chuẩn Anki' },
             { id: 'learn', label: 'Học ngay', icon: '🎓', desc: 'Khởi đầu' },
@@ -435,7 +435,7 @@ export default function Page() {
             <button
               key={mode.id + mode.label}
               onClick={() => setCurrentMode(mode.id)}
-              className="group p-6 glass-effect rounded-[2rem] hover:bg-white/10 transition-all border border-white/5 text-center relative overflow-hidden"
+              className="group min-w-[140px] md:min-w-0 p-6 glass-effect rounded-[2rem] hover:bg-white/10 transition-all border border-white/5 text-center relative overflow-hidden snap-center"
             >
               <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">{mode.icon}</div>
               <div className="font-black text-white text-sm">{mode.label}</div>
@@ -445,62 +445,80 @@ export default function Page() {
         </div>
 
         {/* Action Bar */}
-        <div className="flex gap-4 mb-20">
+        <div className="flex flex-col md:flex-row gap-4 mb-12 md:mb-20">
           <input
             type="text"
             placeholder="Tìm kiếm từ vựng..."
-            className="flex-1 px-8 py-5 bg-white/5 border border-white/10 rounded-3xl text-white outline-none focus:border-primary-500 transition-all"
+            className="w-full md:flex-1 px-6 md:px-8 py-4 md:py-5 bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl text-white outline-none focus:border-primary-500 transition-all text-sm md:text-base"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="px-10 py-5 bg-white text-black rounded-3xl font-black hover:scale-105 transition-all shadow-xl shadow-white/5 flex items-center gap-2"
-          >
-            <span>+ Thêm từ</span>
-          </button>
-          <button
-            onClick={handleAutoFill}
-            disabled={isAutoFilling}
-            className="px-8 py-5 glass-effect rounded-3xl font-black hover:bg-white/10 transition-all border border-white/10 text-white flex items-center gap-2 group"
-          >
-            {isAutoFilling ? (
-              <>
-                <div className="w-5 h-5 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-                <span>{Math.round((autoFillProgress.current / autoFillProgress.total) * 100) || 0}%</span>
-              </>
-            ) : (
-              <>
-                <span className="group-hover:rotate-12 transition-transform">🖼️</span>
-                <span>Auto-Fill</span>
-              </>
-            )}
-          </button>
-          <button
-            onClick={() => setShowImportModal(true)}
-            className="px-8 py-5 glass-effect rounded-3xl font-black hover:bg-white/10 transition-all border border-white/10 text-white"
-          >
-            📥 Nhập
-          </button>
-          <button
-            onClick={handleExport}
-            className="px-8 py-5 bg-secondary-500/10 border border-secondary-500/20 text-secondary-400 rounded-3xl font-black hover:bg-secondary-500/20 transition-all"
-          >
-            📤 Xuất
-          </button>
+          <div className="flex items-center overflow-x-auto no-scrollbar gap-2 md:gap-4 pb-2 md:pb-0">
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="px-6 md:px-10 py-4 md:py-5 bg-white text-black rounded-2xl md:rounded-3xl font-black hover:scale-105 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
+            >
+              <span>+ Thêm từ</span>
+            </button>
+            <button
+              onClick={handleAutoFill}
+              disabled={isAutoFilling}
+              className="px-6 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 transition-all border border-white/10 text-white flex items-center justify-center gap-2 group text-sm md:text-base whitespace-nowrap shrink-0"
+            >
+              {isAutoFilling ? (
+                <>
+                  <div className="w-4 h-4 md:w-5 md:h-5 border-[3px] md:border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  <span>{Math.round((autoFillProgress.current / autoFillProgress.total) * 100) || 0}%</span>
+                </>
+              ) : (
+                <>
+                  <span className="group-hover:rotate-12 transition-transform">🖼️</span>
+                  <span className="md:inline">Auto-Fill</span>
+                </>
+              )}
+            </button>
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="px-4 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 transition-all border border-white/10 text-white text-sm md:text-base whitespace-nowrap shrink-0"
+              title="Nhập dữ liệu"
+            >
+              📥 <span className="hidden md:inline">Nhập</span>
+            </button>
+            <button
+              onClick={handleExport}
+              className="px-4 md:px-8 py-4 md:py-5 bg-secondary-500/10 border border-secondary-500/20 text-secondary-400 rounded-2xl md:rounded-3xl font-black hover:bg-secondary-500/20 transition-all text-sm md:text-base whitespace-nowrap shrink-0"
+              title="Xuất dữ liệu"
+            >
+              📤 <span className="hidden md:inline">Xuất</span>
+            </button>
+          </div>
         </div>
 
-        {/* Vocabulary Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {vocabulary.filter(w => w.term.toLowerCase().includes(searchTerm.toLowerCase())).map(word => (
-            <VocabCard
-              key={word.id}
-              word={word}
-              onEdit={(w) => { setEditWord(w); setShowAddModal(true); }}
-              onDelete={(id) => handleDeleteWord(id)}
-              onToggleStar={handleToggleStar}
-            />
-          ))}
+        {/* Vocabulary Grid - Restricted Height with Scroll */}
+        <div className="relative">
+          <div className="max-h-[700px] md:max-h-[850px] overflow-y-auto no-scrollbar pb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {vocabulary.filter(w => w.term.toLowerCase().includes(searchTerm.toLowerCase())).length > 0 ? (
+                vocabulary.filter(w => w.term.toLowerCase().includes(searchTerm.toLowerCase())).map(word => (
+                  <VocabCard
+                    key={word.id}
+                    word={word}
+                    onEdit={(w) => { setEditWord(w); setShowAddModal(true); }}
+                    onDelete={(id) => handleDeleteWord(id)}
+                    onToggleStar={handleToggleStar}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full py-20 text-center glass-effect rounded-[2.5rem] border border-white/5">
+                  <div className="text-5xl mb-4">🔍</div>
+                  <h3 className="text-xl font-bold text-white">Không tìm thấy từ vựng nào</h3>
+                  <p className="text-gray-500 mt-2">Thử tìm kiếm với từ khóa khác hoặc thêm từ mới</p>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Fading overlay at the bottom to indicate more content */}
+          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-50 dark:from-[#020617] to-transparent pointer-events-none z-10" />
         </div>
       </main>
 
