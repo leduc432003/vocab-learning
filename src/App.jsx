@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
-import { storage } from './utils/localStorage';
+import { storage } from './utils/storage';
 import { fillMissingImages } from './utils/imageService';
 import VocabCard from './components/VocabCard';
 import AddWordModal from './components/AddWordModal';
@@ -18,7 +18,7 @@ function App() {
   const [vocabulary, setVocabulary] = useState([]);
   const [sets, setSets] = useState([]);
   const [currentSet, setCurrentSet] = useState(null);
-  const [statusCounts, setStatusCounts] = useState({ notLearned: 0, learning: 0, learned: 0 });
+  const [statusCounts, setStatusCounts] = useState({ notLearned: 0, learning: 0, learned: 0, due: 0 });
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [editWord, setEditWord] = useState(null);
@@ -26,9 +26,18 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, type: null, id: null, title: '', message: '' });
   const [autoFillConfirm, setAutoFillConfirm] = useState({ isOpen: false, count: 0 });
-  const [theme, setTheme] = useState(() => storage.getTheme());
+  const [theme, setTheme] = useState('dark');
   const [isAutoFilling, setIsAutoFilling] = useState(false);
   const [autoFillProgress, setAutoFillProgress] = useState({ current: 0, total: 0 });
+
+  // 1. Khởi tạo theme từ IndexedDB
+  useEffect(() => {
+    const initTheme = async () => {
+      const savedTheme = await storage.getTheme();
+      setTheme(savedTheme);
+    };
+    initTheme();
+  }, []);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -43,28 +52,30 @@ function App() {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
+  // 2. Load dữ liệu chính
   useEffect(() => {
     loadData();
   }, []);
 
-  const loadData = () => {
-    const allSets = storage.getSets();
-    const current = storage.getCurrentSet();
-    const counts = storage.getStatusCounts();
+  const loadData = async () => {
+    const allSets = await storage.getSets();
+    const current = await storage.getCurrentSet();
+    const counts = await storage.getStatusCounts();
+
     setSets(allSets);
     setCurrentSet(current);
     setVocabulary(current?.words || []);
     setStatusCounts(counts);
   };
 
-  const handleSelectSet = (setId) => {
-    storage.setCurrentSet(setId);
-    loadData();
+  const handleSelectSet = async (setId) => {
+    await storage.setCurrentSet(setId);
+    await loadData();
   };
 
-  const handleCreateSet = (name, description) => {
-    storage.createSet(name, description);
-    loadData();
+  const handleCreateSet = async (name, description) => {
+    await storage.createSet(name, description);
+    await loadData();
   };
 
   const handleDeleteSet = (setId) => {
@@ -78,24 +89,24 @@ function App() {
     });
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deleteConfirm.type === 'word') {
-      storage.deleteWord(deleteConfirm.id);
+      await storage.deleteWord(deleteConfirm.id);
     } else if (deleteConfirm.type === 'set') {
-      storage.deleteSet(deleteConfirm.id);
+      await storage.deleteSet(deleteConfirm.id);
     }
     setDeleteConfirm({ isOpen: false, type: null, id: null, title: '', message: '' });
-    loadData();
+    await loadData();
   };
 
-  const handleAddWord = (wordData) => {
+  const handleAddWord = async (wordData) => {
     if (editWord) {
-      storage.updateWord(editWord.id, wordData);
+      await storage.updateWord(editWord.id, wordData);
       setEditWord(null);
     } else {
-      storage.addWord(wordData);
+      await storage.addWord(wordData);
     }
-    loadData();
+    await loadData();
   };
 
   const handleEditWord = (word) => {
@@ -114,19 +125,19 @@ function App() {
     });
   };
 
-  const handleToggleStar = (id) => {
-    storage.toggleStar(id);
-    loadData();
+  const handleToggleStar = async (id) => {
+    await storage.toggleStar(id);
+    await loadData();
   };
 
-  const handleImport = (words) => {
-    storage.importWords(words);
-    loadData();
+  const handleImport = async (words) => {
+    await storage.importWords(words);
+    await loadData();
   };
 
-  const handleUpdateStats = (id, isCorrect, mode) => {
-    storage.updateStats(id, isCorrect, mode);
-    loadData();
+  const handleUpdateStats = async (id, isCorrect, mode) => {
+    await storage.updateStats(id, isCorrect, mode);
+    await loadData();
   };
 
   const handleExport = () => {
@@ -175,19 +186,11 @@ function App() {
       return;
     }
 
-    if (!missingCount) { // safety check
-      toast.success('Tất cả từ vựng đã có ảnh!');
-      return;
-    }
-
     setAutoFillConfirm({ isOpen: true, count: missingCount });
   };
 
   const performAutoFill = async () => {
-    // Close dialog
     setAutoFillConfirm({ ...autoFillConfirm, isOpen: false });
-
-    // Start process
     setIsAutoFilling(true);
     const missingCount = autoFillConfirm.count;
     setAutoFillProgress({ current: 0, total: missingCount });
@@ -206,15 +209,13 @@ function App() {
             newVocab[idx] = { ...newVocab[idx], image: update.image };
           }
         });
-        storage.saveVocabulary(newVocab);
-        loadData();
+        await storage.saveVocabulary(newVocab);
+        await loadData();
       }
 
       toast.dismiss(toastId);
 
-      let message = `Đã cập nhật ảnh cho ${updated.length} từ.`;
       if (failed.length > 0) {
-        // Show a more persistent toast for mixed results
         toast((t) => (
           <div>
             <p><b>Kết quả:</b></p>
@@ -229,7 +230,7 @@ function App() {
           </div>
         ), { duration: 6000 });
       } else {
-        toast.success(message);
+        toast.success(`Đã cập nhật ảnh cho ${updated.length} từ.`);
       }
 
     } catch (error) {
@@ -251,7 +252,7 @@ function App() {
     word.definition.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Render different modes
+  // Render các mode học tập
   if (currentMode === 'flashcards') {
     return (
       <FlashcardsMode
@@ -270,18 +271,18 @@ function App() {
       <LearnMode
         vocabulary={vocabulary}
         onUpdateStats={handleUpdateStats}
-        onExit={() => setCurrentMode('browse')}
+        onExit={() => { loadData(); setCurrentMode('browse'); }}
       />
     );
   }
 
   if (currentMode === 'review') {
-    const learnedWords = vocabulary.filter(w => w.learningStatus === 'learned');
+    const learnedWords = vocabulary.filter(w => w.srsStage === 'review');
     return (
       <LearnMode
         vocabulary={learnedWords}
         onUpdateStats={handleUpdateStats}
-        onExit={() => setCurrentMode('browse')}
+        onExit={() => { loadData(); setCurrentMode('browse'); }}
         isReview={true}
       />
     );
@@ -292,7 +293,7 @@ function App() {
       <WriteMode
         vocabulary={vocabulary}
         onUpdateStats={handleUpdateStats}
-        onExit={() => setCurrentMode('browse')}
+        onExit={() => { loadData(); setCurrentMode('browse'); }}
       />
     );
   }
@@ -302,7 +303,7 @@ function App() {
       <SpellMode
         vocabulary={vocabulary}
         onUpdateStats={handleUpdateStats}
-        onExit={() => setCurrentMode('browse')}
+        onExit={() => { loadData(); setCurrentMode('browse'); }}
       />
     );
   }
@@ -311,7 +312,7 @@ function App() {
     return (
       <MatchMode
         vocabulary={vocabulary}
-        onExit={() => setCurrentMode('browse')}
+        onExit={() => { loadData(); setCurrentMode('browse'); }}
       />
     );
   }
@@ -321,24 +322,22 @@ function App() {
       <TestMode
         vocabulary={vocabulary}
         onUpdateStats={handleUpdateStats}
-        onExit={() => setCurrentMode('browse')}
+        onExit={() => { loadData(); setCurrentMode('browse'); }}
       />
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#020617] transition-colors duration-300">
-      {/* Header - Optimized for Mobile Header */}
       <header className="bg-gradient-to-b from-primary-100/50 dark:from-primary-900/20 to-transparent border-b border-gray-200 dark:border-white/5 pt-8 pb-12">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="flex flex-col gap-8">
-            {/* Top Bar */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="space-y-1">
                 <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tighter">
                   Học từ vựng cùng <span className="text-primary-600 dark:text-primary-500">Đức</span>
                 </h1>
-                <p className="text-gray-500 font-medium text-sm md:text-base">Học tiếng Anh thông minh hơn mỗi ngày</p>
+                <p className="text-gray-500 font-medium text-sm md:text-base">Lưu trữ bằng IndexedDB mạnh mẽ</p>
               </div>
 
               <div className="flex items-center gap-4 w-full md:w-auto">
@@ -361,12 +360,11 @@ function App() {
               </div>
             </div>
 
-            {/* Dashboard Stats - Premium Card Style */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 w-full">
               {[
                 { label: 'Chưa học', val: statusCounts.notLearned, color: 'blue', icon: '🆕' },
                 { label: 'Đang học', val: statusCounts.learning, color: 'amber', icon: '⚡' },
-                { label: 'Tốt nghiệp', val: statusCounts.learned, color: 'emerald', icon: '🎓' },
+                { label: 'Thành thạo', val: statusCounts.learned, color: 'emerald', icon: '🎓' },
                 { label: 'Đến hạn', val: statusCounts.due, color: 'rose', icon: '📅' }
               ].map((stat, i) => (
                 <div key={i} className="glass-effect rounded-[2rem] p-4 md:p-6 border border-white/10 relative overflow-hidden group">
@@ -386,7 +384,6 @@ function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 md:px-8 pb-32">
-        {/* Study Modes Section - Horizontal Scroll on Mobile */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
@@ -398,16 +395,16 @@ function App() {
           <div className="flex overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-6 gap-4 pb-4 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
             {[
               { id: 'flashcards', label: 'Flashcards', icon: '🎴', desc: 'Chuẩn Anki', color: 'indigo', count: vocabulary.length },
-              { id: 'learn', label: 'Học thông minh', icon: '🎓', desc: 'Trắc nghiệm', color: 'blue', count: vocabulary.length },
+              { id: 'learn', label: 'Học thông minh', icon: '🎓', desc: 'Khởi đầu', color: 'blue', count: vocabulary.length },
               { id: 'write', label: 'Viết từ', icon: '✍️', desc: 'Ghi nhớ sâu', color: 'purple', count: vocabulary.length },
-              { id: 'review', label: 'Ôn tập', icon: '🔄', desc: 'Từ đã thuộc', color: 'emerald', count: vocabulary.filter(w => w.learningStatus === 'learned').length },
+              { id: 'review', label: 'Ôn tập', icon: '🔄', desc: 'Đến hạn', color: 'emerald', count: statusCounts.due },
               { id: 'spell', label: 'Chính tả', icon: '🔊', desc: 'Nghe & Viết', color: 'amber', count: vocabulary.length },
               { id: 'test', label: 'Kiểm tra', icon: '📝', desc: 'Tổng kết', color: 'rose', count: vocabulary.length }
             ].map(mode => (
               <button
                 key={mode.id}
                 onClick={() => setCurrentMode(mode.id)}
-                disabled={mode.count === 0}
+                disabled={vocabulary.length === 0 && mode.id !== 'browse'}
                 className="flex-shrink-0 w-[160px] md:w-full p-6 glass-effect rounded-[2rem] hover:bg-white/10 transition-all group disabled:opacity-30 disabled:cursor-not-allowed border border-white/5 hover:border-white/20 shadow-xl"
               >
                 <div className="text-4xl mb-3 transform group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-500">{mode.icon}</div>
@@ -418,7 +415,6 @@ function App() {
           </div>
         </div>
 
-        {/* Action Bar - Desktop & Tab */}
         <div className="flex flex-col md:flex-row gap-4 mb-12">
           <div className="flex-1 relative group">
             <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-gray-400 group-focus-within:text-primary-500 transition-colors">
@@ -443,7 +439,6 @@ function App() {
               <button
                 className="px-6 py-5 glass-effect rounded-3xl font-black hover:bg-gray-50 dark:hover:bg-white/10 transition-all border border-gray-200 dark:border-white/10 text-primary-500 hover:text-primary-400"
                 onClick={handleAutoFillImages}
-                title="Tự động tìm ảnh cho các từ chưa có"
               >
                 🖼️ Auto-Fill
               </button>
@@ -469,145 +464,66 @@ function App() {
           </div>
         </div>
 
-        {/* Vocabulary Grid */}
         <div className="mb-8 flex items-center justify-between">
           <div className="text-gray-500 font-black text-xs uppercase tracking-[0.2em]">
             Danh sách ({filteredVocabulary.length} từ)
           </div>
-          {searchTerm && (
-            <button onClick={() => setSearchTerm('')} className="text-primary-400 text-xs font-bold hover:underline">Xóa lọc</button>
-          )}
         </div>
 
         {filteredVocabulary.length === 0 ? (
           <div className="text-center py-20 px-8 glass-effect rounded-[3rem] border border-gray-200 dark:border-white/5">
             <div className="text-8xl mb-8 animate-bounce-slow">📖</div>
-            <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">Chưa có từ nào được tìm thấy</h2>
-            <p className="text-gray-500 max-w-sm mx-auto mb-10 leading-relaxed font-medium">Bắt đầu hành trình chinh phục tiếng Anh bằng cách thêm từ vựng mới!</p>
+            <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">Chưa có từ nào</h2>
+            <p className="text-gray-500 max-w-sm mx-auto mb-10 leading-relaxed font-medium">Bắt đầu thêm từ vựng mới để bắt đầu học!</p>
             <button
               className="px-10 py-5 bg-gradient-primary rounded-3xl font-black text-white shadow-2xl shadow-primary-500/40 hover:scale-105 transition-all"
               onClick={() => setShowAddModal(true)}
             >
-              Thêm từ đầu tiên ngay
+              Thêm từ ngay
             </button>
           </div>
         ) : (
-          <div className="overflow-y-auto max-h-[850px] custom-scrollbar pr-4 -mr-4 pb-4 px-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
-              {filteredVocabulary.map(word => (
-                <VocabCard
-                  key={word.id}
-                  word={word}
-                  onEdit={handleEditWord}
-                  onDelete={handleDeleteWord}
-                  onToggleStar={handleToggleStar}
-                />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 pb-20">
+            {filteredVocabulary.map(word => (
+              <VocabCard
+                key={word.id}
+                word={word}
+                onEdit={handleEditWord}
+                onDelete={handleDeleteWord}
+                onToggleStar={handleToggleStar}
+              />
+            ))}
           </div>
         )}
       </main>
 
-      {/* Mobile Floating Action Buttons */}
       <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex md:hidden gap-3 px-4 w-full justify-center z-40">
         <button
-          className="flex-1 py-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-2xl font-black shadow-2xl active:scale-95 transition-all text-sm"
+          className="flex-1 py-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-2xl font-black shadow-2xl transition-all"
           onClick={() => setShowAddModal(true)}
         >
           + Thêm từ
         </button>
         <button
-          className="px-6 py-4 glass-effect rounded-2xl font-black shadow-2xl active:scale-95 transition-all border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white text-sm"
+          className="px-6 py-4 glass-effect rounded-2xl font-black border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"
           onClick={() => setShowImportModal(true)}
         >
           📥
         </button>
-        {isAutoFilling ? (
-          <div className="px-6 py-4 glass-effect rounded-2xl font-black shadow-2xl transition-all border border-gray-200 dark:border-white/10 text-primary-500 text-sm flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-            <span>{autoFillProgress.current}/{autoFillProgress.total}</span>
-          </div>
-        ) : (
-          <button
-            className="px-6 py-4 glass-effect rounded-2xl font-black shadow-2xl active:scale-95 transition-all border border-gray-200 dark:border-white/10 text-primary-500 hover:text-primary-400 text-sm"
-            onClick={handleAutoFillImages}
-          >
-            🖼️
-          </button>
-        )}
-        <button
-          className="px-6 py-4 bg-secondary-500/10 border border-secondary-500/20 text-secondary-400 rounded-2xl font-black shadow-2xl active:scale-95 transition-all text-sm"
-          onClick={handleExport}
-        >
-          📤
-        </button>
       </div>
 
-      <AddWordModal
-        isOpen={showAddModal}
-        onClose={handleCloseModal}
-        onSave={handleAddWord}
-        editWord={editWord}
-      />
+      <AddWordModal isOpen={showAddModal} onClose={handleCloseModal} onSave={handleAddWord} editWord={editWord} />
+      <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} onImport={handleImport} />
+      <ConfirmDialog isOpen={deleteConfirm.isOpen} title={deleteConfirm.title} message={deleteConfirm.message} onConfirm={confirmDelete} onCancel={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })} />
+      <ConfirmDialog isOpen={autoFillConfirm.isOpen} title="Tự động tìm ảnh" message={`Hệ thống sẽ tìm ảnh cho ${autoFillConfirm.count} từ?`} onConfirm={performAutoFill} onCancel={() => setAutoFillConfirm({ ...autoFillConfirm, isOpen: false })} />
 
-      <ImportModal
-        isOpen={showImportModal}
-        onClose={() => setShowImportModal(false)}
-        onImport={handleImport}
-      />
-      <ConfirmDialog
-        isOpen={deleteConfirm.isOpen}
-        title={deleteConfirm.title}
-        message={deleteConfirm.message}
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })}
-        confirmText="Xóa ngay"
-        cancelText="Hủy bỏ"
-      />
-      <ConfirmDialog
-        isOpen={autoFillConfirm.isOpen}
-        title="Tự động tìm ảnh"
-        message={`Tìm thấy ${autoFillConfirm.count} từ chưa có ảnh. Bạn có muốn hệ thống tự động tìm và cập nhật ảnh cho chúng không? Quá trình này có thể mất vài phút.`}
-        onConfirm={performAutoFill}
-        onCancel={() => setAutoFillConfirm({ ...autoFillConfirm, isOpen: false })}
-        confirmText="Bắt đầu tìm"
-        cancelText="Để sau"
-      />
-
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            background: '#333',
-            color: '#fff',
-            borderRadius: '10px',
-          },
-          success: {
-            iconTheme: {
-              primary: '#10B981',
-              secondary: 'white',
-            },
-          },
-        }}
-      />
-
-      {/* Global Style Injections */}
+      <Toaster position="top-center" />
       <style dangerouslySetInnerHTML={{
         __html: `
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
         .animate-bounce-slow { animation: bounce-slow 3s infinite ease-in-out; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.7); }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
       `}} />
     </div>
   );

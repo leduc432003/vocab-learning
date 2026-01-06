@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { storage } from '../utils/localStorage';
+import { storage } from '../utils/storage';
 
 export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar, onExit, theme, toggleTheme }) {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -21,10 +21,13 @@ export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar
     };
 
     useEffect(() => {
-        const counts = storage.getStatusCounts();
-        setStatus(counts);
-        const dueCards = storage.getDueWords();
-        setCards(dueCards);
+        const loadStatus = async () => {
+            const counts = await storage.getStatusCounts();
+            setStatus(counts);
+            const dueCards = await storage.getDueWords();
+            setCards(dueCards);
+        };
+        loadStatus();
     }, [vocabulary]);
 
     const speak = (text) => {
@@ -53,12 +56,13 @@ export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar
         }
     }, [currentIndex, isStudying, isFlipped]);
 
-    const handleRate = (rating) => {
+    const handleRate = async (rating) => {
         const currentCard = cards[currentIndex];
-        storage.updateSRS(currentCard.id, rating);
+        await storage.updateSRS(currentCard.id, rating);
 
         // Update stats immediately for visual feedback
-        setStatus(storage.getStatusCounts());
+        const counts = await storage.getStatusCounts();
+        setStatus(counts);
 
         if (currentIndex < cards.length - 1) {
             setIsFlipped(false);
