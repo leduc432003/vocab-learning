@@ -8,6 +8,9 @@ export default function Auth() {
     const handleGoogleLogin = async () => {
         try {
             setLoading(true);
+            const redirectUrl = typeof window !== 'undefined' ? window.location.origin : '';
+            console.log('Đang chuyển hướng tới:', redirectUrl);
+
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
@@ -15,7 +18,7 @@ export default function Auth() {
                         access_type: 'offline',
                         prompt: 'select_account',
                     },
-                    redirectTo: window.location.origin
+                    redirectTo: redirectUrl // Supabase sẽ tự dùng Site URL nếu cái này trống
                 }
             });
             if (error) throw error;
