@@ -24,8 +24,11 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
             >
                 <div className="text-left flex-1">
                     <div className="text-sm text-gray-500 dark:text-gray-400">Current Set</div>
-                    <div className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-all">
+                    <div className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-all flex items-center gap-2">
                         {currentSet?.name || 'No Set Selected'}
+                        <span className="text-xs font-normal opacity-50 bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full">
+                            {currentSet?.wordCount || currentSet?.words?.length || 0}
+                        </span>
                     </div>
                 </div>
                 <svg
@@ -66,7 +69,7 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                                                 <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{set.description}</div>
                                             )}
                                             <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                                                {set.words?.length || 0} words
+                                                {set.wordCount || set.words?.length || 0} words
                                             </div>
                                         </div>
                                         {sets.length > 1 && (

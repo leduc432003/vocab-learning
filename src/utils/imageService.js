@@ -1,6 +1,6 @@
-const PEXELS_API_KEY = import.meta.env.VITE_PEXELS_API_KEY;
-const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
-const PIXABAY_API_KEY = import.meta.env.VITE_PIXABAY_API_KEY;
+const PEXELS_API_KEY = process.env.NEXT_PUBLIC_PEXELS_API_KEY;
+const UNSPLASH_ACCESS_KEY = process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY;
+const PIXABAY_API_KEY = process.env.NEXT_PUBLIC_PIXABAY_API_KEY;
 
 /**
  * Search for an image on Pexels API
@@ -118,43 +118,26 @@ const searchPixabayImage = async (query) => {
 };
 
 /**
- * Main search function that tries Pexels, Pixabay then Unsplash
- * Priority: Pexels → Pixabay → Unsplash
- * @param {string} query - The search term
- * @param {string} [topic] - Optional topic to refine search
+ * Main search function that calls our Next.js Backend API
+ * @param {string} term - The word to search
+ * @param {string} [topic] - Optional topic
  * @returns {Promise<string|null>} - The URL of the image
  */
-export const searchImage = async (query, topic) => {
-    // Combine topic and query for Pixabay/Unsplash (using space separator)
-    const searchCombined = topic ? `${topic} ${query}` : query;
-    let result = null;
+export const searchImage = async (term, topic) => {
+    try {
+        const response = await fetch('/api/image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ term, topic })
+        });
 
-    // 1. Try Pexels first (Priority 1 - using term only, no topic)
-    if (!result) {
-        result = await searchPexelsImage(query);
-        if (!result || result === 'RATE_LIMIT') {
-            console.log(`Pexels failed for "${query}", trying next...`);
-            result = null; // Reset for next attempt
-        }
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data.url || null;
+    } catch (error) {
+        console.error('Error calling image API:', error);
+        return null;
     }
-
-    // 2. Try Pixabay (Priority 2 - using topic+term)
-    if (!result) {
-        result = await searchPixabayImage(searchCombined);
-        if (!result) {
-            console.log(`Pixabay failed for "${searchCombined}", trying next...`);
-        }
-    }
-
-    // 3. Try Unsplash (Priority 3 - using topic+term)
-    if (!result) {
-        result = await searchUnsplashImage(searchCombined);
-        if (!result) {
-            console.log(`Unsplash failed for "${searchCombined}". All services failed.`);
-        }
-    }
-
-    return result;
 };
 
 /**

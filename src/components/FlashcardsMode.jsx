@@ -1,34 +1,28 @@
 import { useState, useEffect } from 'react';
 import { storage } from '../utils/storage';
 
-export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar, onExit, theme, toggleTheme }) {
+export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, onToggleStar, onExit, theme, toggleTheme }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
-    const [cards, setCards] = useState([]);
+    const [cards, setCards] = useState(vocabulary);
     const [sessionDone, setSessionDone] = useState(false);
-    const [status, setStatus] = useState(null);
     const [isStudying, setIsStudying] = useState(false);
     const [isShuffle, setIsShuffle] = useState(false);
+
+    useEffect(() => {
+        setCards(vocabulary);
+    }, [vocabulary]);
 
     const handleStart = () => {
         if (cards.length === 0) return;
 
+        let finalCards = [...cards];
         if (isShuffle) {
-            const shuffled = [...cards].sort(() => Math.random() - 0.5);
-            setCards(shuffled);
+            finalCards.sort(() => Math.random() - 0.5);
         }
+        setCards(finalCards);
         setIsStudying(true);
     };
-
-    useEffect(() => {
-        const loadStatus = async () => {
-            const counts = await storage.getStatusCounts();
-            setStatus(counts);
-            const dueCards = await storage.getDueWords();
-            setCards(dueCards);
-        };
-        loadStatus();
-    }, [vocabulary]);
 
     const speak = (text) => {
         if ('speechSynthesis' in window) {
@@ -58,11 +52,7 @@ export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar
 
     const handleRate = async (rating) => {
         const currentCard = cards[currentIndex];
-        await storage.updateSRS(currentCard.id, rating);
-
-        // Update stats immediately for visual feedback
-        const counts = await storage.getStatusCounts();
-        setStatus(counts);
+        await onUpdateSRS(currentCard.id, rating);
 
         if (currentIndex < cards.length - 1) {
             setIsFlipped(false);
@@ -104,15 +94,15 @@ export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar
                         <div className="grid grid-cols-1 gap-4 mb-12">
                             <div className="flex justify-between items-center p-5 rounded-3xl bg-blue-500/10 border border-blue-500/20">
                                 <span className="text-blue-600 dark:text-blue-400 font-bold uppercase text-[10px] tracking-widest">Từ mới</span>
-                                <span className="text-blue-600 dark:text-blue-400 text-3xl font-black">{status?.notLearned || 0}</span>
+                                <span className="text-blue-600 dark:text-blue-400 text-3xl font-black">{statusCounts?.notLearned || 0}</span>
                             </div>
                             <div className="flex justify-between items-center p-5 rounded-3xl bg-amber-500/10 border border-amber-500/20">
                                 <span className="text-amber-600 dark:text-amber-500 font-bold uppercase text-[10px] tracking-widest">Đang học</span>
-                                <span className="text-amber-600 dark:text-amber-500 text-3xl font-black">{status?.learning || 0}</span>
+                                <span className="text-amber-600 dark:text-amber-500 text-3xl font-black">{statusCounts?.learning || 0}</span>
                             </div>
                             <div className="flex justify-between items-center p-5 rounded-3xl bg-emerald-500/10 border border-emerald-500/20">
                                 <span className="text-emerald-600 dark:text-emerald-500 font-bold uppercase text-[10px] tracking-widest">Đến hạn</span>
-                                <span className="text-emerald-600 dark:text-emerald-500 text-3xl font-black">{status?.due || 0}</span>
+                                <span className="text-emerald-600 dark:text-emerald-500 text-3xl font-black">{statusCounts?.due || 0}</span>
                             </div>
                         </div>
 
@@ -135,9 +125,9 @@ export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar
 
                         <button
                             onClick={handleStart}
-                            className={`w-full py-6 rounded-3xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl ${cards.length > 0 ? 'bg-white text-black shadow-white/10' : 'bg-gray-800 text-gray-500 cursor-not-allowed'}`}
+                            className={`w-full py-6 rounded-3xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl ${vocabulary.length > 0 ? 'bg-white text-black shadow-white/10' : 'bg-gray-800 text-gray-500 cursor-not-allowed'}`}
                         >
-                            {cards.length > 0 ? 'Học ngay' : 'Hôm nay đã học xong!'}
+                            {statusCounts?.due > 0 || vocabulary.length > 0 ? 'Học ngay' : 'Hôm nay đã học xong!'}
                         </button>
 
                         <button onClick={onExit} className="mt-8 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors text-sm font-bold">
@@ -186,17 +176,17 @@ export default function FlashcardsMode({ vocabulary, onUpdateStats, onToggleStar
                     <div className="flex gap-3 md:gap-8 px-4 py-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 scale-90 md:scale-100 shadow-sm dark:shadow-none">
                         <div className="flex flex-col items-center">
                             <span className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-tighter">Mới</span>
-                            <span className="text-xs font-black text-gray-900 dark:text-white">{status?.notLearned}</span>
+                            <span className="text-xs font-black text-gray-900 dark:text-white">{statusCounts?.notLearned}</span>
                         </div>
                         <div className="h-3 w-px bg-gray-200 dark:bg-white/10 self-center"></div>
                         <div className="flex flex-col items-center">
                             <span className="text-[9px] font-black text-amber-500 uppercase tracking-tighter">Đang học</span>
-                            <span className="text-xs font-black text-gray-900 dark:text-white">{status?.learning}</span>
+                            <span className="text-xs font-black text-gray-900 dark:text-white">{statusCounts?.learning}</span>
                         </div>
                         <div className="h-3 w-px bg-gray-200 dark:bg-white/10 self-center"></div>
                         <div className="flex flex-col items-center">
                             <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">Đến hạn</span>
-                            <span className="text-xs font-black text-gray-900 dark:text-white">{status?.due}</span>
+                            <span className="text-xs font-black text-gray-900 dark:text-white">{statusCounts?.due}</span>
                         </div>
                     </div>
                 </div>

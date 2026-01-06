@@ -1,22 +1,24 @@
+"use client";
+
 import { useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
-import { storage } from './utils/storage';
-import { supabase } from './utils/supabaseClient';
-import { fillMissingImages } from './utils/imageService';
-import Auth from './components/Auth';
-import VocabCard from './components/VocabCard';
-import AddWordModal from './components/AddWordModal';
-import ImportModal from './components/ImportModal';
-import SetSelector from './components/SetSelector';
-import FlashcardsMode from './components/FlashcardsMode';
-import LearnMode from './components/LearnMode';
-import WriteMode from './components/WriteMode';
-import SpellMode from './components/SpellMode';
-import MatchMode from './components/MatchMode';
-import TestMode from './components/TestMode';
-import ConfirmDialog from './components/ConfirmDialog';
+import { storage } from '../utils/storage';
+import { supabase } from '../utils/supabaseClient';
+import { fillMissingImages } from '../utils/imageService';
+import Auth from '../components/Auth';
+import VocabCard from '../components/VocabCard';
+import AddWordModal from '../components/AddWordModal';
+import ImportModal from '../components/ImportModal';
+import SetSelector from '../components/SetSelector';
+import FlashcardsMode from '../components/FlashcardsMode';
+import LearnMode from '../components/LearnMode';
+import WriteMode from '../components/WriteMode';
+import SpellMode from '../components/SpellMode';
+import MatchMode from '../components/MatchMode';
+import TestMode from '../components/TestMode';
+import ConfirmDialog from '../components/ConfirmDialog';
 
-function App() {
+export default function Page() {
   const [session, setSession] = useState(null);
   const [vocabulary, setVocabulary] = useState([]);
   const [sets, setSets] = useState([]);
@@ -522,5 +524,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

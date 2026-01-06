@@ -32,26 +32,20 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
     }, [vocabulary]);
 
     const handleStartSession = () => {
-        // Sorting logic
+        // Sorting logic for Supabase fields
         const sortedVocab = [...vocabulary].sort((a, b) => {
-            const masteryA = a.masteryLevel || 0;
-            const masteryB = b.masteryLevel || 0;
-            if (masteryA !== masteryB) return masteryA - masteryB;
-
-            const timeA = a.lastReviewed ? new Date(a.lastReviewed).getTime() : 0;
-            const timeB = b.lastReviewed ? new Date(b.lastReviewed).getTime() : 0;
-            if (timeA !== timeB) return timeB - timeA;
-
-            const statusOrder = { 'learning': 0, 'not-learned': 1, 'learned': 2 };
-            const orderA = statusOrder[a.learningStatus] ?? 1;
-            const orderB = statusOrder[b.learningStatus] ?? 1;
+            const stageOrder = { 'new': 0, 'learning': 1, 'review': 2 };
+            const orderA = stageOrder[a.srsStage] ?? 0;
+            const orderB = stageOrder[b.srsStage] ?? 0;
             if (orderA !== orderB) return orderA - orderB;
 
-            return Math.random() - 0.5;
+            const timeA = a.nextReview ? new Date(a.nextReview).getTime() : 0;
+            const timeB = b.nextReview ? new Date(b.nextReview).getTime() : 0;
+            return timeA - timeB;
         });
 
         // Use batchSize from setup
-        const count = setupConfig.batchSize;
+        const count = Math.min(setupConfig.batchSize, sortedVocab.length);
         const sessionWords = sortedVocab.slice(0, count).map(w => ({
             ...w,
             stage: 'recognition',

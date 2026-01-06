@@ -42,11 +42,11 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                     <div className="h-full glass-effect rounded-[2.5rem] border border-gray-200 dark:border-white/10 flex flex-col p-8 transition-all group-hover:bg-white dark:group-hover:bg-white/[0.07] group-hover:border-primary-500/30 shadow-xl overflow-hidden relative bg-white/80 dark:bg-white/5">
                         {/* Status Label */}
                         <div className="flex justify-between items-start mb-4">
-                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${word.learningStatus === 'learned' ? 'text-emerald-600 dark:text-emerald-400 border-emerald-500/30' :
-                                word.learningStatus === 'learning' ? 'text-amber-600 dark:text-amber-400 border-amber-500/30' :
+                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${word.srsStage === 'review' ? 'text-emerald-600 dark:text-emerald-400 border-emerald-500/30' :
+                                word.srsStage === 'learning' ? 'text-amber-600 dark:text-amber-400 border-amber-500/30' :
                                     'text-blue-600 dark:text-blue-400 border-blue-500/30'
                                 }`}>
-                                {word.learningStatus === 'learned' ? 'Đã thuộc' : word.learningStatus === 'learning' ? 'Đang học' : 'Từ mới'}
+                                {word.srsStage === 'review' ? 'Đã thuộc' : word.srsStage === 'learning' ? 'Đang học' : 'Từ mới'}
                             </span>
 
                             <button
