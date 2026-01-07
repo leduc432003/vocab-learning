@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { supabase } from '../utils/supabaseClient';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 export default function Auth() {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
 
     const handleGoogleLogin = async () => {
@@ -23,7 +25,7 @@ export default function Auth() {
             });
             if (error) throw error;
         } catch (error) {
-            toast.error(error.message || 'Lỗi kết nối Google');
+            toast.error(error.message || t('auth.googleLoginError'));
             console.error(error);
         } finally {
             setLoading(false);
@@ -43,7 +45,7 @@ export default function Auth() {
                             Vocab<span className="text-primary-500">Master</span>
                         </h1>
                         <p className="text-gray-400 font-medium leading-relaxed">
-                            Chinh phục tiếng Anh thông minh hơn <br />với đồng bộ hóa đám mây
+                            {t('auth.tagline')}
                         </p>
                     </div>
 
@@ -75,13 +77,13 @@ export default function Auth() {
                                             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                         />
                                     </svg>
-                                    <span>Tiếp tục với Google</span>
+                                    <span>{t('auth.continueGoogle')}</span>
                                 </>
                             )}
                         </button>
 
                         <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest px-4 leading-loose">
-                            Bằng cách đăng nhập, bạn đồng ý với các điều khoản bảo mật của hệ thống
+                            {t('auth.terms')}
                         </p>
                     </div>
 

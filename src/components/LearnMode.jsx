@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview = false }) {
+    const { t } = useTranslation();
     // Session Setup states
     const [showSetup, setShowSetup] = useState(true);
     const [setupConfig, setSetupConfig] = useState({ batchSize: 10, limitType: 'questions' }); // limitType: 'questions' | 'mastery'
@@ -306,13 +308,13 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                         <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-primary rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary-500/30">
                             <span className="text-2xl md:text-3xl">⚙️</span>
                         </div>
-                        <h2 className="text-xl md:text-2xl font-black text-white">Thiết lập phiên học</h2>
-                        <p className="text-gray-400 text-[10px] md:text-sm mt-1 md:mt-2">Tùy chỉnh mục tiêu của bạn</p>
+                        <h2 className="text-xl md:text-2xl font-black text-white">{t('learn.setupTitle')}</h2>
+                        <p className="text-gray-400 text-[10px] md:text-sm mt-1 md:mt-2">{t('learn.customGoal')}</p>
                     </div>
 
                     <div className="space-y-5 md:space-y-6">
                         <div>
-                            <label className="block text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2 md:mb-3 text-center md:text-left">Số lượng mục tiêu</label>
+                            <label className="block text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2 md:mb-3 text-center md:text-left">{t('learn.targetAmount')}</label>
                             <div className="flex items-center gap-3 md:gap-4">
                                 <button
                                     onClick={() => setSetupConfig(p => ({ ...p, batchSize: Math.max(5, p.batchSize - 5) }))}
@@ -329,27 +331,27 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                         </div>
 
                         <div>
-                            <label className="block text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2 md:mb-3 text-center md:text-left">Chế độ giới hạn</label>
+                            <label className="block text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-2 md:mb-3 text-center md:text-left">{t('learn.limitMode')}</label>
                             <div className="grid grid-cols-2 gap-2 md:gap-3">
                                 <button
                                     onClick={() => setSetupConfig(p => ({ ...p, limitType: 'questions' }))}
                                     className={`p-3 md:p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 md:gap-2 transition-all ${setupConfig.limitType === 'questions' ? 'bg-primary-500/20 border-primary-500 text-white' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
                                 >
                                     <span className="text-xl md:text-2xl">⚡</span>
-                                    <span className="text-[10px] md:text-xs font-bold">Số câu hỏi</span>
+                                    <span className="text-[10px] md:text-xs font-bold">{t('learn.questions')}</span>
                                 </button>
                                 <button
                                     onClick={() => setSetupConfig(p => ({ ...p, limitType: 'mastery' }))}
                                     className={`p-3 md:p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-1 md:gap-2 transition-all ${setupConfig.limitType === 'mastery' ? 'bg-success-500/20 border-success-500 text-white' : 'bg-white/5 text-gray-500 hover:bg-white/10'}`}
                                 >
                                     <span className="text-xl md:text-2xl">🎓</span>
-                                    <span className="text-[10px] md:text-xs font-bold">Số từ thuộc</span>
+                                    <span className="text-[10px] md:text-xs font-bold">{t('learn.mastery')}</span>
                                 </button>
                             </div>
                             <p className="text-center text-[10px] text-gray-500 mt-3 italic">
                                 {setupConfig.limitType === 'questions'
-                                    ? `Dừng sau khi bạn trả lời đủ ${setupConfig.batchSize} lần.`
-                                    : `Dừng sau khi bạn đã thuộc hết ${setupConfig.batchSize} từ.`}
+                                    ? t('learn.descQuestions', { count: setupConfig.batchSize })
+                                    : t('learn.descMastery', { count: setupConfig.batchSize })}
                             </p>
                         </div>
 
@@ -358,13 +360,13 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                 onClick={handleStartSession}
                                 className="w-full py-3.5 md:py-4 bg-gradient-primary rounded-xl font-black text-base md:text-lg text-white hover:shadow-xl hover:shadow-primary-500/20 transform hover:-translate-y-1 transition-all"
                             >
-                                Bắt đầu ngay
+                                {t('learn.startNow')}
                             </button>
                             <button
                                 onClick={onExit}
                                 className="w-full py-3 md:py-4 mt-2 text-gray-500 font-bold hover:text-white transition-all text-sm"
                             >
-                                Quay lại
+                                {t('common.back')}
                             </button>
                         </div>
                     </div>
@@ -379,16 +381,16 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                 <div className="text-center max-w-md glass-effect p-12 rounded-3xl animate-in zoom-in duration-500">
                     <div className="text-6xl mb-6">🎉</div>
                     <h2 className="text-3xl font-bold text-gradient-primary mb-4">
-                        Tất cả đã hoàn thành!
+                        {t('learn.allDone')}
                     </h2>
                     <p className="text-gray-400 mb-8 font-medium">
-                        Không còn từ nào cần học hoặc ôn tập.
+                        {t('learn.noWords')}
                     </p>
                     <button
                         className="w-full py-4 bg-gradient-primary rounded-xl font-bold text-white hover:shadow-lg transition-all"
                         onClick={onExit}
                     >
-                        Quay lại
+                        {t('common.back')}
                     </button>
                 </div>
             </div>
@@ -402,22 +404,22 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                     <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-success rounded-full flex items-center justify-center mx-auto mb-6 md:mb-8 shadow-lg shadow-success-500/50">
                         <span className="text-3xl md:text-5xl text-white">🏆</span>
                     </div>
-                    <h2 className="text-2xl md:text-4xl font-black text-white mb-2 tracking-tight">Tuyệt vời!</h2>
-                    <p className="text-gray-400 text-sm md:text-lg mb-8 md:mb-10 font-medium">Bạn đã hoàn thành phiên học này.</p>
+                    <h2 className="text-2xl md:text-4xl font-black text-white mb-2 tracking-tight">{t('learn.awesome')}</h2>
+                    <p className="text-gray-400 text-sm md:text-lg mb-8 md:mb-10 font-medium">{t('learn.sessionFinished')}</p>
 
                     <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-8">
                         <div className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/5">
                             <div className="text-2xl md:text-3xl font-bold text-gradient-success mb-1">{completedCount}</div>
-                            <div className="text-[8px] md:text-[10px] text-gray-500 uppercase font-bold tracking-widest">Lượt đúng</div>
+                            <div className="text-[8px] md:text-[10px] text-gray-500 uppercase font-bold tracking-widest">{t('learn.correctHits')}</div>
                         </div>
                         <div className="bg-white/5 rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/5">
                             <div className="text-2xl md:text-3xl font-bold text-gradient-primary mb-1">{stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0}%</div>
-                            <div className="text-[8px] md:text-[10px] text-gray-500 uppercase font-bold tracking-widest">Độ chính xác</div>
+                            <div className="text-[8px] md:text-[10px] text-gray-500 uppercase font-bold tracking-widest">{t('learn.accuracy')}</div>
                         </div>
                     </div>
 
                     <div className="mb-8 md:mb-10 text-left">
-                        <h3 className="text-gray-500 text-[8px] md:text-[10px] uppercase tracking-widest font-black mb-3 md:mb-4 text-center">Từ vựng trong phiên học ({studiedWords.length})</h3>
+                        <h3 className="text-gray-500 text-[8px] md:text-[10px] uppercase tracking-widest font-black mb-3 md:mb-4 text-center">{t('learn.vocabInSession')} ({studiedWords.length})</h3>
                         <div className="grid gap-2 md:grid-cols-1 max-h-[30vh] md:max-h-[40vh] overflow-y-auto pr-1 md:pr-2 no-scrollbar">
                             {studiedWords.map((word, idx) => (
                                 <div key={idx} className="flex items-center gap-3 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
@@ -441,7 +443,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                             className="w-full py-4 md:py-5 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl font-bold text-base md:text-xl text-gray-300 hover:bg-white/10 transition-all"
                             onClick={onExit}
                         >
-                            Thoát ra
+                            {t('learn.exit')}
                         </button>
                         <button
                             className={`w-full py-4 md:py-5 bg-gradient-primary rounded-xl md:rounded-2xl font-bold text-base md:text-xl text-white hover:shadow-2xl hover:shadow-primary-500/40 hover:-translate-y-1 transition-all`}
@@ -456,7 +458,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                 setIsInitialized(false);
                             }}
                         >
-                            {isReview ? 'Ôn tập tiếp' : 'Tiếp tục học'}
+                            {isReview ? t('learn.continueReviewing') : t('learn.continueLearning')}
                         </button>
                     </div>
                 </div>
@@ -468,15 +470,15 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
         return (
             <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-4 md:p-8 font-sans">
                 <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-                    <button onClick={() => setShowSetup(true)} className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold text-gray-300">← Cấu hình lại</button>
+                    <button onClick={() => setShowSetup(true)} className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold text-gray-300">← {t('learn.reconfigure')}</button>
                     <div className="glass-effect px-6 py-3 rounded-xl border-primary-500/20 text-center">
-                        <span className="text-gray-500 text-[10px] uppercase tracking-wider block mb-1 font-bold">{isReview ? 'Phiên ôn tập' : 'Phiên học hôm nay'}</span>
-                        <span className="text-xl font-black text-white">{queue.length} từ</span>
+                        <span className="text-gray-500 text-[10px] uppercase tracking-wider block mb-1 font-bold">{isReview ? t('learn.reviewSession') : t('learn.todaySession')}</span>
+                        <span className="text-xl font-black text-white">{queue.length} {t('learn.words_count')}</span>
                     </div>
                 </div>
 
                 <div className="max-w-2xl mx-auto glass-effect rounded-[2rem] p-6 md:p-10 border border-white/5 animate-in slide-in-from-bottom-10">
-                    <h2 className="text-2xl md:text-3xl font-black text-white mb-6 text-center">Danh sách từ vựng:</h2>
+                    <h2 className="text-2xl md:text-3xl font-black text-white mb-6 text-center">{t('learn.vocabList')}</h2>
                     <div className="grid gap-3 mb-10 overflow-y-auto max-h-[40vh] pr-2 no-scrollbar">
                         {queue.map((word, idx) => (
                             <div key={idx} className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
@@ -498,10 +500,10 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                         onClick={startStudy}
                         className="w-full py-5 bg-gradient-primary rounded-[1.5rem] font-black text-xl text-white hover:shadow-2xl hover:shadow-primary-500/40 transform hover:-translate-y-1 transition-all"
                     >
-                        Bắt đầu ngay! 🚀
+                        {t('learn.startNow')}! 🚀
                     </button>
                     <p className="text-center text-gray-500 text-[10px] mt-6 uppercase tracking-widest font-black">
-                        Lộ trình: Nhận diện (Chọn từ) → Ghi nhớ (Gõ từ)
+                        {t('learn.learningPath')}
                     </p>
                 </div>
             </div>
@@ -524,12 +526,12 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                     onClick={onExit}
                     className="px-4 md:px-6 py-2 md:py-3 glass-effect rounded-lg md:rounded-xl font-semibold hover:bg-white/10 transition-all text-gray-300 text-sm md:text-base"
                 >
-                    ← <span className="hidden md:inline">Thoát</span>
+                    ← <span className="hidden md:inline">{t('common.exit')}</span>
                 </button>
                 <div className="flex gap-2 md:gap-4 flex-1 justify-end max-w-full overflow-hidden">
                     <div className="glass-effect px-3 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl border-primary-500/20 flex-1 md:min-w-[180px]">
                         <span className="text-gray-500 text-[7px] md:text-[10px] uppercase tracking-wider block mb-0.5 font-bold italic truncate">
-                            {setupConfig.limitType === 'questions' ? 'Tiến độ (Câu)' : 'Tiến độ (Từ)'}
+                            {setupConfig.limitType === 'questions' ? t('learn.progressQ') : t('learn.progressW')}
                         </span>
                         <div className="flex items-center gap-2 md:gap-3">
                             <span className="text-sm md:text-xl font-black text-white shrink-0">
@@ -549,8 +551,8 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                         </div>
                     </div>
                     <div className="glass-effect px-3 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl border-success-500/20 text-center shrink-0">
-                        <span className="text-gray-500 text-[7px] md:text-[10px] uppercase tracking-wider block mb-0.5 font-bold">Kiểu</span>
-                        <span className={`text-xs md:text-xl font-black ${isMCQ ? 'text-primary-400' : 'text-success-400'}`}>{isMCQ ? 'CHỌN' : 'VIẾT'}</span>
+                        <span className="text-gray-500 text-[7px] md:text-[10px] uppercase tracking-wider block mb-0.5 font-bold">{t('learn.type')}</span>
+                        <span className={`text-xs md:text-xl font-black ${isMCQ ? 'text-primary-400' : 'text-success-400'}`}>{isMCQ ? t('learn.choose') : t('learn.write')}</span>
                     </div>
                 </div>
             </div>
@@ -562,11 +564,11 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                     <div className="text-center mb-6 md:mb-10">
                         <div className="flex flex-col items-center gap-2 mb-4 md:mb-6">
                             <span className={`inline-block px-4 py-1.5 text-[8px] md:text-[10px] font-black rounded-full uppercase tracking-widest border shadow-sm transition-all ${isMCQ ? 'bg-primary-500/10 text-primary-400 border-primary-500/20' : 'bg-success-500/10 text-success-400 border-success-500/20'}`}>
-                                {isTermToDef ? 'Dịch sang Nghĩa tiếng Việt' : 'Tìm từ tiếng Anh tương ứng'}
+                                {isTermToDef ? t('learn.translateToVi') : t('learn.translateToEn')}
                             </span>
                             {currentWord.type && (
                                 <span className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter bg-white/5 px-2 py-0.5 rounded border border-white/5">
-                                    Loại từ: {currentWord.type}
+                                    {t('learn.wordTypeLabel')}: {currentWord.type}
                                 </span>
                             )}
                         </div>
@@ -628,7 +630,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                     value={userAnswer}
                                     onChange={(e) => setUserAnswer(e.target.value)}
                                     onKeyPress={(e) => e.key === 'Enter' && userAnswer.trim() && processWrittenAnswer()}
-                                    placeholder={isTermToDef ? "Gõ nghĩa của từ..." : "Gõ từ tiếng Anh..."}
+                                    placeholder={isTermToDef ? t('learn.typeMeaning') : t('learn.typeEnglish')}
                                     className="w-full p-4 md:p-6 bg-gray-900 border border-white/10 rounded-2xl text-2xl md:text-3xl font-black text-white text-center focus:outline-none focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 transition-all placeholder:text-gray-700 shadow-inner"
                                     autoFocus
                                 />
@@ -637,7 +639,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                     disabled={!userAnswer.trim()}
                                     className="w-full py-4 md:py-5 bg-gradient-primary rounded-2xl font-black text-xl text-white hover:shadow-2xl hover:shadow-primary-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all transform active:scale-95 shadow-lg"
                                 >
-                                    Kiểm tra
+                                    {t('learn.check')}
                                 </button>
                             </div>
                         )
@@ -690,16 +692,16 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                         <span className="text-5xl">{isTypo ? '✍️' : isCorrect ? '✓' : '✕'}</span>
                                     </div>
                                     <h3 className={`text-3xl font-black mb-4 ${isTypo ? 'text-orange-400' : isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                                        {isTypo ? 'Gần đúng rồi!' : isCorrect ? 'Chính xác!' : 'Chưa đúng rồi'}
+                                        {isTypo ? t('learn.almost') : isCorrect ? t('learn.correct') : t('learn.incorrect')}
                                     </h3>
-                                    {isTypo && <p className="text-orange-300/70 text-sm mb-4 font-medium italic">Bạn viết nhầm một chút:</p>}
+                                    {isTypo && <p className="text-orange-300/70 text-sm mb-4 font-medium italic">{t('learn.typoHint')}</p>}
                                     {isTypo && (
                                         <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/5">
                                             {renderDiff(lastUserAnswer, isTermToDef ? currentWord.definition : currentWord.term)}
                                         </div>
                                     )}
                                     <div className="mt-4 p-6 bg-black/30 rounded-[1.5rem] w-full border border-white/5">
-                                        <p className="text-gray-500 text-[10px] uppercase font-black tracking-widest mb-3">Đáp án chuẩn là:</p>
+                                        <p className="text-gray-500 text-[10px] uppercase font-black tracking-widest mb-3">{t('learn.correctAnswer')}</p>
                                         <div className="flex items-center justify-center gap-4">
                                             <p className="text-4xl font-black text-white tracking-tight break-words">
                                                 {isTermToDef ? currentWord.definition : currentWord.term}
@@ -722,7 +724,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                             className="mt-6 text-gray-400 hover:text-white text-xs font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group"
                                         >
                                             <span className="w-5 h-5 rounded-full border border-gray-600 flex items-center justify-center group-hover:border-white group-hover:bg-white group-hover:text-black transition-all">✓</span>
-                                            Tôi đã trả lời đúng
+                                            {t('learn.override')}
                                         </button>
                                     )}
                                 </div>
@@ -732,7 +734,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                 onClick={nextQuestion}
                                 className={`w-full py-6 rounded-2xl font-black text-2xl text-white transition-all transform hover:scale-[1.02] active:scale-[0.98] mt-6 shadow-xl ${isTypo ? 'bg-orange-500 shadow-orange-500/30' : isCorrect ? 'bg-gradient-success shadow-green-500/30' : 'bg-gray-700'}`}
                             >
-                                {isTypo ? 'Đã nhớ, tiếp tục →' : 'Tiếp tục (Câu tiếp theo) →'}
+                                {isTypo ? t('learn.gotIt') : t('learn.continueNext')}
                             </button>
                         </div>
                     )}

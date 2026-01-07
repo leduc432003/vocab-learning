@@ -1,6 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-export default function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel, confirmText = 'Xác nhận', cancelText = 'Hủy' }) {
+export default function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel, confirmText, cancelText }) {
+    const { t } = useTranslation();
+    const finalConfirmText = confirmText || t('common.confirm');
+    const finalCancelText = cancelText || t('common.cancel');
+
     if (!isOpen) return null;
 
     return (
@@ -22,13 +27,13 @@ export default function ConfirmDialog({ isOpen, title, message, onConfirm, onCan
                         onClick={onCancel}
                         className="flex-1 py-4 glass-effect rounded-2xl font-bold text-gray-400 hover:bg-white/10 transition-all"
                     >
-                        {cancelText}
+                        {finalCancelText}
                     </button>
                     <button
                         onClick={onConfirm}
                         className="flex-1 py-4 bg-gradient-to-r from-red-600 to-red-500 rounded-2xl font-bold text-white hover:shadow-lg hover:shadow-red-500/20 active:scale-95 transition-all"
                     >
-                        {confirmText}
+                        {finalConfirmText}
                     </button>
                 </div>
             </div>

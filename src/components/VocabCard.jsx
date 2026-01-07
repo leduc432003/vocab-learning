@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
+    const { t, i18n } = useTranslation();
     const [isFlipped, setIsFlipped] = useState(false);
 
     const speak = (e, text) => {
@@ -16,7 +18,7 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
     const formatDate = (dateString) => {
         if (!dateString) return null;
         const date = new Date(dateString);
-        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return date.toLocaleDateString(i18n.language === 'vi' ? 'vi-VN' : 'en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
     };
 
     const renderExampleWithBold = (text) => {
@@ -46,7 +48,7 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                                 word.srsStage === 'learning' ? 'text-amber-600 dark:text-amber-400 border-amber-500/30' :
                                     'text-blue-600 dark:text-blue-400 border-blue-500/30'
                                 }`}>
-                                {word.srsStage === 'review' ? 'Đã thuộc' : word.srsStage === 'learning' ? 'Đang học' : 'Từ mới'}
+                                {word.srsStage === 'review' ? t('vocabCard.review') : word.srsStage === 'learning' ? t('vocabCard.learning') : t('vocabCard.new')}
                             </span>
 
                             <button
@@ -104,7 +106,7 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                             <span className="text-[10px] md:text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{word.term}</span>
                             {word.nextReview && (
                                 <span className="text-[9px] md:text-[10px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10 px-2 py-1 rounded-lg">
-                                    Ôn lại: {formatDate(word.nextReview)}
+                                    {t('vocabCard.nextReview')}: {formatDate(word.nextReview)}
                                 </span>
                             )}
                         </div>
@@ -119,7 +121,7 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
 
                             {word.example && (
                                 <div className="bg-gray-50 dark:bg-white/5 p-3 md:p-4 rounded-xl md:rounded-2xl border border-gray-100 dark:border-white/5 italic">
-                                    <div className="text-[8px] md:text-[9px] font-black text-primary-600 dark:text-primary-500 uppercase tracking-widest mb-1">Ví dụ</div>
+                                    <div className="text-[8px] md:text-[9px] font-black text-primary-600 dark:text-primary-500 uppercase tracking-widest mb-1">{t('vocabCard.example')}</div>
                                     <p className="text-gray-700 dark:text-gray-300 text-xs md:text-base leading-snug">
                                         "{renderExampleWithBold(word.example)}"
                                     </p>
@@ -135,13 +137,13 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                                 <div className="grid grid-cols-2 gap-2">
                                     {word.synonym && (
                                         <div className="bg-emerald-50 dark:bg-emerald-500/10 p-2 md:p-3 rounded-lg border border-emerald-100 dark:border-transparent">
-                                            <span className="block text-[7px] md:text-[8px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1">Đồng nghĩa</span>
+                                            <span className="block text-[7px] md:text-[8px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1">{t('vocabCard.synonym')}</span>
                                             <span className="text-[10px] md:text-xs font-bold text-emerald-700 dark:text-emerald-400">{word.synonym}</span>
                                         </div>
                                     )}
                                     {word.antonym && (
                                         <div className="bg-rose-50 dark:bg-rose-500/10 p-2 md:p-3 rounded-lg border border-rose-100 dark:border-transparent">
-                                            <span className="block text-[7px] md:text-[8px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-widest mb-1">Trái nghĩa</span>
+                                            <span className="block text-[7px] md:text-[8px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-widest mb-1">{t('vocabCard.antonym')}</span>
                                             <span className="text-[10px] md:text-xs font-bold text-rose-700 dark:text-rose-400">{word.antonym}</span>
                                         </div>
                                     )}
@@ -150,7 +152,7 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
 
                             {word.note && (
                                 <div className="p-2 md:p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-100 dark:border-transparent">
-                                    <span className="block text-[8px] md:text-[9px] font-black text-blue-600 dark:text-blue-500 uppercase tracking-widest mb-1">Ghi chú</span>
+                                    <span className="block text-[8px] md:text-[9px] font-black text-blue-600 dark:text-blue-500 uppercase tracking-widest mb-1">{t('vocabCard.note')}</span>
                                     <p className="text-[10px] md:text-[11px] text-blue-800 dark:text-blue-200 leading-tight">{word.note}</p>
                                 </div>
                             )}
@@ -158,7 +160,7 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
 
                         {/* Hint to Flip Back */}
                         <div className="mt-4 text-center">
-                            <span className="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest animate-pulse italic">Chạm để lật lại</span>
+                            <span className="text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest animate-pulse italic">{t('vocabCard.tapToFlip')}</span>
                         </div>
                     </div>
                 </div>

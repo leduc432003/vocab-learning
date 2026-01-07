@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
+    const { t } = useTranslation();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [userAnswer, setUserAnswer] = useState('');
     const [showResult, setShowResult] = useState(false);
@@ -22,12 +24,12 @@ export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
             <div className="min-h-screen flex items-center justify-center bg-gray-950 p-8">
                 <div className="text-center max-w-md glass-effect p-12 rounded-3xl animate-in zoom-in duration-500">
                     <div className="text-6xl mb-6">📝</div>
-                    <h2 className="text-3xl font-black text-gradient-primary mb-4">Không có từ vựng</h2>
+                    <h2 className="text-3xl font-black text-gradient-primary mb-4">{t('write.noVocab')}</h2>
                     <button
                         onClick={onExit}
                         className="w-full py-4 bg-gradient-primary rounded-xl font-bold text-white mt-4"
                     >
-                        Quay lại
+                        {t('write.back')}
                     </button>
                 </div>
             </div>
@@ -42,17 +44,17 @@ export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
                     <div className="w-24 h-24 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-primary-500/50">
                         <span className="text-5xl text-white">✍️</span>
                     </div>
-                    <h2 className="text-4xl font-black text-white mb-2">Hoàn thành!</h2>
-                    <p className="text-gray-400 text-lg mb-10 font-medium">Bạn đã luyện viết xong toàn bộ thẻ.</p>
+                    <h2 className="text-4xl font-black text-white mb-2">{t('write.completed')}</h2>
+                    <p className="text-gray-400 text-lg mb-10 font-medium">{t('write.doneMsg')}</p>
 
                     <div className="grid grid-cols-2 gap-4 mb-10">
                         <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
                             <div className="text-3xl font-black text-gradient-success mb-1">{score.correct}/{score.total}</div>
-                            <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Viết đúng</div>
+                            <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">{t('write.correctCount')}</div>
                         </div>
                         <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
                             <div className="text-3xl font-black text-gradient-warning mb-1">{percentage}%</div>
-                            <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Độ chính xác</div>
+                            <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">{t('write.accuracy')}</div>
                         </div>
                     </div>
 
@@ -60,7 +62,7 @@ export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
                         className="w-full py-5 bg-gradient-primary rounded-2xl font-bold text-xl text-white hover:shadow-2xl hover:shadow-primary-500/40 hover:-translate-y-1 transition-all"
                         onClick={onExit}
                     >
-                        Trở về trang chủ
+                        {t('write.backHome')}
                     </button>
                 </div>
             </div>
@@ -131,15 +133,15 @@ export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
                     onClick={onExit}
                     className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold hover:bg-white/10 transition-all text-gray-300"
                 >
-                    ← Thoát
+                    ← {t('write.exit')}
                 </button>
                 <div className="flex gap-4 w-full md:w-auto">
                     <div className="flex-1 px-4 md:px-6 py-3 glass-effect rounded-xl text-center md:text-left">
-                        <span className="text-gray-500 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">Thẻ</span>
+                        <span className="text-gray-500 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">{t('write.card')}</span>
                         <span className="text-lg md:text-xl font-black text-white">{currentIndex + 1}<span className="text-gray-600 text-sm font-normal">/{cards.length}</span></span>
                     </div>
                     <div className="flex-1 px-4 md:px-6 py-3 glass-effect rounded-xl text-center md:text-left">
-                        <span className="text-gray-500 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">Đúng</span>
+                        <span className="text-gray-500 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">{t('write.correct')}</span>
                         <span className="text-lg md:text-xl font-black text-gradient-success">{score.correct}</span>
                     </div>
                 </div>
@@ -158,7 +160,7 @@ export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
 
                     <div className="text-center mb-8 md:mb-12">
                         <span className="inline-block px-4 py-1.5 bg-secondary-500/10 text-secondary-400 text-[8px] md:text-[10px] font-black rounded-full uppercase tracking-widest mb-4 md:mb-6 border border-secondary-500/20 shadow-sm">
-                            GÕ TỪ TIẾNG ANH CHO:
+                            {t('write.typeEnglishFor')}
                         </span>
                         {currentCard.image && (
                             <div className="flex justify-center mb-4 md:mb-6">
@@ -185,7 +187,7 @@ export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
                             value={userAnswer}
                             onChange={(e) => setUserAnswer(e.target.value)}
                             onKeyPress={handleKeyPress}
-                            placeholder="Gõ từ tại đây..."
+                            placeholder={t('write.typeHere')}
                             disabled={showResult}
                             className={`w-full px-4 md:px-6 py-4 md:py-6 text-center text-2xl md:text-3xl font-black rounded-2xl border-2 transition-all focus:outline-none placeholder:text-gray-700 shadow-inner ${showResult
                                 ? isCorrect
@@ -203,11 +205,11 @@ export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
                                         {isCorrect ? '✓' : '✕'}
                                     </div>
                                     <h3 className={`text-2xl font-black ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                                        {isCorrect ? 'Tuyệt vời!' : 'Chưa chính xác'}
+                                        {isCorrect ? t('write.fantastic') : t('write.notQuite')}
                                     </h3>
                                     {!isCorrect && (
                                         <div className="w-full mt-2 p-4 bg-black/30 rounded-2xl text-center border border-white/5">
-                                            <p className="text-gray-500 text-[10px] uppercase font-black mb-1">Đáp án đúng:</p>
+                                            <p className="text-gray-500 text-[10px] uppercase font-black mb-1">{t('write.correctAnswer')}</p>
                                             <div className="flex items-center justify-center gap-4">
                                                 <p className="text-3xl font-black text-white tracking-tight">{currentCard.term}</p>
                                                 <button
@@ -229,7 +231,7 @@ export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
                                             className="mt-4 text-gray-500 hover:text-white text-xs font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group"
                                         >
                                             <span className="w-4 h-4 rounded-full border border-gray-600 flex items-center justify-center group-hover:border-white group-hover:bg-white group-hover:text-black transition-all">✓</span>
-                                            Tôi đã trả lời đúng
+                                            {t('write.override')}
                                         </button>
                                     )}
                                 </div>
@@ -244,14 +246,14 @@ export default function WriteMode({ vocabulary, onUpdateStats, onExit }) {
                                 disabled={!userAnswer.trim()}
                                 className="w-full py-5 bg-gradient-primary rounded-[1.5rem] font-black text-xl text-white hover:shadow-2xl hover:shadow-primary-500/30 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg"
                             >
-                                Xác nhận
+                                {t('write.confirm')}
                             </button>
                         ) : (
                             <button
                                 onClick={handleNext}
                                 className={`w-full py-5 rounded-[1.5rem] font-black text-xl text-white transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-xl ${isCorrect ? 'bg-gradient-success shadow-green-500/30' : 'bg-gray-700'}`}
                             >
-                                {currentIndex < cards.length - 1 ? 'Tiếp tục →' : 'Xem kết quả'}
+                                {currentIndex < cards.length - 1 ? t('write.continue') : t('write.showResults')}
                             </button>
                         )}
                     </div>

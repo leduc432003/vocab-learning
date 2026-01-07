@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
+    const { t } = useTranslation();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [questions, setQuestions] = useState([]);
     const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -77,16 +79,16 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
             <div className="min-h-screen flex items-center justify-center p-8 bg-gray-950">
                 <div className="text-center max-w-md glass-effect p-12 rounded-3xl animate-in zoom-in duration-500">
                     <h2 className="text-4xl font-black text-gradient-primary mb-4">
-                        Thiếu từ vựng
+                        {t('test.notEnoughWords')}
                     </h2>
                     <p className="text-gray-400 text-lg mb-8 font-medium">
-                        Bạn cần ít nhất 4 từ để bắt đầu bài kiểm tra!
+                        {t('test.needFour')}
                     </p>
                     <button
                         className="px-8 py-4 bg-gradient-primary rounded-xl font-bold text-white hover:shadow-lg transition-all"
                         onClick={onExit}
                     >
-                        Quay lại
+                        {t('test.back')}
                     </button>
                 </div>
             </div>
@@ -101,17 +103,17 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
                     <div className="w-24 h-24 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-primary-500/50">
                         <span className="text-5xl text-white">📋</span>
                     </div>
-                    <h2 className="text-4xl font-black text-white mb-2">Bài thi hoàn tất!</h2>
-                    <p className="text-gray-400 text-lg mb-10 font-medium">Kết quả đánh giá của bạn</p>
+                    <h2 className="text-4xl font-black text-white mb-2">{t('test.completed')}</h2>
+                    <p className="text-gray-400 text-lg mb-10 font-medium">{t('test.results')}</p>
 
                     <div className="grid grid-cols-2 gap-4 mb-10">
                         <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
                             <div className="text-3xl font-black text-gradient-success mb-1">{stats.correct}/{stats.total}</div>
-                            <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Câu đúng</div>
+                            <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">{t('test.correctCount')}</div>
                         </div>
                         <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
                             <div className="text-3xl font-black text-gradient-warning mb-1">{percentage}%</div>
-                            <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">Điểm số</div>
+                            <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">{t('test.score')}</div>
                         </div>
                     </div>
 
@@ -119,7 +121,7 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
                         className="w-full py-5 bg-gradient-primary rounded-2xl font-black text-xl text-white hover:shadow-2xl hover:shadow-primary-500/40 hover:-translate-y-1 transition-all"
                         onClick={onExit}
                     >
-                        Trở về trang chủ
+                        {t('test.backHome')}
                     </button>
                 </div>
             </div>
@@ -137,15 +139,15 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
                     className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold hover:bg-white/10 transition-all text-gray-300"
                     onClick={onExit}
                 >
-                    ← Thoát thi
+                    ← {t('test.exit')}
                 </button>
                 <div className="flex gap-4 w-full md:w-auto">
                     <div className="flex-1 px-4 md:px-6 py-3 glass-effect rounded-xl">
-                        <span className="text-gray-500 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">Câu hỏi</span>
+                        <span className="text-gray-500 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">{t('test.question')}</span>
                         <span className="text-lg md:text-xl font-black text-white">{currentIndex + 1}<span className="text-gray-600 text-sm font-normal">/{questions.length}</span></span>
                     </div>
                     <div className="flex-1 px-4 md:px-6 py-3 glass-effect rounded-xl">
-                        <span className="text-gray-500 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">Đúng</span>
+                        <span className="text-gray-500 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">{t('test.correct_label')}</span>
                         <span className="text-lg md:text-xl font-black text-gradient-success">{stats.correct}</span>
                     </div>
                 </div>
@@ -200,7 +202,7 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
 
                     <div className="mb-10">
                         <h3 className="text-center text-gray-500 text-sm font-black uppercase tracking-[0.2em] mb-8">
-                            Chọn định nghĩa chính xác:
+                            {t('test.chooseCorrect')}
                         </h3>
                         <div className="grid grid-cols-1 gap-4">
                             {currentQuestion.answers.map((answer, index) => {
@@ -259,7 +261,7 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
                                 onClick={handleSubmit}
                                 disabled={!selectedAnswer}
                             >
-                                Xác nhận đáp án
+                                {t('test.confirm')}
                             </button>
                         ) : (
                             <div className="w-full flex flex-col items-center gap-8 animate-in slide-in-from-bottom-5">
@@ -267,13 +269,13 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
                                     ? 'bg-green-500/10 text-green-400 border-green-500/30'
                                     : 'bg-red-500/10 text-red-400 border-red-500/30'
                                     }`}>
-                                    <span>{isAnswerCorrect ? '✨ Chính xác!' : '😢 Chưa đúng rồi'}</span>
+                                    <span>{isAnswerCorrect ? t('test.correctFeedback') : t('test.wrongFeedback')}</span>
                                 </div>
                                 <button
                                     className="w-full py-6 bg-gradient-primary rounded-[1.5rem] font-black text-2xl text-white hover:shadow-2xl hover:shadow-primary-500/40 active:scale-95 transition-all shadow-xl"
                                     onClick={handleNext}
                                 >
-                                    {currentIndex < questions.length - 1 ? 'Câu kế tiếp →' : 'Xem kết quả'}
+                                    {currentIndex < questions.length - 1 ? t('test.nextQuestion') : t('test.showResults')}
                                 </button>
                             </div>
                         )}

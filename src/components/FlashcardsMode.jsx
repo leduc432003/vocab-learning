@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { storage } from '../utils/storage';
+import { useTranslation } from 'react-i18next';
 
 export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, onToggleStar, onExit, theme, toggleTheme }) {
+    const { t } = useTranslation();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isFlipped, setIsFlipped] = useState(false);
     const [cards, setCards] = useState(vocabulary);
@@ -91,19 +93,19 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                 <div className="max-w-md w-full relative group">
                     <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-[3rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                     <div className="relative glass-effect rounded-[2.5rem] p-10 border border-gray-200 dark:border-white/10 shadow-2xl animate-fade-in text-center bg-white/80 dark:bg-white/5">
-                        <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">English Deck</h1>
+                        <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">{t('flashcards.deckTitle')}</h1>
 
                         <div className="grid grid-cols-1 gap-4 mb-12">
                             <div className="flex justify-between items-center p-5 rounded-3xl bg-blue-500/10 border border-blue-500/20">
-                                <span className="text-blue-600 dark:text-blue-400 font-bold uppercase text-[10px] tracking-widest">Từ mới</span>
+                                <span className="text-blue-600 dark:text-blue-400 font-bold uppercase text-[10px] tracking-widest">{t('common.notLearned')}</span>
                                 <span className="text-blue-600 dark:text-blue-400 text-3xl font-black">{statusCounts?.notLearned || 0}</span>
                             </div>
                             <div className="flex justify-between items-center p-5 rounded-3xl bg-amber-500/10 border border-amber-500/20">
-                                <span className="text-amber-600 dark:text-amber-500 font-bold uppercase text-[10px] tracking-widest">Đang học</span>
+                                <span className="text-amber-600 dark:text-amber-500 font-bold uppercase text-[10px] tracking-widest">{t('common.learning')}</span>
                                 <span className="text-amber-600 dark:text-amber-500 text-3xl font-black">{statusCounts?.learning || 0}</span>
                             </div>
                             <div className="flex justify-between items-center p-5 rounded-3xl bg-emerald-500/10 border border-emerald-500/20">
-                                <span className="text-emerald-600 dark:text-emerald-500 font-bold uppercase text-[10px] tracking-widest">Đến hạn</span>
+                                <span className="text-emerald-600 dark:text-emerald-500 font-bold uppercase text-[10px] tracking-widest">{t('common.due')}</span>
                                 <span className="text-emerald-600 dark:text-emerald-500 text-3xl font-black">{statusCounts?.due || 0}</span>
                             </div>
                         </div>
@@ -114,13 +116,13 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                                     onClick={() => setIsShuffle(false)}
                                     className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${!isShuffle ? 'bg-primary-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
                                 >
-                                    Thường
+                                    {t('common.normal')}
                                 </button>
                                 <button
                                     onClick={() => setIsShuffle(true)}
                                     className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${isShuffle ? 'bg-primary-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
                                 >
-                                    Trộn thẻ
+                                    {t('common.shuffle')}
                                 </button>
                             </div>
                         </div>
@@ -129,11 +131,11 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                             onClick={handleStart}
                             className={`w-full py-6 rounded-3xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl ${vocabulary.length > 0 ? 'bg-white text-black shadow-white/10' : 'bg-gray-800 text-gray-500 cursor-not-allowed'}`}
                         >
-                            {statusCounts?.due > 0 || vocabulary.length > 0 ? 'Học ngay' : 'Hôm nay đã học xong!'}
+                            {statusCounts?.due > 0 || vocabulary.length > 0 ? t('common.start') : t('common.todayDone')}
                         </button>
 
                         <button onClick={onExit} className="mt-8 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors text-sm font-bold">
-                            Để sau
+                            {t('common.later')}
                         </button>
                     </div>
                 </div>
@@ -146,10 +148,10 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
             <div className="min-h-screen bg-gray-50 dark:bg-[#020617] flex items-center justify-center transition-colors duration-300">
                 <div className="text-center animate-slide-up">
                     <div className="text-9xl mb-8 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">🏅</div>
-                    <h2 className="text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">Hoàn thành phiên học!</h2>
-                    <p className="text-gray-500 mb-10 text-lg">Bạn đã hoàn thành các từ cần học hôm nay.</p>
+                    <h2 className="text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">{t('flashcards.sessionDone')}</h2>
+                    <p className="text-gray-500 mb-10 text-lg">{t('flashcards.doneMsg')}</p>
                     <button onClick={onExit} className="px-12 py-5 bg-gradient-primary rounded-3xl font-black text-white text-lg hover:shadow-[0_0_50px_rgba(var(--primary-rgb),0.4)] transition-all">
-                        Quay lại trang chủ
+                        {t('flashcards.backHome')}
                     </button>
                 </div>
             </div>
@@ -165,7 +167,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                 <div className="flex items-center justify-between mb-4 md:mb-8">
                     <div className="flex items-center gap-2">
                         <button onClick={() => setIsStudying(false)} className="px-3 py-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-sm transition-colors">
-                            ← Thoát
+                            ← {t('common.exit')}
                         </button>
                         <button
                             onClick={toggleTheme}
@@ -177,17 +179,17 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                     </div>
                     <div className="flex gap-3 md:gap-8 px-4 py-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 scale-90 md:scale-100 shadow-sm dark:shadow-none">
                         <div className="flex flex-col items-center">
-                            <span className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-tighter">Mới</span>
+                            <span className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-tighter">{t('common.notLearned')}</span>
                             <span className="text-xs font-black text-gray-900 dark:text-white">{statusCounts?.notLearned}</span>
                         </div>
                         <div className="h-3 w-px bg-gray-200 dark:bg-white/10 self-center"></div>
                         <div className="flex flex-col items-center">
-                            <span className="text-[9px] font-black text-amber-500 uppercase tracking-tighter">Đang học</span>
+                            <span className="text-[9px] font-black text-amber-500 uppercase tracking-tighter">{t('common.learning')}</span>
                             <span className="text-xs font-black text-gray-900 dark:text-white">{statusCounts?.learning}</span>
                         </div>
                         <div className="h-3 w-px bg-gray-200 dark:bg-white/10 self-center"></div>
                         <div className="flex flex-col items-center">
-                            <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">Đến hạn</span>
+                            <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">{t('common.due')}</span>
                             <span className="text-xs font-black text-gray-900 dark:text-white">{statusCounts?.due}</span>
                         </div>
                     </div>
@@ -272,7 +274,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                                         <div className="flex-1 overflow-y-auto no-scrollbar space-y-4 px-1">
                                             {currentCard.example && (
                                                 <div className="border-l-2 border-primary-500/30 pl-4 py-1 text-left">
-                                                    <span className="block text-primary-600 dark:text-primary-500/40 text-[8px] font-black uppercase tracking-widest mb-1.5">Ngữ cảnh & Ví dụ</span>
+                                                    <span className="block text-primary-600 dark:text-primary-500/40 text-[8px] font-black uppercase tracking-widest mb-1.5">{t('flashcards.contextExample')}</span>
                                                     <p className="text-gray-700 dark:text-gray-300 italic text-base md:text-base leading-relaxed font-serif">
                                                         "{renderExampleWithBold(currentCard.example)}"
                                                     </p>
@@ -287,19 +289,19 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 {currentCard.synonym && (
                                                     <div className="text-left">
-                                                        <span className="block text-emerald-600 dark:text-emerald-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-emerald-500/10 pb-1">Từ đồng nghĩa</span>
+                                                        <span className="block text-emerald-600 dark:text-emerald-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-emerald-500/10 pb-1">{t('addWord.synonyms')}</span>
                                                         <div className="text-emerald-700 dark:text-emerald-400 font-bold text-base md:text-sm leading-relaxed">{currentCard.synonym}</div>
                                                     </div>
                                                 )}
                                                 {currentCard.antonym && (
                                                     <div className="text-left">
-                                                        <span className="block text-rose-600 dark:text-rose-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-rose-500/10 pb-1">Trái nghĩa</span>
+                                                        <span className="block text-rose-600 dark:text-rose-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-rose-500/10 pb-1">{t('addWord.antonyms')}</span>
                                                         <div className="text-rose-700 dark:text-rose-400 font-bold text-base md:text-sm leading-relaxed">{currentCard.antonym}</div>
                                                     </div>
                                                 )}
                                                 {currentCard.collocation && (
                                                     <div className="text-left md:col-span-2">
-                                                        <span className="block text-amber-600 dark:text-amber-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-amber-500/10 pb-1">Cụm từ đi kèm</span>
+                                                        <span className="block text-amber-600 dark:text-amber-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-amber-500/10 pb-1">{t('addWord.collocations')}</span>
                                                         <div className="text-amber-700 dark:text-amber-400 font-bold text-base md:text-sm leading-relaxed">{currentCard.collocation}</div>
                                                     </div>
                                                 )}
@@ -307,7 +309,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
 
                                             {currentCard.note && (
                                                 <div className="text-left p-3 md:p-4 rounded-xl md:rounded-2xl bg-blue-50 dark:bg-blue-500/5 border border-blue-200 dark:border-blue-500/10 shrink-0">
-                                                    <span className="block text-blue-600 dark:text-blue-500/40 text-[7px] md:text-[8px] font-black uppercase tracking-widest mb-1">Ghi chú</span>
+                                                    <span className="block text-blue-600 dark:text-blue-500/40 text-[7px] md:text-[8px] font-black uppercase tracking-widest mb-1">{t('addWord.note')}</span>
                                                     <p className="text-blue-800 dark:text-blue-200/80 text-[10px] md:text-sm leading-tight line-clamp-2">{currentCard.note}</p>
                                                 </div>
                                             )}
@@ -322,10 +324,10 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                     <div className={`w-full max-w-2xl transition-all duration-700 delay-100 ${isFlipped ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}>
                         <div className="grid grid-cols-4 gap-2 md:gap-4 px-1">
                             {[
-                                { id: 'again', label: 'Again', color: 'rose', time: '<10m', key: '1', classes: 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-500' },
-                                { id: 'hard', label: 'Hard', color: 'amber', time: '1d', key: '2', classes: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-500' },
-                                { id: 'good', label: 'Good', color: 'indigo', time: '3d', key: '3', classes: 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-500' },
-                                { id: 'easy', label: 'Easy', color: 'emerald', time: '7d', key: '4', classes: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-500' }
+                                { id: 'again', label: t('flashcards.again'), color: 'rose', time: '<10m', key: '1', classes: 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-500' },
+                                { id: 'hard', label: t('flashcards.hard'), color: 'amber', time: '1d', key: '2', classes: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-500' },
+                                { id: 'good', label: t('flashcards.good'), color: 'indigo', time: '3d', key: '3', classes: 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-500' },
+                                { id: 'easy', label: t('flashcards.easy'), color: 'emerald', time: '7d', key: '4', classes: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-500' }
                             ].map(btn => (
                                 <button
                                     key={btn.id}

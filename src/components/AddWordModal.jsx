@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { searchImage } from '../utils/imageService';
 
 const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         term: '',
         phonetic: '',
@@ -94,7 +96,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
             >
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl md:text-3xl font-bold text-gradient-primary">
-                        {editWord ? 'Sửa từ vựng' : 'Thêm từ vựng mới'}
+                        {editWord ? t('addWord.titleEdit') : t('addWord.titleNew')}
                     </h2>
                     <button
                         className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-all text-gray-400 hover:text-white hover:rotate-90"
@@ -107,7 +109,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
                         <label htmlFor="term" className="block mb-2 text-gray-300 font-medium text-sm">
-                            Word / Term *
+                            {t('addWord.word')} *
                         </label>
                         <input
                             type="text"
@@ -123,7 +125,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
 
                     <div>
                         <label htmlFor="phonetic" className="block mb-2 text-gray-300 font-medium text-sm">
-                            Phonetic
+                            {t('addWord.phonetic')}
                         </label>
                         <input
                             type="text"
@@ -138,7 +140,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
 
                     <div>
                         <label htmlFor="definition" className="block mb-2 text-gray-300 font-medium text-sm">
-                            Definition / Meaning *
+                            {t('addWord.definition')} *
                         </label>
                         <textarea
                             id="definition"
@@ -154,7 +156,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label htmlFor="type" className="block mb-2 text-gray-300 font-medium text-sm">
-                                Word Type
+                                {t('addWord.type')}
                             </label>
                             <select
                                 id="type"
@@ -163,7 +165,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                                 value={formData.type}
                                 onChange={handleChange}
                             >
-                                <option value="">Select type...</option>
+                                <option value="">{t('addWord.selectType')}</option>
                                 <option value="noun">Noun</option>
                                 <option value="verb">Verb</option>
                                 <option value="adjective">Adjective</option>
@@ -177,7 +179,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
 
                         <div>
                             <label htmlFor="level" className="block mb-2 text-gray-300 font-medium text-sm">
-                                Level
+                                {t('addWord.level')}
                             </label>
                             <select
                                 id="level"
@@ -186,7 +188,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                                 value={formData.level}
                                 onChange={handleChange}
                             >
-                                <option value="">Select level...</option>
+                                <option value="">{t('addWord.selectLevel')}</option>
                                 <option value="A1">A1 - Beginner</option>
                                 <option value="A2">A2 - Elementary</option>
                                 <option value="B1">B1 - Intermediate</option>
@@ -199,7 +201,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
 
                     <div>
                         <label htmlFor="example" className="block mb-2 text-gray-300 font-medium text-sm">
-                            Example Sentence
+                            {t('addWord.example')}
                         </label>
                         <textarea
                             id="example"
@@ -213,7 +215,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
 
                     <div>
                         <label htmlFor="exampleDefinition" className="block mb-2 text-gray-300 font-medium text-sm">
-                            Example Meaning (Vietnamese)
+                            {t('addWord.exampleDef')}
                         </label>
                         <input
                             type="text"
@@ -229,7 +231,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label htmlFor="synonym" className="block mb-2 text-gray-300 font-medium text-sm">
-                                Synonyms
+                                {t('addWord.synonyms')}
                             </label>
                             <input
                                 type="text"
@@ -243,7 +245,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                         </div>
                         <div>
                             <label htmlFor="antonym" className="block mb-2 text-gray-300 font-medium text-sm">
-                                Antonyms
+                                {t('addWord.antonyms')}
                             </label>
                             <input
                                 type="text"
@@ -260,7 +262,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label htmlFor="collocation" className="block mb-2 text-gray-300 font-medium text-sm">
-                                Collocations
+                                {t('addWord.collocations')}
                             </label>
                             <input
                                 type="text"
@@ -274,7 +276,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                         </div>
                         <div>
                             <label htmlFor="topic" className="block mb-2 text-gray-300 font-medium text-sm">
-                                Topic
+                                {t('addWord.topic')}
                             </label>
                             <input
                                 type="text"
@@ -290,7 +292,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
 
                     <div>
                         <label htmlFor="note" className="block mb-2 text-gray-300 font-medium text-sm">
-                            Study Notes / Mnemonics
+                            {t('addWord.note')}
                         </label>
                         <textarea
                             id="note"
@@ -304,7 +306,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
 
                     <div>
                         <label htmlFor="image" className="block mb-2 text-gray-300 font-medium text-sm">
-                            Image (File or URL)
+                            {t('addWord.image')}
                         </label>
                         <div className="space-y-3">
                             <input
@@ -317,7 +319,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                             />
                             <div className="flex items-center gap-3">
                                 <div className="h-px flex-1 bg-white/10"></div>
-                                <span className="text-gray-500 text-[10px] font-bold uppercase">OR</span>
+                                <span className="text-gray-500 text-[10px] font-bold uppercase">{t('addWord.or')}</span>
                                 <div className="h-px flex-1 bg-white/10"></div>
                             </div>
                             <input
@@ -325,7 +327,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                                 name="image"
                                 value={formData.image && formData.image.startsWith('data:') ? '' : (formData.image || '')}
                                 onChange={handleChange}
-                                placeholder="Paste image URL here..."
+                                placeholder={t('addWord.pasteUrl')}
                                 className="w-full px-4 py-3 bg-gray-800 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all text-sm"
                             />
                         </div>
@@ -360,7 +362,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                                 }}
                                 className="mt-2 text-primary-400 text-sm hover:text-primary-300 flex items-center gap-1"
                             >
-                                🔍 Tự động tìm ảnh minh họa
+                                🔍 {t('addWord.autoFindImage')}
                             </button>
                         )}
                     </div>
@@ -371,13 +373,13 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord }) => {
                             className="w-full sm:w-auto px-6 py-3 glass-effect rounded-xl font-semibold hover:bg-white/10 transition-all text-gray-400"
                             onClick={onClose}
                         >
-                            Hủy bỏ
+                            {t('common.cancel')}
                         </button>
                         <button
                             type="submit"
                             className="w-full sm:w-auto px-6 py-3 bg-gradient-primary rounded-xl font-black text-white hover:shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 transition-all"
                         >
-                            {editWord ? 'Cập nhật' : 'Thêm từ'}
+                            {editWord ? t('common.update') : t('common.addWord')}
                         </button>
                     </div>
                 </form>

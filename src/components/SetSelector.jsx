@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet, onEditSet, onDeleteSet }) {
+    const { t } = useTranslation();
     const [showDropdown, setShowDropdown] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newSetName, setNewSetName] = useState('');
@@ -23,9 +25,9 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                 className="flex items-center gap-2 md:gap-3 px-3 md:px-6 py-2 md:py-3 glass-effect rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-all group border border-gray-200 dark:border-white/10"
             >
                 <div className="text-left flex-1">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">Current Set</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{t('setSelector.currentSet')}</div>
                     <div className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-all flex items-center gap-2">
-                        {currentSet?.name || 'No Set Selected'}
+                        {currentSet?.name || t('setSelector.noSetSelected')}
                         <span className="text-xs font-normal opacity-50 bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full">
                             {currentSet?.wordCount || currentSet?.words?.length || 0}
                         </span>
@@ -68,9 +70,7 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                                             {set.description && (
                                                 <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">{set.description}</div>
                                             )}
-                                            <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                                                {set.wordCount || set.words?.length || 0} words
-                                            </div>
+                                            {set.wordCount || set.words?.length || 0} {t('setSelector.words')}
                                         </div>
                                         {sets.length > 1 && (
                                             <button
@@ -98,7 +98,7 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                                 }}
                                 className="w-full px-4 py-3 bg-gradient-primary rounded-lg font-semibold text-white hover:shadow-lg transition-all"
                             >
-                                ➕ Create New Set
+                                ➕ {t('setSelector.createNewSet')}
                             </button>
                         </div>
                     </div>
@@ -109,18 +109,18 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
             {showCreateModal && (
                 <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div className="glass-effect rounded-2xl p-8 max-w-md w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Create New Set</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">{t('setSelector.createNewSet')}</h2>
 
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Set Name *
+                                    {t('setSelector.setName')} *
                                 </label>
                                 <input
                                     type="text"
                                     value={newSetName}
                                     onChange={(e) => setNewSetName(e.target.value)}
-                                    placeholder="e.g., IELTS Vocabulary"
+                                    placeholder={t('setSelector.placeholderName')}
                                     className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all shadow-inner"
                                     autoFocus
                                 />
@@ -128,12 +128,12 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Description (Optional)
+                                    {t('setSelector.description')}
                                 </label>
                                 <textarea
                                     value={newSetDescription}
                                     onChange={(e) => setNewSetDescription(e.target.value)}
-                                    placeholder="What is this set about?"
+                                    placeholder={t('setSelector.placeholderDesc')}
                                     rows={3}
                                     className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all shadow-inner resize-none"
                                 />
@@ -149,19 +149,20 @@ export default function SetSelector({ sets, currentSet, onSelectSet, onCreateSet
                                 }}
                                 className="flex-1 px-6 py-3 glass-effect rounded-xl font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-gray-200 dark:border-white/10"
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </button>
                             <button
                                 onClick={handleCreate}
                                 disabled={!newSetName.trim()}
                                 className="flex-1 px-6 py-3 bg-gradient-primary rounded-xl font-semibold text-white hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             >
-                                Create
+                                {t('setSelector.create')}
                             </button>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                </div >
+            )
+            }
+        </div >
     );
 }

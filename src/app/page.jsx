@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import '../i18n';
 import { storage } from '../utils/storage';
 import { supabase } from '../utils/supabaseClient';
 import { fillMissingImages } from '../utils/imageService';
@@ -20,6 +22,7 @@ import YoutubeDictation from '../components/YoutubeDictation';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function Page() {
+  const { t, i18n } = useTranslation();
   const [session, setSession] = useState(null);
   const [vocabulary, setVocabulary] = useState([]);
   const [sets, setSets] = useState([]);
@@ -97,7 +100,12 @@ export default function Page() {
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) toast.error(error.message);
-    else toast.success('Đã đăng xuất');
+    else toast.success(i18n.language === 'vi' ? 'Đã đăng xuất' : 'Logged out');
+  };
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'vi' ? 'en' : 'vi';
+    i18n.changeLanguage(newLang);
   };
 
   // Các handlers khác (giống bản cũ nhưng bọc async/await)
@@ -379,18 +387,28 @@ export default function Page() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="space-y-1">
                 <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tighter">
-                  Chào, <span className="text-primary-600 dark:text-primary-500">{profile?.username || 'Bạn'}</span>
+                  {t('common.welcome')}, <span className="text-primary-600 dark:text-primary-500">{profile?.username || (i18n.language === 'vi' ? 'Bạn' : 'Guest')}</span>
                 </h1>
-                <p className="text-gray-500 font-medium text-sm md:text-base">Dữ liệu được đồng bộ hóa với Supabase Cloud</p>
+                <p className="text-gray-500 font-medium text-sm md:text-base">{t('common.syncText')}</p>
               </div>
 
               <div className="flex items-center gap-4 w-full md:w-auto">
                 <button
                   onClick={handleLogout}
-                  className="p-3 bg-white dark:bg-white/10 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500 transition-all shadow-sm"
-                  title="Đăng xuất"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-red-50 dark:bg-red-500/10 rounded-xl border border-red-200 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-all shadow-sm font-semibold text-sm group"
+                  title={t('common.logout')}
                 >
-                  🚪
+                  <svg className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span className="hidden sm:inline">{t('common.logout')}</span>
+                </button>
+                <button
+                  onClick={toggleLanguage}
+                  className="p-3 bg-white dark:bg-white/10 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/20 transition-all shadow-sm font-bold text-xs"
+                  title={t('common.language')}
+                >
+                  {i18n.language === 'vi' ? 'VN' : 'EN'}
                 </button>
                 <button
                   onClick={toggleTheme}
@@ -413,10 +431,10 @@ export default function Page() {
             {/* Stats Dashboard */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
               {[
-                { label: 'Chưa học', val: statusCounts.notLearned, color: 'blue', icon: '🆕' },
-                { label: 'Đang học', val: statusCounts.learning, color: 'amber', icon: '⚡' },
-                { label: 'Thành thạo', val: statusCounts.learned, color: 'emerald', icon: '🎓' },
-                { label: 'Đến hạn', val: statusCounts.due, color: 'rose', icon: '📅' }
+                { label: t('common.notLearned'), val: statusCounts.notLearned, color: 'blue', icon: '🆕' },
+                { label: t('common.learning'), val: statusCounts.learning, color: 'amber', icon: '⚡' },
+                { label: t('common.mastered'), val: statusCounts.learned, color: 'emerald', icon: '🎓' },
+                { label: t('common.due'), val: statusCounts.due, color: 'rose', icon: '📅' }
               ].map((stat, i) => (
                 <div key={i} className="glass-effect rounded-3xl p-6 border border-white/10 bg-white/5 shadow-xl">
                   <div className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">{stat.label}</div>
@@ -435,13 +453,13 @@ export default function Page() {
         {/* Study Modes Horizontal Scroll on Mobile, Grid on Desktop */}
         <div className="my-8 md:my-12 flex md:grid md:grid-cols-3 lg:grid-cols-6 gap-4 pb-4 overflow-x-auto no-scrollbar snap-x snap-mandatory">
           {[
-            { id: 'flashcards', label: 'Flashcards', icon: '🎴', desc: 'Chuẩn Anki' },
-            { id: 'learn', label: 'Học ngay', icon: '🎓', desc: 'Khởi đầu' },
-            { id: 'write', label: 'Luyện viết', icon: '✍️', desc: 'Ghi nhớ sâu' },
-            { id: 'review', label: 'Ôn tập', icon: '🔄', desc: 'Đến hạn' },
-            { id: 'spell', label: 'Chính tả', icon: '🎧', desc: 'Nghe & Viết' },
-            { id: 'dictation', label: 'Video', icon: '📺', desc: 'YouTube' },
-            { id: 'test', label: 'Kiểm tra', icon: '📝', desc: 'Tổng kết' }
+            { id: 'flashcards', label: t('modes.flashcards'), icon: '🎴', desc: 'Anki Pro' },
+            { id: 'learn', label: t('modes.learn'), icon: '🎓', desc: 'Start' },
+            { id: 'write', label: t('modes.write'), icon: '✍️', desc: 'Focus' },
+            { id: 'review', label: t('modes.review'), icon: '🔄', desc: 'Due' },
+            { id: 'spell', label: t('modes.spell'), icon: '🎧', desc: 'Listen' },
+            { id: 'dictation', label: t('modes.video'), icon: '📺', desc: 'YouTube' },
+            { id: 'test', label: t('modes.test'), icon: '📝', desc: 'Final' }
           ].map(mode => (
             <button
               key={mode.id + mode.label}
@@ -459,7 +477,7 @@ export default function Page() {
         <div className="flex flex-col md:flex-row gap-4 mb-12 md:mb-20">
           <input
             type="text"
-            placeholder="Tìm kiếm từ vựng..."
+            placeholder={t('common.search')}
             className="w-full md:flex-1 px-6 md:px-8 py-4 md:py-5 bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl text-white outline-none focus:border-primary-500 transition-all text-sm md:text-base"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -469,7 +487,7 @@ export default function Page() {
               onClick={() => setShowAddModal(true)}
               className="px-6 md:px-10 py-4 md:py-5 bg-white text-black rounded-2xl md:rounded-3xl font-black hover:scale-105 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
             >
-              <span>+ Thêm từ</span>
+              <span>+ {t('common.addWord')}</span>
             </button>
             <button
               onClick={handleAutoFill}
@@ -493,14 +511,14 @@ export default function Page() {
               className="px-4 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 transition-all border border-white/10 text-white text-sm md:text-base whitespace-nowrap shrink-0"
               title="Nhập dữ liệu"
             >
-              📥 <span className="hidden md:inline">Nhập</span>
+              📥 <span className="hidden md:inline">{t('common.import')}</span>
             </button>
             <button
               onClick={handleExport}
               className="px-4 md:px-8 py-4 md:py-5 bg-secondary-500/10 border border-secondary-500/20 text-secondary-400 rounded-2xl md:rounded-3xl font-black hover:bg-secondary-500/20 transition-all text-sm md:text-base whitespace-nowrap shrink-0"
               title="Xuất dữ liệu"
             >
-              📤 <span className="hidden md:inline">Xuất</span>
+              📤 <span className="hidden md:inline">{t('common.export')}</span>
             </button>
           </div>
         </div>
@@ -522,8 +540,8 @@ export default function Page() {
               ) : (
                 <div className="col-span-full py-20 text-center glass-effect rounded-[2.5rem] border border-white/5">
                   <div className="text-5xl mb-4">🔍</div>
-                  <h3 className="text-xl font-bold text-white">Không tìm thấy từ vựng nào</h3>
-                  <p className="text-gray-500 mt-2">Thử tìm kiếm với từ khóa khác hoặc thêm từ mới</p>
+                  <h3 className="text-xl font-bold text-white">{t('common.noWords')}</h3>
+                  <p className="text-gray-500 mt-2">{t('common.trySearch')}</p>
                 </div>
               )}
             </div>

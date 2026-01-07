@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function MatchMode({ vocabulary, onExit }) {
+    const { t } = useTranslation();
     const [cards, setCards] = useState([]);
     const [selected, setSelected] = useState([]);
     const [matched, setMatched] = useState([]);
@@ -94,13 +96,13 @@ export default function MatchMode({ vocabulary, onExit }) {
             <div className="min-h-screen flex items-center justify-center bg-gray-950 p-8">
                 <div className="text-center max-w-md glass-effect p-12 rounded-3xl animate-in zoom-in duration-500">
                     <div className="text-6xl mb-6">🎮</div>
-                    <h2 className="text-3xl font-black text-gradient-primary mb-4">Cần thêm từ vựng</h2>
-                    <p className="text-gray-400 font-medium mb-8">Bạn cần ít nhất 2 từ để chơi Ghép đôi</p>
+                    <h2 className="text-3xl font-black text-gradient-primary mb-4">{t('match.needMore')}</h2>
+                    <p className="text-gray-400 font-medium mb-8">{t('match.atLeastTwo')}</p>
                     <button
                         onClick={onExit}
                         className="w-full py-4 bg-gradient-primary rounded-xl font-bold text-white shadow-lg"
                     >
-                        Quay lại
+                        {t('match.back')}
                     </button>
                 </div>
             </div>
@@ -114,11 +116,11 @@ export default function MatchMode({ vocabulary, onExit }) {
                     onClick={onExit}
                     className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold hover:bg-white/10 transition-all text-gray-300"
                 >
-                    ← Thoát
+                    ← {t('match.exit')}
                 </button>
                 <div className="flex gap-4 w-full md:w-auto">
                     <div className="px-6 py-3 glass-effect rounded-xl flex-1 md:min-w-[150px] text-center md:text-left">
-                        <span className="text-gray-500 text-[10px] uppercase font-black tracking-widest block mb-1">Thời gian</span>
+                        <span className="text-gray-500 text-[10px] uppercase font-black tracking-widest block mb-1">{t('match.time')}</span>
                         <span className="text-2xl font-black text-gradient-warning font-mono">{formatTime(time)}</span>
                     </div>
                 </div>
@@ -160,7 +162,7 @@ export default function MatchMode({ vocabulary, onExit }) {
                 {!isRunning && !isComplete && (
                     <div className="text-center animate-bounce mt-8">
                         <div className="inline-block px-8 py-4 bg-white/5 border border-white/10 rounded-full backdrop-blur-md">
-                            <p className="text-lg font-bold text-primary-400">👆 Chạm vào một thẻ để bắt đầu!</p>
+                            <p className="text-lg font-bold text-primary-400">{t('match.startHint')}</p>
                         </div>
                     </div>
                 )}
@@ -171,9 +173,9 @@ export default function MatchMode({ vocabulary, onExit }) {
                             <div className="w-24 h-24 bg-gradient-to-r from-green-400 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-green-500/50">
                                 <span className="text-5xl">⚡</span>
                             </div>
-                            <h2 className="text-4xl font-black text-white mb-2">Hoàn thành!</h2>
+                            <h2 className="text-4xl font-black text-white mb-2">{t('match.completed')}</h2>
                             <div className="text-gray-400 font-medium mb-10">
-                                <p className="mb-2">Thời gian của bạn:</p>
+                                <p className="mb-2">{t('match.yourTime')}</p>
                                 <p className="text-5xl font-black text-gradient-warning font-mono tracking-tighter">
                                     {formatTime(time)}
                                 </p>
@@ -184,13 +186,13 @@ export default function MatchMode({ vocabulary, onExit }) {
                                     onClick={initializeGame}
                                     className="w-full py-5 bg-white/5 border border-white/10 rounded-2xl font-bold text-white hover:bg-white/10 transition-all"
                                 >
-                                    🔄 Chơi lại
+                                    {t('match.playAgain')}
                                 </button>
                                 <button
                                     onClick={onExit}
                                     className="w-full py-5 bg-gradient-primary rounded-2xl font-black text-xl text-white hover:shadow-2xl hover:shadow-primary-500/40 hover:-translate-y-1 transition-all"
                                 >
-                                    Thoát
+                                    {t('match.exit')}
                                 </button>
                             </div>
                         </div>
@@ -203,7 +205,7 @@ export default function MatchMode({ vocabulary, onExit }) {
                             onClick={initializeGame}
                             className="px-8 py-3 bg-white/5 border border-white/5 rounded-full text-xs font-bold text-gray-500 hover:text-white hover:bg-white/10 transition-all uppercase tracking-widest"
                         >
-                            🔄 Làm mới trò chơi
+                            {t('match.refresh')}
                         </button>
                     </div>
                 )}
