@@ -118,26 +118,36 @@ const searchPixabayImage = async (query) => {
 };
 
 /**
- * Main search function that calls our Next.js Backend API
+ * Main search function that calls APIs directly from the client
  * @param {string} term - The word to search
  * @param {string} [topic] - Optional topic
  * @returns {Promise<string|null>} - The URL of the image
  */
 export const searchImage = async (term, topic) => {
-    try {
-        const response = await fetch('/api/image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ term, topic })
-        });
+    if (!term) return null;
 
-        if (!response.ok) return null;
-        const data = await response.json();
-        return data.url || null;
-    } catch (error) {
-        console.error('Error calling image API:', error);
-        return null;
+    const cleanTerm = (t) => t.trim();
+    const t = cleanTerm(term);
+    const searchCombined = topic ? `${topic.trim()} ${t}` : t;
+
+    console.log(`[Image] Initiating search for: "${t}" | Topic: "${topic || 'N/A'}"`);
+
+    // Priority 1: Pexels (Topic + Term)
+    let url = await searchPexelsImage(searchCombined);
+
+    // Priority 2: Pixabay (Topic + Term) if Pexels fails or hits rate limit
+    if (!url || url === 'RATE_LIMIT') {
+        console.log(`[Image] Pexels skipped or limited, trying Pixabay...`);
+        url = await searchPixabayImage(searchCombined);
     }
+
+    // Priority 3: Unsplash (Term only as fallback)
+    if (!url) {
+        console.log(`[Image] Pixabay failed, trying Unsplash fallback (term only)...`);
+        url = await searchUnsplashImage(t);
+    }
+
+    return url;
 };
 
 /**
