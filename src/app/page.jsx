@@ -16,6 +16,7 @@ import WriteMode from '../components/WriteMode';
 import SpellMode from '../components/SpellMode';
 import MatchMode from '../components/MatchMode';
 import TestMode from '../components/TestMode';
+import YoutubeDictation from '../components/YoutubeDictation';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function Page() {
@@ -361,6 +362,15 @@ export default function Page() {
     );
   }
 
+  if (currentMode === 'dictation') {
+    return (
+      <YoutubeDictation
+        user={session.user}
+        onExit={() => { loadData(); setCurrentMode('browse'); }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#020617] transition-colors duration-300">
       <header className="bg-gradient-to-b from-primary-100/50 dark:from-primary-900/20 to-transparent border-b border-gray-200 dark:border-white/5 pt-8 pb-12">
@@ -430,6 +440,7 @@ export default function Page() {
             { id: 'write', label: 'Luyện viết', icon: '✍️', desc: 'Ghi nhớ sâu' },
             { id: 'review', label: 'Ôn tập', icon: '🔄', desc: 'Đến hạn' },
             { id: 'spell', label: 'Chính tả', icon: '🎧', desc: 'Nghe & Viết' },
+            { id: 'dictation', label: 'Video', icon: '📺', desc: 'YouTube' },
             { id: 'test', label: 'Kiểm tra', icon: '📝', desc: 'Tổng kết' }
           ].map(mode => (
             <button
