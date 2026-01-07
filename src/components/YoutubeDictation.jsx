@@ -146,6 +146,23 @@ const YoutubeDictation = ({ user, onExit }) => {
         }, 100);
     };
 
+    // Lắng nghe phím Ctrl để nghe lại
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // Kiểm tra nếu nhấn Ctrl (không kết hợp với phím khác)
+            if (e.ctrlKey && !e.shiftKey && !e.altKey && e.key === 'Control') {
+                e.preventDefault();
+                if (player && subtitles[currentIndex] && !isDone) {
+                    playSegment();
+                    toast.success('🔊 Đang phát lại đoạn này');
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [player, currentIndex, subtitles, isDone]);
+
     const handleSrtUpload = async (e) => {
         if (!isAdmin) {
             toast.error('Bạn không có quyền thêm video bài tập!');
@@ -613,7 +630,10 @@ const YoutubeDictation = ({ user, onExit }) => {
                                 />
                                 <div className="flex justify-between items-center px-1">
                                     <button onClick={toggleHint} className="text-[9px] text-amber-500 font-black uppercase tracking-widest hover:text-amber-400">💡 Gợi ý ({hintsShown})</button>
-                                    <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Enter để CHECK</p>
+                                    <div className="flex gap-3 text-[9px] text-slate-500 font-black uppercase tracking-widest">
+                                        <p>Ctrl = 🔊 Nghe lại</p>
+                                        <p>Enter = ✓ CHECK</p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -643,9 +663,9 @@ const YoutubeDictation = ({ user, onExit }) => {
                                             <span
                                                 key={idx}
                                                 className={`transition-all duration-300 flex items-center gap-1 ${d.status === 'correct' ? (d.displayWord === '*' ? 'text-slate-700 font-normal scale-75' : 'text-emerald-500') :
-                                                        d.status === 'wrong' ? 'text-rose-500 bg-rose-500/10 px-1 rounded' :
-                                                            d.status === 'missing' ? 'text-slate-600 bg-white/5 px-1 rounded' :
-                                                                'text-slate-700'
+                                                    d.status === 'wrong' ? 'text-rose-500 bg-rose-500/10 px-1 rounded' :
+                                                        d.status === 'missing' ? 'text-slate-600 bg-white/5 px-1 rounded' :
+                                                            'text-slate-700'
                                                     } ${d.isFuture ? 'text-slate-800/40' : ''}`}
                                             >
                                                 {revealed ? (d.original || d.word) : d.displayWord}
@@ -691,8 +711,8 @@ const YoutubeDictation = ({ user, onExit }) => {
                                             key={idx}
                                             onClick={() => jumpToSegment(idx)}
                                             className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg text-[10px] font-black transition-all flex items-center justify-center border-2 ${idx === currentIndex ? 'bg-blue-600 border-blue-400 text-white scale-110 shadow-lg' :
-                                                    idx < maxProgress ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
-                                                        'bg-slate-900/50 border-white/5 text-slate-700 hover:border-white/20'
+                                                idx < maxProgress ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
+                                                    'bg-slate-900/50 border-white/5 text-slate-700 hover:border-white/20'
                                                 }`}
                                         >
                                             {idx + 1}
