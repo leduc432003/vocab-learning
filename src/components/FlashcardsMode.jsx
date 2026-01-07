@@ -10,8 +10,10 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
     const [isShuffle, setIsShuffle] = useState(false);
 
     useEffect(() => {
-        setCards(vocabulary);
-    }, [vocabulary]);
+        if (!isStudying) {
+            setCards(vocabulary);
+        }
+    }, [vocabulary, isStudying]);
 
     const handleStart = () => {
         if (cards.length === 0) return;

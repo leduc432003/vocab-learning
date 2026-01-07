@@ -285,7 +285,7 @@ export default function Page() {
   if (currentMode === 'flashcards' || currentMode === 'review') {
     return (
       <FlashcardsMode
-        vocabulary={currentMode === 'review' ? dueWords : vocabulary}
+        vocabulary={dueWords}
         statusCounts={statusCounts}
         onUpdateSRS={handleSRSUpdate}
         onToggleStar={handleToggleStar}
