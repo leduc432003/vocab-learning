@@ -1,7 +1,8 @@
-import { useState } from 'react';
+// Tối ưu hóa: Sử dụng memo để ngăn re-render không cần thiết
+import { useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
+function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
     const { t, i18n } = useTranslation();
     const [isFlipped, setIsFlipped] = useState(false);
 
@@ -35,9 +36,12 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
     return (
         <div
             className="group h-[340px] md:h-[400px] perspective-2000 cursor-pointer"
-            onClick={() => setIsFlipped(!isFlipped)}
+            onClick={() => {
+                if (window.getSelection().toString().length > 0) return;
+                setIsFlipped(!isFlipped);
+            }}
         >
-            <div className={`relative w-full h-full transition-transform duration-700 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+            <div className={`relative w-full h-full transition-transform duration-700 preserve-3d will-change-transform ${isFlipped ? 'rotate-y-180' : ''}`}>
 
                 {/* FRONT SIDE */}
                 <div className="absolute inset-0 backface-hidden">
@@ -62,11 +66,20 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                         {/* Content */}
                         <div className="flex-1 flex flex-col items-center justify-center text-center space-y-3 md:space-y-4">
                             {word.image && (
-                                <img src={word.image} alt="" className="w-20 h-20 md:w-32 md:h-32 object-cover rounded-2xl mb-1 md:mb-2 shadow-2xl border border-white/10" />
+                                <img
+                                    src={word.image}
+                                    alt=""
+                                    loading="lazy"
+                                    decoding="async"
+                                    className="w-20 h-20 md:w-32 md:h-32 object-cover rounded-2xl mb-1 md:mb-2 shadow-2xl border border-white/10 transform transition-transform duration-500 will-change-transform"
+                                />
                             )}
 
                             <div className="flex items-center justify-center gap-2 md:gap-3">
-                                <h3 className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight group-hover:scale-105 transition-transform duration-500 line-clamp-2">
+                                <h3
+                                    className="text-2xl md:text-4xl font-black text-gray-900 dark:text-white tracking-tight leading-tight line-clamp-2 cursor-text select-text"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     {word.term}
                                 </h3>
                                 <button
@@ -114,7 +127,10 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                         {/* Scrollable Definition & Details */}
                         <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 md:space-y-4">
                             <div>
-                                <h4 className="text-lg md:text-2xl font-black text-gray-900 dark:text-white leading-tight">
+                                <h4
+                                    className="text-lg md:text-2xl font-black text-gray-900 dark:text-white leading-tight cursor-text select-text"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     {word.definition}
                                 </h4>
                             </div>
@@ -169,3 +185,5 @@ export default function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
         </div>
     );
 }
+
+export default memo(VocabCard);

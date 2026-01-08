@@ -558,7 +558,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
             </div>
 
             <div className="max-w-3xl mx-auto">
-                <div className="glass-effect rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-12 border-white/5 shadow-2xl relative overflow-hidden min-h-[400px] md:min-h-[500px] flex flex-col justify-center">
+                <div className="glass-effect rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-12 border-white/5 shadow-2xl relative overflow-hidden min-h-[350px] md:min-h-[500px] flex flex-col justify-center">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-primary-500/5 blur-[120px] -z-10" />
 
                     <div className="text-center mb-6 md:mb-10">
@@ -578,12 +578,12 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                 <img
                                     src={currentWord.image}
                                     alt={currentWord.term}
-                                    className="w-32 h-32 md:w-48 md:h-48 object-cover rounded-[1.5rem] md:rounded-[2rem] border-4 border-white/5 shadow-2xl animate-in zoom-in duration-300"
+                                    className="w-24 h-24 md:w-48 md:h-48 object-cover rounded-[1.5rem] md:rounded-[2rem] border-4 border-white/5 shadow-2xl animate-in zoom-in duration-300"
                                 />
                             </div>
                         )}
                         <div className="flex items-center justify-center gap-3 md:gap-4">
-                            <h2 className="text-3xl md:text-5xl font-black text-white mb-2 md:mb-4 tracking-tight leading-tight px-4 break-words">
+                            <h2 className="text-2xl md:text-5xl font-black text-white mb-2 md:mb-4 tracking-tight leading-tight px-4 break-words">
                                 {questionText}
                             </h2>
                             {isTermToDef && (

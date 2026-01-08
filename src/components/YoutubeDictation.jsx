@@ -130,9 +130,15 @@ const YoutubeDictation = ({ user, onExit }) => {
         });
     };
 
-    const playSegment = () => {
+    const playSegment = (speed = 1) => {
         if (!player || !subtitles[currentIndex]) return;
+
+        // Đảm bảo speed là số (vì sự kiện onClick có thể truyền object event)
+        const rate = typeof speed === 'number' ? speed : 1;
+
         const { start, end } = subtitles[currentIndex];
+
+        player.setPlaybackRate(rate);
         player.seekTo(start, true);
         player.playVideo();
 
@@ -141,6 +147,7 @@ const YoutubeDictation = ({ user, onExit }) => {
             const currentTime = player.getCurrentTime();
             if (currentTime >= end) {
                 player.pauseVideo();
+                if (rate !== 1) player.setPlaybackRate(1); // Reset về tốc độ thường
                 clearInterval(checkInterval.current);
             }
         }, 100);
@@ -605,9 +612,17 @@ const YoutubeDictation = ({ user, onExit }) => {
                                     </button>
                                 </div>
                                 <div className="flex items-center gap-2 order-1 sm:order-2 w-full sm:w-auto">
-                                    <button onClick={playSegment} className="flex-1 sm:flex-none py-2.5 px-4 bg-white/5 hover:bg-white/10 rounded-xl transition-all border border-white/5 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
-                                        <span>🔄 Nghe lại</span>
-                                    </button>
+                                    <div className="flex bg-white/5 rounded-xl border border-white/5 overflow-hidden">
+                                        <button onClick={() => playSegment(1)} className="py-2.5 px-3 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-1 border-r border-white/5" title="Nghe lại tốc độ thường">
+                                            <span>🔄 1x</span>
+                                        </button>
+                                        <button onClick={() => playSegment(0.75)} className="py-2.5 px-2 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest border-r border-white/5 text-emerald-400" title="Chậm 0.75x">
+                                            0.75
+                                        </button>
+                                        <button onClick={() => playSegment(0.5)} className="py-2.5 px-2 hover:bg-white/10 transition-all text-[10px] font-black uppercase tracking-widest text-emerald-400" title="Rất chậm 0.5x">
+                                            0.5
+                                        </button>
+                                    </div>
                                     <button onClick={restartSession} className="py-2.5 px-3 text-slate-500 hover:text-white transition-colors text-[9px] font-black uppercase">Restart</button>
                                 </div>
                             </div>

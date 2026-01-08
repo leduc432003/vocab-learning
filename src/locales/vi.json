@@ -283,5 +283,23 @@
         "practiceAgain": "Luyện tập lại bài này",
         "backToLibrary": "Quay về thư viện",
         "deleteConfirm": "Bạn có chắc muốn xóa video này khỏi hệ thống chung?"
+    },
+    "importExport": {
+        "title": "Nhập / Xuất Excel",
+        "exportTitle": "Xuất ra Excel",
+        "exportDesc": "Tải xuống toàn bộ từ vựng dưới dạng file Excel",
+        "exportBtn": "Xuất {{count}} từ",
+        "importTitle": "Nhập từ Excel",
+        "importDesc": "Tải lên file Excel để thêm nhiều từ cùng lúc",
+        "importBtn": "Chọn File Excel",
+        "importing": "Đang nhập...",
+        "templateTitle": "Tải Template Mẫu",
+        "templateDesc": "Tải file Excel mẫu với định dạng chuẩn",
+        "templateBtn": "Tải Template",
+        "instructionsTitle": "Hướng dẫn",
+        "instruction1": "Tải template mẫu để xem định dạng chuẩn",
+        "instruction2": "Điền dữ liệu từ vựng (Term và Definition là bắt buộc)",
+        "instruction3": "Lưu file dưới dạng .xlsx hoặc .xls",
+        "instruction4": "Tải file lên bằng nút Nhập"
     }
 }

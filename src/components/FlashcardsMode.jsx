@@ -201,16 +201,25 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
 
                     <div
                         className="relative w-full max-w-2xl md:max-w-4xl h-full max-h-[75vh] md:max-h-[85vh] perspective-2000 cursor-pointer"
-                        onClick={() => setIsFlipped(!isFlipped)}
+                        onClick={(e) => {
+                            // Nếu người dùng đang chọn text, không lật thẻ
+                            if (window.getSelection().toString().trim().length > 0) return;
+                            setIsFlipped(!isFlipped);
+                        }}
                     >
-                        <div className={`relative w-full h-full preserve-3d transition-transform duration-700 ${isFlipped ? 'rotate-y-180' : ''}`}>
+                        <div className={`relative w-full h-full preserve-3d transition-transform duration-700 will-change-transform ${isFlipped ? 'rotate-y-180' : ''}`}>
                             {/* FRONT SIDE */}
                             <div className="absolute inset-0 backface-hidden">
                                 <div className="h-full glass-effect rounded-[2.5rem] md:rounded-[3.5rem] border border-gray-200 dark:border-white/10 flex flex-col items-center justify-center p-6 md:p-10 shadow-2xl relative overflow-hidden group bg-white dark:bg-white/5">
                                     {currentCard.image && (
-                                        <div className="mb-6 md:mb-10 relative group-hover:scale-105 transition-transform duration-500">
+                                        <div className="mb-6 md:mb-10 relative group-hover:scale-105 transition-transform duration-500 will-change-transform">
                                             <div className="absolute -inset-4 bg-primary-500/20 blur-2xl rounded-full"></div>
-                                            <img src={currentCard.image} alt="" className="w-28 h-28 md:w-56 md:h-56 object-cover rounded-3xl relative shadow-2xl border-2 border-white/10" />
+                                            <img
+                                                src={currentCard.image}
+                                                alt=""
+                                                decoding="async"
+                                                className="w-28 h-28 md:w-56 md:h-56 object-cover rounded-3xl relative shadow-2xl border-2 border-white/10"
+                                            />
                                         </div>
                                     )}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic'; // Tối ưu: Lazy load components
 import { Toaster, toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import '../i18n';
@@ -11,15 +12,28 @@ import Auth from '../components/Auth';
 import VocabCard from '../components/VocabCard';
 import AddWordModal from '../components/AddWordModal';
 import ImportModal from '../components/ImportModal';
+import ImportExportModal from '../components/ImportExportModal';
 import SetSelector from '../components/SetSelector';
-import FlashcardsMode from '../components/FlashcardsMode';
-import LearnMode from '../components/LearnMode';
-import WriteMode from '../components/WriteMode';
-import SpellMode from '../components/SpellMode';
-import MatchMode from '../components/MatchMode';
-import TestMode from '../components/TestMode';
-import YoutubeDictation from '../components/YoutubeDictation';
 import ConfirmDialog from '../components/ConfirmDialog';
+
+// Loading Component
+const ModeLoading = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-950">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-gray-400 font-medium animate-pulse">Loading mode...</p>
+    </div>
+  </div>
+);
+
+// Dynamic Imports (Chỉ tải khi cần)
+const FlashcardsMode = dynamic(() => import('../components/FlashcardsMode'), { loading: () => <ModeLoading />, ssr: false });
+const LearnMode = dynamic(() => import('../components/LearnMode'), { loading: () => <ModeLoading />, ssr: false });
+const WriteMode = dynamic(() => import('../components/WriteMode'), { loading: () => <ModeLoading />, ssr: false });
+const SpellMode = dynamic(() => import('../components/SpellMode'), { loading: () => <ModeLoading />, ssr: false });
+const MatchMode = dynamic(() => import('../components/MatchMode'), { loading: () => <ModeLoading />, ssr: false });
+const TestMode = dynamic(() => import('../components/TestMode'), { loading: () => <ModeLoading />, ssr: false });
+const YoutubeDictation = dynamic(() => import('../components/YoutubeDictation'), { loading: () => <ModeLoading />, ssr: false });
 
 export default function Page() {
   const { t, i18n } = useTranslation();
@@ -30,6 +44,7 @@ export default function Page() {
   const [statusCounts, setStatusCounts] = useState({ notLearned: 0, learning: 0, learned: 0, due: 0 });
   const [showAddModal, setShowAddModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showImportExportModal, setShowImportExportModal] = useState(false);
   const [editWord, setEditWord] = useState(null);
   const [currentMode, setCurrentMode] = useState('browse');
   const [searchTerm, setSearchTerm] = useState('');
@@ -240,6 +255,12 @@ export default function Page() {
     await loadData();
     setShowImportModal(false);
     toast.success('Đã nhập từ vựng thành công!');
+  };
+
+  const handleImportExcel = async (words) => {
+    await storage.importWords(words);
+    await loadData();
+    toast.success(`Đã nhập ${words.length} từ vựng thành công!`);
   };
 
   const handleExport = () => {
@@ -514,18 +535,18 @@ export default function Page() {
               📥 <span className="hidden md:inline">{t('common.import')}</span>
             </button>
             <button
-              onClick={handleExport}
-              className="px-4 md:px-8 py-4 md:py-5 bg-secondary-500/10 border border-secondary-500/20 text-secondary-400 rounded-2xl md:rounded-3xl font-black hover:bg-secondary-500/20 transition-all text-sm md:text-base whitespace-nowrap shrink-0"
-              title="Xuất dữ liệu"
+              onClick={() => setShowImportExportModal(true)}
+              className="px-4 md:px-8 py-4 md:py-5 bg-green-500/10 border border-green-500/20 text-green-400 rounded-2xl md:rounded-3xl font-black hover:bg-green-500/20 transition-all text-sm md:text-base whitespace-nowrap shrink-0"
+              title="Import/Export Excel"
             >
-              📤 <span className="hidden md:inline">{t('common.export')}</span>
+              📊 <span className="hidden md:inline">Excel</span>
             </button>
           </div>
         </div>
 
         {/* Vocabulary Grid - Restricted Height with Scroll */}
         <div className="relative">
-          <div className="max-h-[700px] md:max-h-[850px] overflow-y-auto no-scrollbar pb-10">
+          <div className="max-h-[calc(100vh-320px)] md:max-h-[850px] overflow-y-auto no-scrollbar pb-10">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {vocabulary.filter(w => w.term.toLowerCase().includes(searchTerm.toLowerCase())).length > 0 ? (
                 vocabulary.filter(w => w.term.toLowerCase().includes(searchTerm.toLowerCase())).map(word => (
@@ -553,6 +574,13 @@ export default function Page() {
 
       <AddWordModal isOpen={showAddModal} onClose={() => { setShowAddModal(false); setEditWord(null); }} onSave={handleAddWord} editWord={editWord} />
       <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} onImport={handleImport} />
+      <ImportExportModal
+        isOpen={showImportExportModal}
+        onClose={() => setShowImportExportModal(false)}
+        vocabulary={vocabulary}
+        currentSet={currentSet}
+        onImport={handleImportExcel}
+      />
       <ConfirmDialog isOpen={deleteConfirm.isOpen} title={deleteConfirm.title} message={deleteConfirm.message} onConfirm={confirmDelete} onCancel={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })} />
 
       <ConfirmDialog

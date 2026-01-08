@@ -283,5 +283,23 @@
         "practiceAgain": "Practice this again",
         "backToLibrary": "Back to library",
         "deleteConfirm": "Are you sure you want to delete this video from the shared system?"
+    },
+    "importExport": {
+        "title": "Import / Export",
+        "exportTitle": "Export to Excel",
+        "exportDesc": "Download all your vocabulary as an Excel file",
+        "exportBtn": "Export {{count}} words",
+        "importTitle": "Import from Excel",
+        "importDesc": "Upload an Excel file to add multiple words at once",
+        "importBtn": "Choose Excel File",
+        "importing": "Importing...",
+        "templateTitle": "Download Template",
+        "templateDesc": "Get a sample Excel file with the correct format",
+        "templateBtn": "Download Template",
+        "instructionsTitle": "Instructions",
+        "instruction1": "Download the template to see the correct format",
+        "instruction2": "Fill in your vocabulary data (Term and Definition are required)",
+        "instruction3": "Save as .xlsx or .xls file",
+        "instruction4": "Upload the file using the Import button"
     }
 }

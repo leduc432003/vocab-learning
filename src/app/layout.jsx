@@ -5,10 +5,15 @@ export const metadata = {
     description: 'Learn English vocabulary efficiently with Spaced Repetition',
 };
 
+import DictionaryPopup from '../components/DictionaryPopup';
+
 export default function RootLayout({ children }) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body>{children}</body>
+            <body>
+                {children}
+                <DictionaryPopup />
+            </body>
         </html>
     );
 }
