@@ -31,7 +31,9 @@
         "start": "Start",
         "shuffle": "Shuffle",
         "normal": "Normal",
-        "todayDone": "Done for today!"
+        "todayDone": "Done for today!",
+        "deleteImages": "Delete Images",
+        "deleteImagesDesc": "Select the image sources you want to delete. This action cannot be undone."
     },
     "modes": {
         "flashcards": "Flashcards",

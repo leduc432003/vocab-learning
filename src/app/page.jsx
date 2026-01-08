@@ -15,6 +15,7 @@ import ImportModal from '../components/ImportModal';
 import ImportExportModal from '../components/ImportExportModal';
 import SetSelector from '../components/SetSelector';
 import ConfirmDialog from '../components/ConfirmDialog';
+import DeleteImagesModal from '../components/DeleteImagesModal';
 
 // Loading Component
 const ModeLoading = () => (
@@ -49,6 +50,7 @@ export default function Page() {
   const [currentMode, setCurrentMode] = useState('browse');
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, type: null, id: null, title: '', message: '' });
+  const [showDeleteImagesModal, setShowDeleteImagesModal] = useState(false);
   const [autoFillConfirm, setAutoFillConfirm] = useState({ isOpen: false, count: 0 });
   const [theme, setTheme] = useState('dark');
   const [isAutoFilling, setIsAutoFilling] = useState(false);
@@ -222,6 +224,37 @@ export default function Page() {
     } finally {
       setIsAutoFilling(false);
       setAutoFillProgress({ current: 0, total: 0 });
+    }
+  };
+
+  const handleDeleteImages = async (sources) => {
+    const toastId = toast.loading('Đang xóa ảnh...');
+    try {
+      const updates = [];
+      vocabulary.forEach(word => {
+        if (!word.image) return;
+        const url = word.image.toLowerCase();
+        let shouldDelete = false;
+
+        if (sources.includes('pexels') && url.includes('pexels.com')) shouldDelete = true;
+        if (sources.includes('pixabay') && url.includes('pixabay.com')) shouldDelete = true;
+        if (sources.includes('unsplash') && url.includes('unsplash.com')) shouldDelete = true;
+
+        if (shouldDelete) {
+          updates.push({ id: word.id, image: null });
+        }
+      });
+
+      if (updates.length > 0) {
+        await storage.saveVocabulary(updates);
+        await loadData();
+        toast.success(`Đã xóa ${updates.length} ảnh thành công!`, { id: toastId });
+      } else {
+        toast.success('Không có ảnh nào để xóa!', { id: toastId });
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Lỗi khi xóa ảnh', { id: toastId });
     }
   };
 
@@ -528,6 +561,13 @@ export default function Page() {
               )}
             </button>
             <button
+              onClick={() => setShowDeleteImagesModal(true)}
+              className="px-4 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 transition-all border border-white/10 text-white flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
+              title={t('common.deleteImages') || 'Xóa ảnh'}
+            >
+              🗑️
+            </button>
+            <button
               onClick={() => setShowImportModal(true)}
               className="px-4 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 transition-all border border-white/10 text-white text-sm md:text-base whitespace-nowrap shrink-0"
               title="Nhập dữ liệu"
@@ -593,6 +633,13 @@ export default function Page() {
           processAutoFill();
         }}
         onCancel={() => setAutoFillConfirm({ ...autoFillConfirm, isOpen: false })}
+      />
+
+      <DeleteImagesModal
+        isOpen={showDeleteImagesModal}
+        onClose={() => setShowDeleteImagesModal(false)}
+        onConfirm={handleDeleteImages}
+        vocabulary={vocabulary}
       />
 
       <Toaster position="top-center" />

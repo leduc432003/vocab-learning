@@ -31,7 +31,9 @@
         "start": "Học ngay",
         "shuffle": "Trộn thẻ",
         "normal": "Thường",
-        "todayDone": "Hôm nay đã học xong!"
+        "todayDone": "Hôm nay đã học xong!",
+        "deleteImages": "Xóa ảnh minh họa",
+        "deleteImagesDesc": "Chọn nguồn ảnh bạn muốn xóa. Hành động này không thể hoàn tác."
     },
     "modes": {
         "flashcards": "Flashcards",

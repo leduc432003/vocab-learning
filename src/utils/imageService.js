@@ -132,19 +132,19 @@ export const searchImage = async (term, topic) => {
 
     console.log(`[Image] Initiating search for: "${t}" | Topic: "${topic || 'N/A'}"`);
 
-    // Priority 1: Pexels (Topic + Term)
-    let url = await searchPexelsImage(searchCombined);
+    // Priority 1: Pexels (Term only)
+    let url = await searchPexelsImage(t);
 
-    // Priority 2: Pixabay (Topic + Term) if Pexels fails or hits rate limit
+    // Priority 2: Unsplash (Topic + Term) if Pexels fails or hits rate limit
     if (!url || url === 'RATE_LIMIT') {
-        console.log(`[Image] Pexels skipped or limited, trying Pixabay...`);
-        url = await searchPixabayImage(searchCombined);
+        console.log(`[Image] Pexels skipped or limited, trying Unsplash...`);
+        url = await searchUnsplashImage(searchCombined);
     }
 
-    // Priority 3: Unsplash (Term only as fallback)
+    // Priority 3: Pixabay (Topic + Term) as last resort
     if (!url) {
-        console.log(`[Image] Pixabay failed, trying Unsplash fallback (term only)...`);
-        url = await searchUnsplashImage(t);
+        console.log(`[Image] Unsplash failed, trying Pixabay fallback...`);
+        url = await searchPixabayImage(searchCombined);
     }
 
     return url;
