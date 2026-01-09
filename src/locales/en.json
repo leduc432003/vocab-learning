@@ -43,7 +43,8 @@
         "spell": "Spell",
         "video": "Video",
         "test": "Test",
-        "match": "Match"
+        "match": "Match",
+        "speaking": "Speaking"
     },
     "auth": {
         "tagline": "Master English smarter with cloud sync",
@@ -303,5 +304,15 @@
         "instruction2": "Fill in your vocabulary data (Term and Definition are required)",
         "instruction3": "Save as .xlsx or .xls file",
         "instruction4": "Upload the file using the Import button"
+    },
+    "speaking": {
+        "tapMic": "Tap microphone and speak",
+        "tryAgain": "Try again!",
+        "excellent": "Excellent!",
+        "instruction": "Listen to the pronunciation first, then tap the microphone to repeat.",
+        "permissionDenied": "Microphone access denied",
+        "networkError": "Network error. Internet connection is required for speech recognition.",
+        "genericError": "An error occurred with speech recognition.",
+        "notSupported": "Browser does not support Speech Recognition"
     }
 }

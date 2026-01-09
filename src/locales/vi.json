@@ -43,7 +43,8 @@
         "spell": "Chính tả",
         "video": "Video",
         "test": "Kiểm tra",
-        "match": "Nối từ"
+        "match": "Nối từ",
+        "speaking": "Luyện nói"
     },
     "auth": {
         "tagline": "Chinh phục tiếng Anh thông minh hơn với đồng bộ hóa đám mây",
@@ -303,5 +304,15 @@
         "instruction2": "Điền dữ liệu từ vựng (Term và Definition là bắt buộc)",
         "instruction3": "Lưu file dưới dạng .xlsx hoặc .xls",
         "instruction4": "Tải file lên bằng nút Nhập"
+    },
+    "speaking": {
+        "tapMic": "Chạm vào mic và nói",
+        "tryAgain": "Thử lại nào!",
+        "excellent": "Tuyệt vời!",
+        "instruction": "Nghe phát âm trước, sau đó bấm mic để đọc lại.",
+        "permissionDenied": "Từ chối quyền truy cập Microphone",
+        "networkError": "Lỗi mạng. Chức năng này cần kết nối Internet để hoạt động.",
+        "genericError": "Đã xảy ra lỗi nhận diện giọng nói.",
+        "notSupported": "Trình duyệt không hỗ trợ nhận diện giọng nói"
     }
 }

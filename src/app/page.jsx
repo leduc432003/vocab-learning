@@ -35,6 +35,7 @@ const SpellMode = dynamic(() => import('../components/SpellMode'), { loading: ()
 const MatchMode = dynamic(() => import('../components/MatchMode'), { loading: () => <ModeLoading />, ssr: false });
 const TestMode = dynamic(() => import('../components/TestMode'), { loading: () => <ModeLoading />, ssr: false });
 const YoutubeDictation = dynamic(() => import('../components/YoutubeDictation'), { loading: () => <ModeLoading />, ssr: false });
+const SpeakingMode = dynamic(() => import('../components/SpeakingMode'), { loading: () => <ModeLoading />, ssr: false });
 
 export default function Page() {
   const { t, i18n } = useTranslation();
@@ -433,6 +434,16 @@ export default function Page() {
     );
   }
 
+  if (currentMode === 'speaking') {
+    return (
+      <SpeakingMode
+        vocabulary={vocabulary}
+        onExit={() => { loadData(); setCurrentMode('browse'); }}
+        theme={theme}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#020617] transition-colors duration-300">
       <header className="bg-gradient-to-b from-primary-100/50 dark:from-primary-900/20 to-transparent border-b border-gray-200 dark:border-white/5 pt-8 pb-12">
@@ -512,6 +523,7 @@ export default function Page() {
             { id: 'write', label: t('modes.write'), icon: '✍️', desc: 'Focus' },
             { id: 'review', label: t('modes.review'), icon: '🔄', desc: 'Due' },
             { id: 'spell', label: t('modes.spell'), icon: '🎧', desc: 'Listen' },
+            { id: 'speaking', label: t('modes.speaking'), icon: '🎙️', desc: 'Voice' },
             { id: 'dictation', label: t('modes.video'), icon: '📺', desc: 'YouTube' },
             { id: 'test', label: t('modes.test'), icon: '📝', desc: 'Final' }
           ].map(mode => (
