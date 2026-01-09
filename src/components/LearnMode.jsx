@@ -5,7 +5,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
     const { t } = useTranslation();
     // Session Setup states
     const [showSetup, setShowSetup] = useState(true);
-    const [setupConfig, setSetupConfig] = useState({ batchSize: 10, limitType: 'questions' }); // limitType: 'questions' | 'mastery'
+    const [setupConfig, setSetupConfig] = useState({ batchSize: 10, limitType: 'mastery' }); // limitType: 'questions' | 'mastery'
     const [showBatchPreview, setShowBatchPreview] = useState(true);
     const [stats, setStats] = useState({ correct: 0, total: 0 });
     const [completedCount, setCompletedCount] = useState(0);
@@ -221,8 +221,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
 
         if (!isCorrect) {
             // ❌ Wrong Answer
-
-            // Logic: If Wrong -> Always go back/stay at Step 1 (Recognition)
+            // Logic: If Wrong -> Go back to Step 1 (Recognition)
             const downgradedWord = {
                 ...currentWord,
                 stage: 'recognition',
@@ -230,19 +229,11 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                 qType: 'def-to-term'
             };
 
-            // Reset session stats for this word logic if needed
-            setSessionStats(prev => ({
-                ...prev,
-                [currentWord.id]: { ...prev[currentWord.id], correct: 0 }
-            }));
-
-            // Re-insert: 3 positions away
-            const insertPos = Math.min(3, newQueue.length);
-            newQueue.splice(insertPos, 0, downgradedWord);
+            // Re-insert: at the end of the current queue to repeat later
+            newQueue.push(downgradedWord);
 
         } else {
             // ✅ Correct Answer
-
             if (currentWord.stage === 'recognition') {
                 // Step 1 Passed -> Move to Step 2: Recall (Written)
                 const upgradedWord = {
@@ -252,15 +243,15 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                     qType: 'def-to-term'
                 };
 
-                // Re-insert: 5 positions away (spaced repetition)
-                const insertPos = Math.min(5, newQueue.length);
-                newQueue.splice(insertPos, 0, upgradedWord);
+                // Push to the end of the queue - this ensures all MCQs are done first
+                // or at least follows the word through the stages sequentially.
+                newQueue.push(upgradedWord);
 
             } else {
                 // Step 2 Passed (Recall) -> Mark as Mastered for this session
                 setCompletedCount(prev => prev + 1);
                 setMasteredWords(prev => [...prev, currentWord]);
-                // Do NOT add back to queue
+                // Word is finished, not added back to queue
             }
         }
 
@@ -421,20 +412,27 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                     <div className="mb-8 md:mb-10 text-left">
                         <h3 className="text-gray-500 text-[8px] md:text-[10px] uppercase tracking-widest font-black mb-3 md:mb-4 text-center">{t('learn.vocabInSession')} ({studiedWords.length})</h3>
                         <div className="grid gap-2 md:grid-cols-1 max-h-[30vh] md:max-h-[40vh] overflow-y-auto pr-1 md:pr-2 no-scrollbar">
-                            {studiedWords.map((word, idx) => (
-                                <div key={idx} className="flex items-center gap-3 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
-                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-primary-500/20 text-primary-400 flex items-center justify-center text-[10px] font-bold shadow-inner shrink-0">
-                                        {idx + 1}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            <div className="font-black text-white uppercase group-hover:text-primary-400 transition-colors text-sm md:text-base truncate">{word.term}</div>
-                                            {word.type && <span className="text-[7px] bg-white/10 px-1 py-0.5 rounded text-gray-400 uppercase font-bold shrink-0">{word.type}</span>}
+                            {studiedWords.map((word, idx) => {
+                                const isMastered = masteredWords.some(m => m.id === word.id);
+                                return (
+                                    <div key={idx} className="flex items-center gap-3 p-3 md:p-4 bg-white/5 rounded-xl md:rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
+                                        <div className={`w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl ${isMastered ? 'bg-success-500/20 text-success-400' : 'bg-primary-500/20 text-primary-400'} flex items-center justify-center text-[10px] font-bold shadow-inner shrink-0`}>
+                                            {isMastered ? '✓' : idx + 1}
                                         </div>
-                                        <div className="text-[10px] text-gray-300 line-clamp-1">{word.definition}</div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-0.5">
+                                                <div className="font-black text-white uppercase group-hover:text-primary-400 transition-colors text-sm md:text-base truncate">{word.term}</div>
+                                                {isMastered ? (
+                                                    <span className="text-[7px] bg-success-500/20 px-1 py-0.5 rounded text-success-400 uppercase font-bold shrink-0">{t('vocabCard.mastered')}</span>
+                                                ) : (
+                                                    <span className="text-[7px] bg-primary-500/20 px-1 py-0.5 rounded text-primary-400 uppercase font-bold shrink-0">{t('vocabCard.learning')}</span>
+                                                )}
+                                            </div>
+                                            <div className="text-[10px] text-gray-300 line-clamp-1">{word.definition}</div>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -454,7 +452,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                 setStudiedWords([]);
                                 setSessionStats({});
                                 setShowSessionComplete(false);
-                                setShowBatchPreview(true);
+                                setShowSetup(true); // Return to setup to get fresh words
                                 setIsInitialized(false);
                             }}
                         >
@@ -544,7 +542,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                     style={{
                                         width: `${Math.min(100, (setupConfig.limitType === 'questions'
                                             ? (stats.total / setupConfig.batchSize)
-                                            : (completedCount / setupConfig.batchSize)) * 100)}%`
+                                            : ((completedCount * 2 + (queue.filter(w => w.stage === 'recall').length)) / (setupConfig.batchSize * 2))) * 100)}%`
                                     }}
                                 />
                             </div>
@@ -557,7 +555,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                 </div>
             </div>
 
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-3xl mx-auto w-full">
                 <div className="glass-effect rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-12 border-white/5 shadow-2xl relative overflow-hidden min-h-[350px] md:min-h-[500px] flex flex-col justify-center">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-primary-500/5 blur-[120px] -z-10" />
 
@@ -687,7 +685,7 @@ export default function LearnMode({ vocabulary, onUpdateStats, onExit, isReview 
                                     })}
                                 </div>
                             ) : (
-                                <div className={`p-10 rounded-3xl border mb-10 flex flex-col items-center text-center shadow-2xl ${isTypo ? 'bg-orange-500/10 border-orange-500/30' : isCorrect ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
+                                <div className={`p-6 md:p-10 rounded-3xl border mb-6 md:mb-10 flex flex-col items-center text-center shadow-2xl w-full max-w-md mx-auto ${isTypo ? 'bg-orange-500/10 border-orange-500/30' : isCorrect ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
                                     <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl transform scale-110 ${isTypo ? 'bg-orange-500 text-white shadow-orange-500/50' : isCorrect ? 'bg-green-500 text-white shadow-green-500/50' : 'bg-red-500 text-white shadow-red-500/50'}`}>
                                         <span className="text-5xl">{isTypo ? '✍️' : isCorrect ? '✓' : '✕'}</span>
                                     </div>
