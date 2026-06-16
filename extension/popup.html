@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocab Learning Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 340px;
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-icon { font-size: 20px; }
+    .header-title { font-size: 14px; font-weight: 900; letter-spacing: -0.3px; }
+    .header-subtitle { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Auth status */
+    .auth-status {
+      font-size: 11px; font-weight: 600; padding: 7px 12px;
+      border-radius: 8px; text-align: center; line-height: 1.4;
+    }
+    .auth-status.success { background: #14532d33; border: 1px solid #22c55e44; color: #86efac; }
+    .auth-status.error   { background: #450a0a33; border: 1px solid #ef444444; color: #fca5a5; }
+    .auth-status.loading { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: #64748b; }
+
+    /* Body */
+    .body { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+
+    /* Selected word */
+    .status-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .status-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #64748b; margin-bottom: 4px;
+    }
+    .status-word {
+      font-size: 16px; font-weight: 900; color: #f8fafc; letter-spacing: -0.3px;
+      min-height: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .status-word.placeholder { color: #334155; font-size: 12px; font-weight: 600; }
+
+    /* Manual input */
+    .manual-input-wrap { display: flex; flex-direction: column; gap: 5px; }
+    .manual-input-wrap label {
+      font-size: 10px; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    input.manual-input {
+      width: 100%; padding: 9px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px; color: #f8fafc;
+      font-size: 13px; font-weight: 600; font-family: inherit;
+      outline: none; transition: border-color 0.15s;
+    }
+    input.manual-input:focus { border-color: rgba(99,102,241,0.6); }
+    input.manual-input::placeholder { color: #475569; font-weight: 400; }
+
+    /* Save button */
+    .btn-save {
+      width: 100%; padding: 11px; background: #6366f1; color: #fff;
+      border: none; border-radius: 10px; font-size: 13px; font-weight: 900;
+      letter-spacing: 0.02em; cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-save:hover:not(:disabled) { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.3); }
+    .btn-save:active:not(:disabled) { transform: translateY(0); }
+    .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Toast */
+    .toast {
+      display: none; padding: 9px 13px; border-radius: 9px; font-size: 12px;
+      font-weight: 600; align-items: center; gap: 6px; line-height: 1.4;
+    }
+    .toast.show { display: flex; }
+    .toast.success { background: #14532d; border: 1px solid #22c55e33; color: #86efac; }
+    .toast.error   { background: #450a0a; border: 1px solid #ef444433; color: #fca5a5; }
+    .toast.info    { background: #1e3a5f; border: 1px solid #3b82f633; color: #93c5fd; }
+
+    /* Divider */
+    .divider { height: 1px; background: rgba(255,255,255,0.06); }
+
+    /* Recent words */
+    .recent-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #64748b;
+    }
+    .recent-list { display: flex; flex-direction: column; gap: 3px; max-height: 90px; overflow-y: auto; }
+    .recent-item {
+      font-size: 12px; color: #94a3b8; background: rgba(255,255,255,0.03);
+      padding: 5px 9px; border-radius: 6px; font-weight: 600;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .recent-empty { font-size: 11px; color: #334155; font-weight: 600; }
+
+    /* Settings */
+    .settings-toggle {
+      background: none; border: none; color: #64748b; font-size: 11px; font-weight: 600;
+      cursor: pointer; padding: 0; text-transform: uppercase; letter-spacing: 0.05em;
+      transition: color 0.15s;
+    }
+    .settings-toggle:hover { color: #94a3b8; }
+
+    .settings-panel {
+      display: flex; flex-direction: column; gap: 10px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 12px; margin-top: 2px;
+    }
+    .settings-panel.hidden { display: none; }
+
+    .settings-panel label {
+      font-size: 10px; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      display: block; margin-bottom: 4px;
+    }
+    .settings-panel input[type="text"] {
+      width: 100%; padding: 7px 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; color: #f8fafc;
+      font-size: 12px; font-family: inherit;
+      outline: none; transition: border-color 0.15s;
+    }
+    .settings-panel input[type="text"]:focus { border-color: rgba(255,255,255,0.25); }
+    .settings-panel input[type="text"]::placeholder { color: #475569; }
+
+    .btn-save-settings {
+      background: #1e293b; border: 1px solid rgba(255,255,255,0.1); color: #f8fafc;
+      padding: 7px 14px; border-radius: 8px; font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em;
+    }
+    .btn-save-settings:hover { background: #334155; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">📖</div>
+    <div>
+      <div class="header-title">Vocab Learning</div>
+      <div class="header-subtitle">Highlight &amp; Save</div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- Auth status -->
+    <div id="auth-status" class="auth-status loading">Đang kiểm tra đăng nhập…</div>
+
+    <!-- Từ đang highlight (nếu có) -->
+    <div class="status-card">
+      <div class="status-label">Từ đang chọn</div>
+      <div id="selected-word" class="status-word placeholder">Highlight một từ trên trang bất kỳ…</div>
+    </div>
+
+    <!-- Hoặc nhập thủ công -->
+    <div class="manual-input-wrap">
+      <label for="manual-input">Hoặc nhập từ thủ công</label>
+      <input id="manual-input" class="manual-input" type="text" placeholder="Nhập từ cần lưu…" autocomplete="off" />
+    </div>
+
+    <!-- Nút lưu -->
+    <button id="btn-save" class="btn-save" disabled>
+      <span>💾</span>
+      <span id="btn-save-label">Lưu vào từ vựng</span>
+    </button>
+
+    <!-- Toast thông báo -->
+    <div id="toast" class="toast"></div>
+
+    <div class="divider"></div>
+
+    <!-- Lịch sử lưu gần đây -->
+    <div class="recent-title">Vừa lưu</div>
+    <div id="recent-list" class="recent-list">
+      <div class="recent-empty">Chưa có từ nào được lưu.</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Settings toggle -->
+    <button class="settings-toggle" id="settings-toggle">⚙ Cài đặt</button>
+
+    <div class="settings-panel hidden" id="settings-panel">
+      <div>
+        <label for="app-url">URL App</label>
+        <input id="app-url" type="text" placeholder="http://localhost:3000" />
+      </div>
+      <div>
+        <label for="api-url">URL API</label>
+        <input id="api-url" type="text" placeholder="http://localhost:3000/api/vocabulary" />
+      </div>
+      <div>
+        <label for="default-set">Tên bộ từ mặc định</label>
+        <input id="default-set" type="text" placeholder="Extension Saved Words" />
+      </div>
+      <button class="btn-save-settings" id="btn-save-settings">Lưu cài đặt</button>
+    </div>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

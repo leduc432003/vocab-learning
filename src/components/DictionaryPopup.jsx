@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
-const DictionaryPopup = () => {
+const DictionaryPopup = ({ onSaveWord }) => {
     const [selection, setSelection] = useState(null); // { text, rect }
     const [definition, setDefinition] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -170,6 +170,18 @@ const DictionaryPopup = () => {
                     >
                         <span>🔍 Quick Lookup</span>
                     </button>
+                    {onSaveWord && (
+                        <button
+                            onClick={() => {
+                                onSaveWord(selection.text);
+                                setShowPopup(false);
+                                setSelection(null);
+                            }}
+                            className="ml-2 bg-gradient-primary text-white px-4 py-2 rounded-full shadow-2xl text-xs font-bold uppercase tracking-wider hover:shadow-primary-500/30 hover:scale-105 transition-all flex items-center gap-2 animate-in zoom-in duration-200 border border-white/10"
+                        >
+                            <span>💾 Save Word</span>
+                        </button>
+                    )}
                 </div>
             )}
 

@@ -16,6 +16,7 @@ import ImportExportModal from '../components/ImportExportModal';
 import SetSelector from '../components/SetSelector';
 import ConfirmDialog from '../components/ConfirmDialog';
 import DeleteImagesModal from '../components/DeleteImagesModal';
+import DictionaryPopup from '../components/DictionaryPopup';
 
 // Loading Component
 const ModeLoading = () => (
@@ -48,6 +49,7 @@ export default function Page() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [showImportExportModal, setShowImportExportModal] = useState(false);
   const [editWord, setEditWord] = useState(null);
+  const [highlightedWord, setHighlightedWord] = useState('');
   const [currentMode, setCurrentMode] = useState('browse');
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, type: null, id: null, title: '', message: '' });
@@ -62,12 +64,21 @@ export default function Page() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (session?.access_token) {
+        localStorage.setItem('vocab_ext_token', session.access_token);
+        // Notify extension content script
+        window.dispatchEvent(new CustomEvent('vocab_token_updated', { detail: { token: session.access_token } }));
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) {
-        // Reset data khi logout
+      if (session?.access_token) {
+        localStorage.setItem('vocab_ext_token', session.access_token);
+        window.dispatchEvent(new CustomEvent('vocab_token_updated', { detail: { token: session.access_token } }));
+      } else {
+        localStorage.removeItem('vocab_ext_token');
+        window.dispatchEvent(new CustomEvent('vocab_token_updated', { detail: { token: null } }));
         setSets([]);
         setVocabulary([]);
         setProfile(null);
@@ -187,6 +198,21 @@ export default function Page() {
       await storage.addWord(wordData);
     }
     await loadData();
+  };
+
+  const handleSaveSelectedWord = (word) => {
+    const cleanedWord = word.trim();
+    if (!cleanedWord) return;
+    setEditWord(null);
+    setHighlightedWord(cleanedWord);
+    setShowAddModal(true);
+    setTimeout(() => {
+      const termInput = document.getElementById('term');
+      if (termInput) {
+        termInput.focus();
+        termInput.select();
+      }
+    }, 0);
   };
 
   const handleAutoFill = () => {
@@ -624,7 +650,7 @@ export default function Page() {
         </div>
       </main>
 
-      <AddWordModal isOpen={showAddModal} onClose={() => { setShowAddModal(false); setEditWord(null); }} onSave={handleAddWord} editWord={editWord} />
+      <AddWordModal isOpen={showAddModal} onClose={() => { setShowAddModal(false); setEditWord(null); setHighlightedWord(''); }} onSave={handleAddWord} editWord={editWord} initialTerm={highlightedWord} />
       <ImportModal isOpen={showImportModal} onClose={() => setShowImportModal(false)} onImport={handleImport} />
       <ImportExportModal
         isOpen={showImportExportModal}
@@ -654,6 +680,7 @@ export default function Page() {
         vocabulary={vocabulary}
       />
 
+      <DictionaryPopup onSaveWord={handleSaveSelectedWord} />
       <Toaster position="top-center" />
     </div>
   );
