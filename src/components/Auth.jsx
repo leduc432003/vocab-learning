@@ -38,7 +38,7 @@ export default function Auth() {
                 {/* Hiệu ứng ánh sáng nền */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-blue-600 rounded-[3rem] blur opacity-10 group-hover:opacity-20 transition duration-1000 dark:opacity-20 dark:group-hover:opacity-40"></div>
 
-                <div className="relative card-hover rounded-[3rem] p-10 md:p-14 border border-white text-center">
+                <div className="relative card-hover rounded-[3rem] p-10 md:p-14 border border-white/10 text-center">
                     <div className="mb-10">
                         <div className="text-6xl mb-6 animate-bounce-slow">🚀</div>
                         <h1 className="text-5xl font-black text-gray-900 dark:text-white tracking-tighter mb-4">
@@ -53,7 +53,7 @@ export default function Auth() {
                         <button
                             onClick={handleGoogleLogin}
                             disabled={loading}
-                            className="w-full py-5 bg-white dark:bg-slate-800 text-black dark:text-white rounded-2xl font-black text-lg flex items-center justify-center gap-4 hover:scale-[1.03] active:scale-[0.97] transition-all shadow-lg shadow-gray-200/50 dark:shadow-black/20 disabled:opacity-70 border border-gray-200 dark:border-white/10 group"
+                            className="w-full py-5 bg-white dark:bg-[#0b0f19] text-black dark:text-white rounded-2xl font-black text-lg flex items-center justify-center gap-4 hover:scale-[1.03] active:scale-[0.97] transition-all shadow-lg shadow-gray-200/50 dark:shadow-black/30 disabled:opacity-70 border border-gray-200 dark:border-white/10 group"
                         >
                             {loading ? (
                                 <div className="w-6 h-6 border-4 border-gray-200 border-t-primary-600 rounded-full animate-spin"></div>

@@ -55,10 +55,10 @@
   }
 
   .dark {
-    /* Dark mode semantic tokens */
+    /* Dark mode semantic tokens - hiện đại, sâu, không bị màu xám */
     --color-bg-primary: #020617;
-    --color-bg-secondary: #0f172a;
-    --color-bg-tertiary: #1e293b;
+    --color-bg-secondary: #0b0f19;
+    --color-bg-tertiary: #111827;
     --color-bg-inverse: #f8fafc;
 
     --color-text-primary: #f8fafc;
@@ -84,10 +84,10 @@
     --color-danger: #f87171;
     --color-danger-light: #7f1d1d;
 
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.6), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.6), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.7), 0 8px 10px -6px rgb(0 0 0 / 0.6);
   }
 
   * {
@@ -145,7 +145,7 @@
 
 @layer components {
   .glass {
-    @apply bg-white/70 dark:bg-white/10 backdrop-blur-lg border border-gray-200 dark:border-white/10 shadow-xl;
+    @apply bg-white/60 dark:bg-white/10 backdrop-blur-lg border border-gray-200 dark:border-white/10 shadow-xl;
   }
 
   .glass-subtle {
@@ -157,11 +157,11 @@
   }
 
   .glass-dark {
-    @apply bg-black/20 dark:bg-black/40 backdrop-blur-lg border border-white/5 shadow-lg;
+    @apply bg-black/30 dark:bg-black/50 backdrop-blur-lg border border-white/5 shadow-lg;
   }
 
   .card-base {
-    @apply bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-white/10 shadow-sm overflow-hidden transition-all duration-300;
+    @apply bg-white dark:bg-[#0b0f19] rounded-2xl border border-gray-200 dark:border-white/10 shadow-sm overflow-hidden transition-all duration-300;
   }
 
   .card-hover {
@@ -185,7 +185,7 @@
   }
 
   .btn-secondary {
-    @apply btn bg-white dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-6 py-3 border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-primary-300 dark:hover:border-primary-600 shadow-sm focus:ring-gray-400;
+    @apply btn bg-white dark:bg-slate-900 text-gray-900 dark:text-white rounded-xl px-6 py-3 border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-primary-300 dark:hover:border-primary-600 shadow-sm focus:ring-gray-400;
   }
 
   .btn-ghost {
@@ -205,7 +205,7 @@
   }
 
   .input {
-    @apply w-full px-4 py-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 shadow-inner;
+    @apply w-full px-4 py-3 bg-white dark:bg-[#0b0f19] border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-200 shadow-inner;
   }
 
   .input-error {
@@ -250,7 +250,7 @@
   }
 
   .modal-backdrop {
-    @apply fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 animate-fade-in;
+    @apply fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm z-50 animate-fade-in;
   }
 
   .modal-content {
@@ -278,7 +278,7 @@
   }
 
   .skeleton {
-    @apply bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-slate-700 dark:via-slate-800 dark:to-slate-700 bg-[length:200%_100%] animate-shimmer rounded;
+    @apply bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-slate-800 dark:via-[#0b0f19] dark:to-slate-800 bg-[length:200%_100%] animate-shimmer rounded;
   }
 
   .skeleton-text {
@@ -332,7 +332,7 @@
   }
 
   .progress {
-    @apply w-full h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden;
+    @apply w-full h-2 bg-gray-200 dark:bg-[#0b0f19] rounded-full overflow-hidden;
   }
 
   .progress-bar {
@@ -344,7 +344,7 @@
   }
 
   .table-header {
-    @apply bg-gray-50 dark:bg-white/5;
+    @apply bg-gray-50 dark:bg-[#0b0f19];
   }
 
   .table-header th {
@@ -356,7 +356,7 @@
   }
 
   .table-row:hover {
-    @apply bg-gray-50 dark:bg-white/5;
+    @apply bg-gray-50 dark:bg-[#0b0f19]/50;
   }
 
   .list {
@@ -380,7 +380,7 @@
   }
 
   .tabs {
-    @apply flex gap-1 bg-gray-100 dark:bg-white/5 p-1 rounded-xl;
+    @apply flex gap-1 bg-gray-100 dark:bg-[#0b0f19] p-1 rounded-xl;
   }
 
   .tab {
@@ -388,7 +388,7 @@
   }
 
   .tab-active {
-    @apply tab bg-white dark:bg-slate-800 text-gray-900 dark:text-white shadow-sm;
+    @apply tab bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm;
   }
 
   .accordion {
@@ -400,7 +400,7 @@
   }
 
   .accordion-trigger {
-    @apply w-full px-6 py-4 flex items-center justify-between text-left font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset;
+    @apply w-full px-6 py-4 flex items-center justify-between text-left font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-[#0b0f19] transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-inset;
   }
 
   .accordion-content {

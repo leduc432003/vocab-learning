@@ -490,7 +490,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#020617] transition-colors duration-300">
-      <header className="bg-gradient-to-b from-primary-50 dark:from-primary-900/20 to-transparent border-b border-gray-200 dark:border-white/5 pt-8 pb-12">
+      <header className="bg-gradient-to-b from-primary-50 dark:from-[#0b0f19]/90 to-transparent border-b border-gray-200 dark:border-white/5 pt-8 pb-12">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -514,14 +514,14 @@ export default function Page() {
                 </button>
                 <button
                   onClick={toggleLanguage}
-                  className="p-3 bg-white dark:bg-white/10 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/20 transition-all shadow-sm font-bold text-xs"
+                  className="p-3 bg-white dark:bg-[#0b0f19]/50 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm font-bold text-xs"
                   title={t('common.language')}
                 >
                   {i18n.language === 'vi' ? 'VN' : 'EN'}
                 </button>
                 <button
                   onClick={toggleTheme}
-                  className="p-3 bg-white dark:bg-white/10 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/20 transition-all shadow-sm"
+                  className="p-3 bg-white dark:bg-[#0b0f19]/50 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm"
                 >
                   {theme === 'dark' ? '☀️' : '🌙'}
                 </button>
@@ -544,7 +544,7 @@ export default function Page() {
                   <div className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">{stat.label}</div>
                   <div className={`text-3xl font-black ${stat.text} flex items-center justify-between`}>
                     {stat.val}
-                    <span className="text-2xl opacity-40 dark:opacity-30">{stat.icon}</span>
+                    <span className="text-2xl opacity-50 dark:opacity-40">{stat.icon}</span>
                   </div>
                 </div>
               ))}
@@ -581,14 +581,14 @@ export default function Page() {
           <div className="flex items-center overflow-x-auto no-scrollbar gap-2 md:gap-4 pb-2 md:pb-0">
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-6 md:px-10 py-4 md:py-5 bg-white dark:bg-white/10 rounded-2xl md:rounded-3xl font-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 transition-all shadow-xl shadow-white/5 dark:shadow-indigo-500/20 flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
+              className="px-6 md:px-10 py-4 md:py-5 bg-white dark:bg-white/5 rounded-2xl md:rounded-3xl font-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-xl shadow-white/5 dark:shadow-indigo-500/20 flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
             >
               <span>+ {t('common.addWord')}</span>
             </button>
             <button
               onClick={handleAutoFill}
               disabled={isAutoFilling}
-              className="px-6 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 dark:hover:bg-white/20 transition-all border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white flex items-center justify-center gap-2 group text-sm md:text-base whitespace-nowrap shrink-0"
+              className="px-6 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 dark:hover:bg-white/5 transition-all border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white flex items-center justify-center gap-2 group text-sm md:text-base whitespace-nowrap shrink-0"
             >
               {isAutoFilling ? (
                 <>
@@ -604,21 +604,21 @@ export default function Page() {
             </button>
             <button
               onClick={() => setShowDeleteImagesModal(true)}
-              className="px-4 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 dark:hover:bg-white/20 transition-all border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
+              className="px-4 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 dark:hover:bg-white/5 transition-all border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
               title={t('common.deleteImages') || 'Xóa ảnh'}
             >
               🗑️
             </button>
             <button
               onClick={() => setShowImportModal(true)}
-              className="px-4 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 dark:hover:bg-white/20 transition-all border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white text-sm md:text-base whitespace-nowrap shrink-0"
+              className="px-4 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 dark:hover:bg-white/5 transition-all border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white text-sm md:text-base whitespace-nowrap shrink-0"
               title="Nhập dữ liệu"
             >
               📥 <span className="hidden md:inline">{t('common.import')}</span>
             </button>
             <button
               onClick={() => setShowImportExportModal(true)}
-              className="px-4 md:px-8 py-4 md:py-5 bg-green-50 border border-green-200 dark:bg-green-500/10 dark:border-green-500/20 text-green-600 dark:text-green-400 rounded-2xl md:rounded-3xl font-black hover:bg-green-100 dark:hover:bg-green-500/20 transition-all text-sm md:text-base whitespace-nowrap shrink-0"
+              className="px-4 md:px-8 py-4 md:py-5 bg-green-50 border border-green-200 dark:bg-green-500/5 dark:border-green-500/10 text-green-600 dark:text-green-400 rounded-2xl md:rounded-3xl font-black hover:bg-green-100 dark:hover:bg-green-500/10 transition-all text-sm md:text-base whitespace-nowrap shrink-0"
               title="Import/Export Excel"
             >
               📊 <span className="hidden md:inline">Excel</span>
@@ -641,7 +641,7 @@ export default function Page() {
                   />
                 ))
               ) : (
-                <div className="col-span-full py-20 text-center glass-effect rounded-[2.5rem] border border-gray-200 dark:border-white/5">
+                <div className="col-span-full py-20 text-center glass-effect rounded-[2.5rem] border border-gray-200 dark:border-white/10">
                   <div className="text-5xl mb-4">🔍</div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('common.noWords')}</h3>
                   <p className="text-gray-500 dark:text-gray-400 mt-2">{t('common.trySearch')}</p>

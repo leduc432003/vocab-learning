@@ -92,7 +92,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
             <div className="min-h-screen bg-gray-50 dark:bg-[#020617] flex items-center justify-center p-4 font-sans transition-colors duration-300">
                 <div className="max-w-md w-full relative group">
                     <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-[3rem] blur opacity-10 dark:opacity-25 group-hover:opacity-20 dark:group-hover:opacity-50 transition duration-1000"></div>
-                    <div className="relative card-hover rounded-[2.5rem] p-10 border border-white dark:border-white/10 shadow-xl animate-fade-in text-center bg-white dark:bg-white/5">
+                    <div className="relative card-hover rounded-[2.5rem] p-10 border border-white/10 dark:border-white/10 shadow-xl animate-fade-in text-center bg-white dark:bg-[#0b0f19]">
                         <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">{t('flashcards.deckTitle')}</h1>
 
                         <div className="grid grid-cols-1 gap-4 mb-12">
@@ -111,7 +111,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                         </div>
 
                         <div className="flex justify-center mb-8">
-                            <div className="bg-white p-1 rounded-2xl flex border border-gray-200 dark:border-white/10 shadow-sm">
+                            <div className="bg-white p-1 rounded-2xl flex border border-gray-200 dark:border-white/5 shadow-sm">
                                 <button
                                     onClick={() => setIsShuffle(false)}
                                     className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${!isShuffle ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400'}`}
@@ -129,7 +129,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
 
                         <button
                             onClick={handleStart}
-                            className={`w-full py-6 rounded-3xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl ${vocabulary.length > 0 ? 'btn-primary' : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-500 cursor-not-allowed'}`}
+                                className={`w-full py-6 rounded-3xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl ${vocabulary.length > 0 ? 'btn-primary' : 'bg-gray-200 text-gray-500 dark:bg-[#0b0f19] dark:text-gray-400 cursor-not-allowed'}`}
                         >
                             {statusCounts?.due > 0 || vocabulary.length > 0 ? t('common.start') : t('common.todayDone')}
                         </button>
@@ -171,13 +171,13 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                         </button>
                         <button
                             onClick={toggleTheme}
-                            className="p-2 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/20 transition-all text-sm"
+                            className="p-2 bg-white dark:bg-[#0b0f19]/30 rounded-lg border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 transition-all text-sm"
                             title={theme === 'dark' ? 'Chế độ sáng' : 'Chế độ tối'}
                         >
                             {theme === 'dark' ? '☀️' : '🌙'}
                         </button>
                     </div>
-                    <div className="flex gap-3 md:gap-8 px-4 py-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm scale-90 md:scale-100">
+                    <div className="flex gap-3 md:gap-8 px-4 py-1.5 rounded-full bg-white dark:bg-[#0b0f19]/20 border border-gray-200 dark:border-white/10 shadow-sm scale-90 md:scale-100">
                         <div className="flex flex-col items-center">
                             <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-tighter">{t('common.notLearned')}</span>
                             <span className="text-xs font-black text-gray-900 dark:text-white">{statusCounts?.notLearned}</span>
@@ -210,7 +210,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                         <div className={`relative w-full h-full preserve-3d transition-transform duration-700 will-change-transform ${isFlipped ? 'rotate-y-180' : ''}`}>
                             {/* FRONT SIDE */}
                             <div className="absolute inset-0 backface-hidden">
-                                <div className="h-full card-hover rounded-[2.5rem] md:rounded-[3.5rem] border border-white dark:border-white/10 flex flex-col items-center justify-center p-6 md:p-10 shadow-xl relative overflow-hidden group bg-white dark:bg-white/5">
+                                <div className="h-full card-hover rounded-[2.5rem] md:rounded-[3.5rem] border border-white dark:border-white/10 flex flex-col items-center justify-center p-6 md:p-10 shadow-xl relative overflow-hidden group bg-white dark:bg-[#0b0f19]">
                                     {currentCard.image && (
                                         <div className="mb-6 md:mb-10 relative group-hover:scale-105 transition-transform duration-500 will-change-transform">
                                             <div className="absolute -inset-4 bg-primary-100 dark:bg-primary-600/20 blur-2xl rounded-full"></div>
@@ -233,14 +233,14 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                                             </h2>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); speak(currentCard.term); }}
-                                                className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/20 rounded-full flex items-center justify-center text-2xl md:text-3xl border border-gray-200 dark:border-white/10 transition-all hover:scale-110 active:scale-90 shrink-0"
+                                                className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 dark:bg-[#0b0f19]/30 hover:bg-gray-200 dark:hover:bg-white/10 rounded-full flex items-center justify-center text-2xl md:text-3xl border border-gray-200 dark:border-white/10 transition-all hover:scale-110 active:scale-90 shrink-0"
                                             >
                                                 🔊
                                             </button>
                                         </div>
                                         <div className="mt-4 flex flex-wrap justify-center gap-3 opacity-70 dark:opacity-60">
                                             {currentCard.phonetic && <span className="text-lg md:text-2xl text-primary-600 dark:text-primary-400 font-medium italic">{currentCard.phonetic}</span>}
-                                            {currentCard.type && <span className="px-3 py-1 bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded-lg text-[10px] font-black text-gray-600 dark:text-white/50 uppercase tracking-widest">{currentCard.type}</span>}
+                                            {currentCard.type && <span className="px-3 py-1 bg-gray-100 dark:bg-[#0b0f19]/30 border border-gray-200 dark:border-white/10 rounded-lg text-[10px] font-black text-gray-600 dark:text-gray-400 uppercase tracking-widest">{currentCard.type}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -248,7 +248,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
 
                             {/* BACK SIDE (Optimized for no-scroll on mobile) */}
                             <div className="absolute inset-0 backface-hidden rotate-y-180">
-                                <div className="h-full bg-white dark:bg-[#0a0c16] rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-white dark:border-white/20 flex flex-col p-5 md:p-8 shadow-2xl overflow-y-auto md:overflow-hidden no-scrollbar transition-colors">
+                                <div className="h-full bg-white dark:bg-[#0a0c16] rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-white dark:border-white/10 flex flex-col p-5 md:p-8 shadow-2xl overflow-y-auto md:overflow-hidden no-scrollbar transition-colors">
                                     <div className="w-full h-full flex flex-col justify-between space-y-4 md:space-y-4">
                                         {/* Header - Compact */}
                                         <div className="text-center space-y-4">
@@ -263,7 +263,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                                             </div>
                                             <div className="flex flex-wrap justify-center gap-2">
                                                 {currentCard.phonetic && <span className="text-primary-600 dark:text-primary-400 font-bold italic text-base md:text-base">{currentCard.phonetic}</span>}
-                                                {currentCard.type && <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded text-[9px] font-black text-gray-600 dark:text-gray-400 uppercase tracking-widest">{currentCard.type}</span>}
+                                                    {currentCard.type && <span className="px-2 py-0.5 bg-gray-100 dark:bg-[#0b0f19]/30 border border-gray-200 dark:border-white/10 rounded text-[9px] font-black text-gray-600 dark:text-gray-400 uppercase tracking-widest">{currentCard.type}</span>}
                                                 {currentCard.level && <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{currentCard.level}</span>}
                                                 {currentCard.topic && <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">#{currentCard.topic}</span>}
                                             </div>
@@ -317,7 +317,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                                             </div>
 
                                             {currentCard.note && (
-                                                <div className="text-left p-3 md:p-4 rounded-xl md:rounded-2xl bg-blue-50 dark:bg-blue-500/5 border border-blue-200 dark:border-blue-500/10 shrink-0">
+                                                    <div className="text-left p-3 md:p-4 rounded-xl md:rounded-2xl bg-blue-50 dark:bg-blue-900/5 border border-blue-200 dark:border-blue-500/10 shrink-0">
                                                     <span className="block text-blue-600 dark:text-blue-500/40 text-[7px] md:text-[8px] font-black uppercase tracking-widest mb-1">{t('addWord.note')}</span>
                                                     <p className="text-blue-800 dark:text-blue-200/80 text-[10px] md:text-sm leading-tight line-clamp-2">{currentCard.note}</p>
                                                 </div>
@@ -333,10 +333,10 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                     <div className={`w-full max-w-2xl transition-all duration-700 delay-100 ${isFlipped ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}>
                         <div className="grid grid-cols-4 gap-2 md:gap-4 px-1">
                             {[
-                                { id: 'again', label: t('flashcards.again'), color: 'rose', time: '<10m', key: '1', classes: 'bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-500' },
-                                { id: 'hard', label: t('flashcards.hard'), color: 'amber', time: '1d', key: '2', classes: 'bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-500' },
-                                { id: 'good', label: t('flashcards.good'), color: 'indigo', time: '3d', key: '3', classes: 'bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-500' },
-                                { id: 'easy', label: t('flashcards.easy'), color: 'emerald', time: '7d', key: '4', classes: 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-500' }
+                                { id: 'again', label: t('flashcards.again'), color: 'rose', time: '<10m', key: '1', classes: 'bg-rose-50 dark:bg-rose-900/10 border border-rose-200 dark:border-rose-500/10 text-rose-700 dark:text-rose-400' },
+                                { id: 'hard', label: t('flashcards.hard'), color: 'amber', time: '1d', key: '2', classes: 'bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-500/10 text-amber-700 dark:text-amber-400' },
+                                { id: 'good', label: t('flashcards.good'), color: 'indigo', time: '3d', key: '3', classes: 'bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-500/10 text-indigo-700 dark:text-indigo-400' },
+                                { id: 'easy', label: t('flashcards.easy'), color: 'emerald', time: '7d', key: '4', classes: 'bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-500/10 text-emerald-700 dark:text-emerald-400' }
                             ].map(btn => (
                                 <button
                                     key={btn.id}

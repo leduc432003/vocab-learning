@@ -51,7 +51,7 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
 
                 {/* FRONT SIDE */}
                 <div className="absolute inset-0 backface-hidden">
-                    <div className={`h-full card-hover rounded-[2rem] md:rounded-[2.5rem] border border-white/10 dark:border-white/10 flex flex-col p-6 md:p-8 overflow-hidden relative bg-white dark:bg-white/5`}>
+                    <div className={`h-full card-hover rounded-[2rem] md:rounded-[2.5rem] border border-white/10 dark:border-white/10 flex flex-col p-6 md:p-8 overflow-hidden relative bg-white dark:bg-[#0b0f19]`}>
                         {/* Status Label */}
                         <div className="flex justify-between items-start mb-4">
                             <span className={`px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border ${statusConfig[word.srsStage || 'new'].border} ${statusConfig[word.srsStage || 'new'].bg} ${statusConfig[word.srsStage || 'new'].text}`}>
@@ -87,7 +87,7 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                                 </h3>
                                 <button
                                     onClick={(e) => speak(e, word.term)}
-                                    className="p-2 md:p-3 rounded-lg md:rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-primary-500/20 text-indigo-600 dark:text-indigo-400 transition-all active:scale-90 border border-gray-200 dark:border-white/5 hover:border-primary-500/30"
+                                    className="p-2 md:p-3 rounded-lg md:rounded-xl bg-gray-100 dark:bg-[#0b0f19]/30 hover:bg-gray-200 dark:hover:bg-primary-500/20 text-indigo-600 dark:text-indigo-400 transition-all active:scale-90 border border-gray-200 dark:border-white/5 hover:border-primary-500/30"
                                     title="Phát âm"
                                 >
                                     🔊
@@ -96,19 +96,19 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
 
                             <div className="flex flex-wrap justify-center gap-1.5 md:gap-2 opacity-80 dark:opacity-60">
                                 {word.phonetic && <span className="text-xs md:text-base text-primary-600 dark:text-primary-400 font-medium italic">{word.phonetic}</span>}
-                                {word.type && <span className={`px-1.5 py-0.5 rounded text-[8px] md:text-[9px] font-black uppercase tracking-widest bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400`}>{word.type}</span>}
+                                {word.type && <span className={`px-1.5 py-0.5 rounded text-[8px] md:text-[9px] font-black uppercase tracking-widest bg-gray-100 dark:bg-[#0b0f19]/30 text-gray-600 dark:text-gray-400`}>{word.type}</span>}
                             </div>
                         </div>
 
                         {/* Quick Actions (Bottom) */}
                         <div className="flex justify-center gap-3 md:gap-4 mt-4 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
+                                <button
                                 onClick={(e) => { e.stopPropagation(); onEdit(word); }}
-                                className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/10 transition-colors border border-gray-200 dark:border-white/10 md:border-transparent shadow-sm"
+                                className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 dark:hover:bg-[#0b0f19]/50 transition-colors border border-gray-200 dark:border-white/10 md:border-transparent shadow-sm"
                             >✏️</button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); onDelete(word.id); }}
-                                className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-500 transition-colors border border-red-200 dark:border-red-500/20 md:border-transparent shadow-sm"
+                                className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 transition-colors border border-red-200 dark:border-red-500/10 md:border-transparent shadow-sm"
                             >🗑️</button>
                         </div>
                     </div>
@@ -139,7 +139,7 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                             </div>
 
                             {word.example && (
-                                <div className="bg-gray-50 dark:bg-white/5 p-3 md:p-4 rounded-xl md:rounded-2xl border border-gray-100 dark:border-white/5 italic">
+                                <div className="bg-gray-50 dark:bg-[#0b0f19]/20 p-3 md:p-4 rounded-xl md:rounded-2xl border border-gray-100 dark:border-white/10 italic">
                                     <div className="text-[8px] md:text-[9px] font-black text-primary-600 dark:text-primary-500 uppercase tracking-widest mb-1">{t('vocabCard.example')}</div>
                                     <p className="text-gray-700 dark:text-gray-300 text-xs md:text-base leading-snug">
                                         "{renderExampleWithBold(word.example)}"
@@ -155,13 +155,13 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                             {(word.synonym || word.antonym) && (
                                 <div className="grid grid-cols-2 gap-2">
                                     {word.synonym && (
-                                        <div className="bg-emerald-50 dark:bg-emerald-500/10 p-2 md:p-3 rounded-lg border border-emerald-100 dark:border-transparent">
+                                        <div className="bg-emerald-50 dark:bg-emerald-900/10 p-2 md:p-3 rounded-lg border border-emerald-100 dark:border-transparent">
                                             <span className="block text-[7px] md:text-[8px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest mb-1">{t('vocabCard.synonym')}</span>
                                             <span className="text-[10px] md:text-xs font-bold text-emerald-700 dark:text-emerald-400">{word.synonym}</span>
                                         </div>
                                     )}
                                     {word.antonym && (
-                                        <div className="bg-rose-50 dark:bg-rose-500/10 p-2 md:p-3 rounded-lg border border-rose-100 dark:border-transparent">
+                                        <div className="bg-rose-50 dark:bg-rose-900/10 p-2 md:p-3 rounded-lg border border-rose-100 dark:border-transparent">
                                             <span className="block text-[7px] md:text-[8px] font-black text-rose-600 dark:text-rose-500 uppercase tracking-widest mb-1">{t('vocabCard.antonym')}</span>
                                             <span className="text-[10px] md:text-xs font-bold text-rose-700 dark:text-rose-400">{word.antonym}</span>
                                         </div>
@@ -170,7 +170,7 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                             )}
 
                             {word.note && (
-                                <div className="p-2 md:p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-100 dark:border-transparent">
+                                <div className="p-2 md:p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-transparent">
                                     <span className="block text-[8px] md:text-[9px] font-black text-blue-600 dark:text-blue-500 uppercase tracking-widest mb-1">{t('vocabCard.note')}</span>
                                     <p className="text-[10px] md:text-[11px] text-blue-800 dark:text-blue-200 leading-tight">{word.note}</p>
                                 </div>

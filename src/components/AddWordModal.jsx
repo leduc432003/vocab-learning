@@ -127,13 +127,13 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
 
     if (!isOpen) return null;
 
-    const inputCls = "w-full px-3 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white text-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-inner";
+    const inputCls = "w-full px-3 py-2.5 bg-white dark:bg-[#0b0f19] border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white text-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-inner";
     const labelCls = "block mb-1.5 text-gray-700 dark:text-gray-300 font-semibold text-xs uppercase tracking-wider";
     const fieldCls = "flex flex-col";
 
     return (
         <div
-            className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 animate-fade-in"
+            className="fixed inset-0 bg-black/50 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-3 animate-fade-in"
             onClick={onClose}
         >
             <div
@@ -147,7 +147,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                         {editWord ? t('addWord.titleEdit') : t('addWord.titleNew')}
                     </h2>
                     <button
-                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-lg"
+                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-lg"
                         onClick={onClose}
                         type="button"
                     >
@@ -348,7 +348,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                                         accept="image/*"
                                         onChange={handleImageChange}
                                         title="Upload from computer"
-                                        className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white text-xs focus:outline-none focus:border-primary-500 transition-all file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-primary-600 dark:file:bg-primary-500 file:text-white file:cursor-pointer file:text-xs hover:file:bg-primary-500 dark:hover:file:bg-primary-400"
+                                        className="w-full px-3 py-2 bg-gray-50 dark:bg-[#0b0f19] border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white text-xs focus:outline-none focus:border-primary-500 transition-all file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-primary-600 dark:file:bg-primary-500 file:text-white file:cursor-pointer file:text-xs hover:file:bg-primary-500 dark:hover:file:bg-primary-400"
                                     />
                                     <input
                                         type="url"
@@ -384,7 +384,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                                         <img
                                             src={formData.image}
                                             alt="Preview"
-                                            className="w-24 h-24 object-cover rounded-xl border border-gray-200 dark:border-white/10 shadow"
+                                            className="w-24 h-24 object-cover rounded-xl border border-gray-200 dark:border-white/5 shadow"
                                         />
                                         <button
                                             type="button"
@@ -404,7 +404,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                 <div className="flex gap-3 justify-end px-6 py-4 border-t border-white/10 flex-shrink-0">
                     <button
                         type="button"
-                        className="px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-100 dark:hover:bg-white/10 transition-all text-gray-600 dark:text-gray-300 text-sm"
+                        className="px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-100 dark:hover:bg-white/5 transition-all text-gray-600 dark:text-gray-300 text-sm"
                         onClick={onClose}
                     >
                         {t('common.cancel')}
