@@ -76,16 +76,16 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
 
     if (questions.length === 0) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-8 bg-gray-950">
-                <div className="text-center max-w-md glass-effect p-12 rounded-3xl animate-in zoom-in duration-500">
-                    <h2 className="text-4xl font-black text-gradient-primary mb-4">
+            <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50 dark:bg-[#020617]">
+                <div className="text-center max-w-md card-hover p-12 rounded-3xl animate-fade-in">
+                    <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-4">
                         {t('test.notEnoughWords')}
                     </h2>
-                    <p className="text-gray-400 text-lg mb-8 font-medium">
+                    <p className="text-gray-500 dark:text-gray-400 text-lg mb-8 font-medium">
                         {t('test.needFour')}
                     </p>
                     <button
-                        className="px-8 py-4 bg-gradient-primary rounded-xl font-bold text-white hover:shadow-lg transition-all"
+                        className="px-8 py-4 btn-primary rounded-xl font-bold"
                         onClick={onExit}
                     >
                         {t('test.back')}
@@ -98,27 +98,27 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
     if (showFinalSummary) {
         const percentage = Math.round((stats.correct / stats.total) * 100);
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-950 p-8">
-                <div className="text-center max-w-lg w-full glass-effect p-12 rounded-[2.5rem] animate-in zoom-in duration-500 shadow-2xl border border-white/5">
-                    <div className="w-24 h-24 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-primary-500/50">
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#020617] p-8">
+                <div className="text-center max-w-lg w-full card-hover p-12 rounded-[2.5rem] animate-fade-in shadow-xl">
+                    <div className="w-24 h-24 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-indigo-500/40">
                         <span className="text-5xl text-white">📋</span>
                     </div>
-                    <h2 className="text-4xl font-black text-white mb-2">{t('test.completed')}</h2>
-                    <p className="text-gray-400 text-lg mb-10 font-medium">{t('test.results')}</p>
+                    <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-2">{t('test.completed')}</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-lg mb-10 font-medium">{t('test.results')}</p>
 
                     <div className="grid grid-cols-2 gap-4 mb-10">
-                        <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
-                            <div className="text-3xl font-black text-gradient-success mb-1">{stats.correct}/{stats.total}</div>
-                            <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">{t('test.correctCount')}</div>
+                        <div className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-gray-200 dark:border-white/10">
+                            <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-1">{stats.correct}/{stats.total}</div>
+                            <div className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black tracking-widest">{t('test.correctCount')}</div>
                         </div>
-                        <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
-                            <div className="text-3xl font-black text-gradient-warning mb-1">{percentage}%</div>
-                            <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">{t('test.score')}</div>
+                        <div className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-gray-200 dark:border-white/10">
+                            <div className="text-3xl font-black text-amber-600 dark:text-amber-400 mb-1">{percentage}%</div>
+                            <div className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-black tracking-widest">{t('test.score')}</div>
                         </div>
                     </div>
 
                     <button
-                        className="w-full py-5 bg-gradient-primary rounded-2xl font-black text-xl text-white hover:shadow-2xl hover:shadow-primary-500/40 hover:-translate-y-1 transition-all"
+                        className="btn-primary w-full py-5 rounded-2xl font-black text-xl"
                         onClick={onExit}
                     >
                         {t('test.backHome')}
@@ -133,52 +133,52 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
     const isAnswerCorrect = selectedAnswer === currentQuestion.correctAnswer;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 p-4 md:p-8 font-sans">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#020617] p-4 md:p-8 font-sans transition-colors duration-300">
             <div className="max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 mb-8 md:mb-10">
                 <button
-                    className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold hover:bg-white/10 transition-all text-gray-300"
+                    className="w-full md:w-auto px-6 py-3 glass-effect rounded-xl font-bold hover:bg-white/10 dark:hover:bg-white/10 transition-all text-gray-600 dark:text-gray-300"
                     onClick={onExit}
                 >
                     ← {t('test.exit')}
                 </button>
                 <div className="flex gap-4 w-full md:w-auto">
                     <div className="flex-1 px-4 md:px-6 py-3 glass-effect rounded-xl">
-                        <span className="text-gray-500 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">{t('test.question')}</span>
-                        <span className="text-lg md:text-xl font-black text-white">{currentIndex + 1}<span className="text-gray-600 text-sm font-normal">/{questions.length}</span></span>
+                        <span className="text-gray-500 dark:text-gray-400 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">{t('test.question')}</span>
+                        <span className="text-lg md:text-xl font-black text-gray-900 dark:text-white">{currentIndex + 1}<span className="text-gray-500 dark:text-gray-400 text-sm font-normal">/{questions.length}</span></span>
                     </div>
                     <div className="flex-1 px-4 md:px-6 py-3 glass-effect rounded-xl">
-                        <span className="text-gray-500 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">{t('test.correct_label')}</span>
-                        <span className="text-lg md:text-xl font-black text-gradient-success">{stats.correct}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-[8px] md:text-[10px] uppercase font-black tracking-widest block mb-1">{t('test.correct_label')}</span>
+                        <span className="text-lg md:text-xl font-black text-emerald-600 dark:text-emerald-400">{stats.correct}</span>
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-4xl mx-auto w-full h-1.5 md:h-2 bg-gray-800 rounded-full overflow-hidden mb-8 md:mb-12 shadow-inner">
+            <div className="max-w-4xl mx-auto w-full h-1.5 md:h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden mb-8 md:mb-12 shadow-inner">
                 <div
-                    className="h-full bg-gradient-primary transition-all duration-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+                    className="h-full bg-gradient-primary transition-all duration-500 shadow-[0_0_15px_rgba(79,70,229,0.4)]"
                     style={{ width: `${progress}%` }}
                 />
             </div>
 
             <div className="max-w-4xl mx-auto">
-                <div className="w-full glass-effect rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 shadow-2xl relative overflow-hidden border border-white/5">
-                    <div className="absolute top-0 right-0 w-80 h-80 bg-primary-500/5 blur-[120px] -z-10" />
+                <div className="w-full card-hover rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 shadow-lg relative overflow-hidden border border-gray-200 dark:border-white/10">
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-primary-100/50 dark:bg-primary-600/10 blur-[120px] -z-10" />
 
-                    <div className="text-center mb-8 md:mb-12 pb-6 md:pb-10 border-b border-white/5">
+                    <div className="text-center mb-8 md:mb-12 pb-6 md:pb-10 border-b border-gray-200 dark:border-white/10">
                         {currentQuestion.word.image && (
                             <img
                                 src={currentQuestion.word.image}
                                 alt={currentQuestion.word.term}
-                                className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-[1.5rem] md:rounded-[2rem] mb-6 md:mb-8 border-4 border-white/5 mx-auto shadow-2xl"
+                                className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-[1.5rem] md:rounded-[2rem] mb-6 md:mb-8 border-4 border-white dark:border-white/10 mx-auto shadow-xl"
                             />
                         )}
                         <div className="flex items-center justify-center gap-3 md:gap-4 mb-3 md:mb-4">
-                            <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-tight">
+                            <h2 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tighter leading-tight">
                                 {currentQuestion.word.term}
                             </h2>
                             <button
                                 onClick={() => speak(currentQuestion.word.term)}
-                                className="p-2 md:p-3 glass-effect rounded-full hover:bg-white/10 text-primary-400 transition-all transform active:scale-90 shadow-lg"
+                                className="p-2 md:p-3 rounded-full hover:bg-white/10 dark:hover:bg-white/20 text-primary-600 dark:text-primary-400 transition-all transform active:scale-90 shadow-lg"
                                 title="Nghe phát âm"
                             >
                                 <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,12 +188,12 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
                         </div>
                         <div className="flex justify-center flex-wrap gap-2 md:gap-3">
                             {currentQuestion.word.phonetic && (
-                                <p className="text-lg md:text-xl text-gray-500 italic font-medium">
+                                <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 italic font-medium">
                                     {currentQuestion.word.phonetic}
                                 </p>
                             )}
                             {currentQuestion.word.type && (
-                                <span className="inline-block px-3 md:px-4 py-1 bg-white/5 border border-white/10 rounded-xl text-[10px] md:text-xs font-bold text-gray-400">
+                                <span className="inline-block px-3 md:px-4 py-1 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-[10px] md:text-xs font-bold text-gray-600 dark:text-gray-400">
                                     {currentQuestion.word.type}
                                 </span>
                             )}
@@ -201,38 +201,38 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
                     </div>
 
                     <div className="mb-10">
-                        <h3 className="text-center text-gray-500 text-sm font-black uppercase tracking-[0.2em] mb-8">
+                        <h3 className="text-center text-gray-500 dark:text-gray-400 text-sm font-black uppercase tracking-[0.2em] mb-8">
                             {t('test.chooseCorrect')}
                         </h3>
                         <div className="grid grid-cols-1 gap-4">
                             {currentQuestion.answers.map((answer, index) => {
-                                let borderClass = 'border-white/5';
-                                let bgClass = 'bg-white/5';
-                                let textClass = 'text-gray-300';
-                                let iconBg = 'bg-white/5';
+                                let borderClass = 'border-gray-200 dark:border-white/10';
+                                let bgClass = 'bg-white dark:bg-white/5';
+                                let textClass = 'text-gray-800 dark:text-gray-200';
+                                let iconBg = 'bg-white dark:bg-white/5';
                                 let icon = String.fromCharCode(65 + index);
 
                                 if (showResult) {
                                     if (answer === currentQuestion.correctAnswer) {
-                                        borderClass = 'border-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.15)] scale-[1.02]';
-                                        bgClass = 'bg-green-500/10';
-                                        textClass = 'text-green-400 font-bold';
-                                        iconBg = 'bg-green-500 text-white';
+                                        borderClass = 'border-emerald-500 dark:border-emerald-400 shadow-[0_0_20px_rgba(34,197,94,0.15)] scale-[1.02]';
+                                        bgClass = 'bg-emerald-50 dark:bg-emerald-900/20';
+                                        textClass = 'text-emerald-700 dark:text-emerald-400 font-bold';
+                                        iconBg = 'bg-emerald-600 text-white';
                                         icon = '✓';
                                     } else if (answer === selectedAnswer) {
-                                        borderClass = 'border-red-500/50 opacity-80';
-                                        bgClass = 'bg-red-500/10';
-                                        textClass = 'text-red-400';
-                                        iconBg = 'bg-red-500 text-white';
+                                        borderClass = 'border-rose-500 dark:border-rose-400 opacity-80';
+                                        bgClass = 'bg-rose-50 dark:bg-rose-900/20';
+                                        textClass = 'text-rose-700 dark:text-rose-400';
+                                        iconBg = 'bg-rose-600 text-white';
                                         icon = '✕';
                                     }
                                 } else if (answer === selectedAnswer) {
-                                    borderClass = 'border-primary-500 shadow-lg';
-                                    bgClass = 'bg-primary-500/10';
+                                    borderClass = 'border-primary-500 dark:border-primary-400 shadow-lg';
+                                    bgClass = 'bg-primary-50 dark:bg-primary-900/20';
                                     textClass = 'text-white font-bold';
-                                    iconBg = 'bg-primary-500 text-white';
+                                    iconBg = 'bg-primary-600 text-white';
                                 } else {
-                                    borderClass = 'border-white/5 hover:bg-white/[0.08] hover:border-primary-500/50 hover:translate-x-1';
+                                    borderClass = 'border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 hover:border-primary-500 dark:hover:border-primary-400 hover:-translate-x-1';
                                 }
 
                                 return (
@@ -242,7 +242,7 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
                                         onClick={() => handleAnswerSelect(answer)}
                                         disabled={showResult}
                                     >
-                                        <span className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl font-black text-xs md:text-sm flex-shrink-0 transition-all ${iconBg} ${!showResult && answer !== selectedAnswer ? 'text-gray-500 group-hover:bg-primary-500 group-hover:text-white' : 'text-white'}`}>
+                                        <span className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl font-black text-xs md:text-sm flex-shrink-0 transition-all ${iconBg} ${!showResult && answer !== selectedAnswer ? 'text-gray-600 dark:text-gray-400 group-hover:bg-primary-600 dark:group-hover:bg-primary-500 group-hover:text-white' : 'text-white'}`}>
                                             {icon}
                                         </span>
                                         <span className={`flex-1 text-base md:text-lg leading-relaxed ${textClass} line-clamp-3`}>
@@ -257,22 +257,22 @@ const TestMode = ({ vocabulary, onUpdateStats, onExit }) => {
                     <div className="flex justify-center mt-6">
                         {!showResult ? (
                             <button
-                                className="w-full py-5 bg-gradient-primary rounded-[1.5rem] font-black text-xl text-white hover:shadow-2xl hover:shadow-primary-500/30 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg"
+                                className="w-full py-5 bg-gradient-primary rounded-[1.5rem] font-black text-xl text-white hover:shadow-2xl hover:shadow-indigo-600/40 active:scale-95 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg"
                                 onClick={handleSubmit}
                                 disabled={!selectedAnswer}
                             >
                                 {t('test.confirm')}
                             </button>
                         ) : (
-                            <div className="w-full flex flex-col items-center gap-8 animate-in slide-in-from-bottom-5">
+                            <div className="w-full flex flex-col items-center gap-8 animate-slide-up">
                                 <div className={`w-full py-6 rounded-2xl flex items-center justify-center gap-4 border-2 font-black text-2xl ${isAnswerCorrect
-                                    ? 'bg-green-500/10 text-green-400 border-green-500/30'
-                                    : 'bg-red-500/10 text-red-400 border-red-500/30'
+                                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
+                                    : 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border-rose-500/30'
                                     }`}>
                                     <span>{isAnswerCorrect ? t('test.correctFeedback') : t('test.wrongFeedback')}</span>
                                 </div>
                                 <button
-                                    className="w-full py-6 bg-gradient-primary rounded-[1.5rem] font-black text-2xl text-white hover:shadow-2xl hover:shadow-primary-500/40 active:scale-95 transition-all shadow-xl"
+                                    className="w-full py-6 bg-gradient-primary rounded-[1.5rem] font-black text-2xl text-white hover:shadow-2xl hover:shadow-indigo-600/40 active:scale-95 transition-all shadow-xl"
                                     onClick={handleNext}
                                 >
                                     {currentIndex < questions.length - 1 ? t('test.nextQuestion') : t('test.showResults')}

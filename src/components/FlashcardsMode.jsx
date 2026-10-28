@@ -42,7 +42,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
         const parts = text.split(/(\*\*.*?\*\*)/g);
         return parts.map((part, i) => {
             if (part && part.startsWith('**') && part.endsWith('**')) {
-                return <strong key={i} className="text-primary-400 font-black not-italic">{part.slice(2, -2)}</strong>;
+                return <strong key={i} className="text-primary-600 dark:text-primary-400 font-black not-italic">{part.slice(2, -2)}</strong>;
             }
             return part;
         });
@@ -91,36 +91,36 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-[#020617] flex items-center justify-center p-4 font-sans transition-colors duration-300">
                 <div className="max-w-md w-full relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-[3rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-                    <div className="relative glass-effect rounded-[2.5rem] p-10 border border-gray-200 dark:border-white/10 shadow-2xl animate-fade-in text-center bg-white/80 dark:bg-white/5">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-secondary-600 rounded-[3rem] blur opacity-10 dark:opacity-25 group-hover:opacity-20 dark:group-hover:opacity-50 transition duration-1000"></div>
+                    <div className="relative card-hover rounded-[2.5rem] p-10 border border-white dark:border-white/10 shadow-xl animate-fade-in text-center bg-white dark:bg-white/5">
                         <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">{t('flashcards.deckTitle')}</h1>
 
                         <div className="grid grid-cols-1 gap-4 mb-12">
-                            <div className="flex justify-between items-center p-5 rounded-3xl bg-blue-500/10 border border-blue-500/20">
-                                <span className="text-blue-600 dark:text-blue-400 font-bold uppercase text-[10px] tracking-widest">{t('common.notLearned')}</span>
-                                <span className="text-blue-600 dark:text-blue-400 text-3xl font-black">{statusCounts?.notLearned || 0}</span>
+                            <div className="flex justify-between items-center p-5 rounded-3xl bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20">
+                                <span className="text-blue-700 dark:text-blue-400 font-bold uppercase text-[10px] tracking-widest">{t('common.notLearned')}</span>
+                                <span className="text-blue-700 dark:text-blue-400 text-3xl font-black">{statusCounts?.notLearned || 0}</span>
                             </div>
-                            <div className="flex justify-between items-center p-5 rounded-3xl bg-amber-500/10 border border-amber-500/20">
-                                <span className="text-amber-600 dark:text-amber-500 font-bold uppercase text-[10px] tracking-widest">{t('common.learning')}</span>
-                                <span className="text-amber-600 dark:text-amber-500 text-3xl font-black">{statusCounts?.learning || 0}</span>
+                            <div className="flex justify-between items-center p-5 rounded-3xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20">
+                                <span className="text-amber-700 dark:text-amber-400 font-bold uppercase text-[10px] tracking-widest">{t('common.learning')}</span>
+                                <span className="text-amber-700 dark:text-amber-400 text-3xl font-black">{statusCounts?.learning || 0}</span>
                             </div>
-                            <div className="flex justify-between items-center p-5 rounded-3xl bg-emerald-500/10 border border-emerald-500/20">
-                                <span className="text-emerald-600 dark:text-emerald-500 font-bold uppercase text-[10px] tracking-widest">{t('common.due')}</span>
-                                <span className="text-emerald-600 dark:text-emerald-500 text-3xl font-black">{statusCounts?.due || 0}</span>
+                            <div className="flex justify-between items-center p-5 rounded-3xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20">
+                                <span className="text-emerald-700 dark:text-emerald-400 font-bold uppercase text-[10px] tracking-widest">{t('common.due')}</span>
+                                <span className="text-emerald-700 dark:text-emerald-400 text-3xl font-black">{statusCounts?.due || 0}</span>
                             </div>
                         </div>
 
                         <div className="flex justify-center mb-8">
-                            <div className="bg-white/5 p-1 rounded-2xl flex border border-white/10">
+                            <div className="bg-white p-1 rounded-2xl flex border border-gray-200 dark:border-white/10 shadow-sm">
                                 <button
                                     onClick={() => setIsShuffle(false)}
-                                    className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${!isShuffle ? 'bg-primary-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                                    className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${!isShuffle ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400'}`}
                                 >
                                     {t('common.normal')}
                                 </button>
                                 <button
                                     onClick={() => setIsShuffle(true)}
-                                    className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${isShuffle ? 'bg-primary-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                                    className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${isShuffle ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400'}`}
                                 >
                                     {t('common.shuffle')}
                                 </button>
@@ -129,12 +129,12 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
 
                         <button
                             onClick={handleStart}
-                            className={`w-full py-6 rounded-3xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl ${vocabulary.length > 0 ? 'bg-white text-black shadow-white/10' : 'bg-gray-800 text-gray-500 cursor-not-allowed'}`}
+                            className={`w-full py-6 rounded-3xl font-black text-xl hover:scale-105 active:scale-95 transition-all shadow-xl ${vocabulary.length > 0 ? 'btn-primary' : 'bg-gray-200 text-gray-500 dark:bg-gray-800 dark:text-gray-500 cursor-not-allowed'}`}
                         >
                             {statusCounts?.due > 0 || vocabulary.length > 0 ? t('common.start') : t('common.todayDone')}
                         </button>
 
-                        <button onClick={onExit} className="mt-8 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors text-sm font-bold">
+                        <button onClick={onExit} className="mt-8 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors text-sm font-bold">
                             {t('common.later')}
                         </button>
                     </div>
@@ -147,10 +147,10 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-[#020617] flex items-center justify-center transition-colors duration-300">
                 <div className="text-center animate-slide-up">
-                    <div className="text-9xl mb-8 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">🏅</div>
+                    <div className="text-9xl mb-8 drop-shadow-[0_0_30px_rgba(79,70,229,0.2)] dark:drop-shadow-[0_0_30px_rgba(129,140,248,0.2)]">🏅</div>
                     <h2 className="text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">{t('flashcards.sessionDone')}</h2>
-                    <p className="text-gray-500 mb-10 text-lg">{t('flashcards.doneMsg')}</p>
-                    <button onClick={onExit} className="px-12 py-5 bg-gradient-primary rounded-3xl font-black text-white text-lg hover:shadow-[0_0_50px_rgba(var(--primary-rgb),0.4)] transition-all">
+                    <p className="text-gray-500 dark:text-gray-400 mb-10 text-lg">{t('flashcards.doneMsg')}</p>
+                    <button onClick={onExit} className="btn-primary px-12 py-5 rounded-3xl text-lg">
                         {t('flashcards.backHome')}
                     </button>
                 </div>
@@ -166,30 +166,30 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                 {/* Minimal Header - More compact on mobile */}
                 <div className="flex items-center justify-between mb-4 md:mb-8">
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setIsStudying(false)} className="px-3 py-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-sm transition-colors">
+                        <button onClick={() => setIsStudying(false)} className="px-3 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-bold text-sm transition-colors">
                             ← {t('common.exit')}
                         </button>
                         <button
                             onClick={toggleTheme}
-                            className="p-2 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/20 transition-all text-sm"
+                            className="p-2 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/20 transition-all text-sm"
                             title={theme === 'dark' ? 'Chế độ sáng' : 'Chế độ tối'}
                         >
                             {theme === 'dark' ? '☀️' : '🌙'}
                         </button>
                     </div>
-                    <div className="flex gap-3 md:gap-8 px-4 py-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 scale-90 md:scale-100 shadow-sm dark:shadow-none">
+                    <div className="flex gap-3 md:gap-8 px-4 py-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm scale-90 md:scale-100">
                         <div className="flex flex-col items-center">
-                            <span className="text-[9px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-tighter">{t('common.notLearned')}</span>
+                            <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-tighter">{t('common.notLearned')}</span>
                             <span className="text-xs font-black text-gray-900 dark:text-white">{statusCounts?.notLearned}</span>
                         </div>
                         <div className="h-3 w-px bg-gray-200 dark:bg-white/10 self-center"></div>
                         <div className="flex flex-col items-center">
-                            <span className="text-[9px] font-black text-amber-500 uppercase tracking-tighter">{t('common.learning')}</span>
+                            <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-tighter">{t('common.learning')}</span>
                             <span className="text-xs font-black text-gray-900 dark:text-white">{statusCounts?.learning}</span>
                         </div>
                         <div className="h-3 w-px bg-gray-200 dark:bg-white/10 self-center"></div>
                         <div className="flex flex-col items-center">
-                            <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">{t('common.due')}</span>
+                            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">{t('common.due')}</span>
                             <span className="text-xs font-black text-gray-900 dark:text-white">{statusCounts?.due}</span>
                         </div>
                     </div>
@@ -197,7 +197,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
 
                 {/* Main Study Area */}
                 <div className="flex-1 flex flex-col items-center justify-center gap-4 md:gap-8 relative min-h-0">
-                    <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] transition-all duration-1000 opacity-10 ${isFlipped ? 'bg-indigo-600' : 'bg-primary-600'}`}></div>
+                    <div className={`absolute w-[300px] h-[300px] rounded-full blur-[80px] transition-all duration-1000 opacity-10 ${isFlipped ? 'bg-indigo-600/20 dark:bg-indigo-600' : 'bg-primary-600/20 dark:bg-primary-600'}`}></div>
 
                     <div
                         className="relative w-full max-w-2xl md:max-w-4xl h-full max-h-[75vh] md:max-h-[85vh] perspective-2000 cursor-pointer"
@@ -210,15 +210,15 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                         <div className={`relative w-full h-full preserve-3d transition-transform duration-700 will-change-transform ${isFlipped ? 'rotate-y-180' : ''}`}>
                             {/* FRONT SIDE */}
                             <div className="absolute inset-0 backface-hidden">
-                                <div className="h-full glass-effect rounded-[2.5rem] md:rounded-[3.5rem] border border-gray-200 dark:border-white/10 flex flex-col items-center justify-center p-6 md:p-10 shadow-2xl relative overflow-hidden group bg-white dark:bg-white/5">
+                                <div className="h-full card-hover rounded-[2.5rem] md:rounded-[3.5rem] border border-white dark:border-white/10 flex flex-col items-center justify-center p-6 md:p-10 shadow-xl relative overflow-hidden group bg-white dark:bg-white/5">
                                     {currentCard.image && (
                                         <div className="mb-6 md:mb-10 relative group-hover:scale-105 transition-transform duration-500 will-change-transform">
-                                            <div className="absolute -inset-4 bg-primary-500/20 blur-2xl rounded-full"></div>
+                                            <div className="absolute -inset-4 bg-primary-100 dark:bg-primary-600/20 blur-2xl rounded-full"></div>
                                             <img
                                                 src={currentCard.image}
                                                 alt=""
                                                 decoding="async"
-                                                className="w-28 h-28 md:w-56 md:h-56 object-cover rounded-3xl relative shadow-2xl border-2 border-white/10"
+                                                className="w-28 h-28 md:w-56 md:h-56 object-cover rounded-3xl relative shadow-lg border-2 border-white dark:border-white/10"
                                             />
                                         </div>
                                     )}
@@ -233,14 +233,14 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                                             </h2>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); speak(currentCard.term); }}
-                                                className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 rounded-full flex items-center justify-center text-2xl md:text-3xl border border-gray-200 dark:border-white/10 transition-all hover:scale-110 active:scale-90 shrink-0"
+                                                className="w-12 h-12 md:w-16 md:h-16 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/20 rounded-full flex items-center justify-center text-2xl md:text-3xl border border-gray-200 dark:border-white/10 transition-all hover:scale-110 active:scale-90 shrink-0"
                                             >
                                                 🔊
                                             </button>
                                         </div>
-                                        <div className="mt-4 flex flex-wrap justify-center gap-3 opacity-70">
-                                            {currentCard.phonetic && <span className="text-lg md:text-2xl text-primary-500 dark:text-primary-400 font-medium italic">{currentCard.phonetic}</span>}
-                                            {currentCard.type && <span className="px-3 py-1 bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded-lg text-[10px] font-black text-gray-500 dark:text-white/50 uppercase tracking-widest">{currentCard.type}</span>}
+                                        <div className="mt-4 flex flex-wrap justify-center gap-3 opacity-70 dark:opacity-60">
+                                            {currentCard.phonetic && <span className="text-lg md:text-2xl text-primary-600 dark:text-primary-400 font-medium italic">{currentCard.phonetic}</span>}
+                                            {currentCard.type && <span className="px-3 py-1 bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded-lg text-[10px] font-black text-gray-600 dark:text-white/50 uppercase tracking-widest">{currentCard.type}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -248,7 +248,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
 
                             {/* BACK SIDE (Optimized for no-scroll on mobile) */}
                             <div className="absolute inset-0 backface-hidden rotate-y-180">
-                                <div className="h-full bg-white dark:bg-[#0a0c16] rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-gray-200 dark:border-white/20 flex flex-col p-5 md:p-8 shadow-2xl overflow-y-auto md:overflow-hidden no-scrollbar transition-colors">
+                                <div className="h-full bg-white dark:bg-[#0a0c16] rounded-[2.5rem] md:rounded-[3.5rem] border-2 border-white dark:border-white/20 flex flex-col p-5 md:p-8 shadow-2xl overflow-y-auto md:overflow-hidden no-scrollbar transition-colors">
                                     <div className="w-full h-full flex flex-col justify-between space-y-4 md:space-y-4">
                                         {/* Header - Compact */}
                                         <div className="text-center space-y-4">
@@ -256,16 +256,16 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                                                 <div className="text-lg md:text-lg text-gray-600 dark:text-gray-500 font-black uppercase tracking-[0.2em]">{currentCard.term}</div>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); speak(currentCard.term); }}
-                                                    className="w-8 h-8 md:w-10 md:h-10 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 rounded-full flex items-center justify-center text-sm md:text-lg border border-gray-200 dark:border-white/10 transition-all active:scale-90"
+                                                    className="w-8 h-8 md:w-10 md:h-10 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-full flex items-center justify-center text-sm md:text-lg border border-gray-200 dark:border-white/10 transition-all active:scale-90"
                                                 >
                                                     🔊
                                                 </button>
                                             </div>
                                             <div className="flex flex-wrap justify-center gap-2">
                                                 {currentCard.phonetic && <span className="text-primary-600 dark:text-primary-400 font-bold italic text-base md:text-base">{currentCard.phonetic}</span>}
-                                                {currentCard.type && <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded text-[9px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">{currentCard.type}</span>}
-                                                {currentCard.level && <span className="px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{currentCard.level}</span>}
-                                                {currentCard.topic && <span className="px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">#{currentCard.topic}</span>}
+                                                {currentCard.type && <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded text-[9px] font-black text-gray-600 dark:text-gray-400 uppercase tracking-widest">{currentCard.type}</span>}
+                                                {currentCard.level && <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{currentCard.level}</span>}
+                                                {currentCard.topic && <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">#{currentCard.topic}</span>}
                                             </div>
                                         </div>
 
@@ -288,7 +288,7 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                                                         "{renderExampleWithBold(currentCard.example)}"
                                                     </p>
                                                     {currentCard.exampleDefinition && (
-                                                        <p className="text-primary-700/80 dark:text-primary-400/80 font-medium text-xs md:text-sm mt-2 italic">
+                                                        <p className="text-primary-700 dark:text-primary-400/80 font-medium text-xs md:text-sm mt-2 italic">
                                                             → {renderExampleWithBold(currentCard.exampleDefinition)}
                                                         </p>
                                                     )}
@@ -298,19 +298,19 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 {currentCard.synonym && (
                                                     <div className="text-left">
-                                                        <span className="block text-emerald-600 dark:text-emerald-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-emerald-500/10 pb-1">{t('addWord.synonyms')}</span>
+                                                        <span className="block text-emerald-600 dark:text-emerald-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-emerald-100 dark:border-emerald-500/10 pb-1">{t('addWord.synonyms')}</span>
                                                         <div className="text-emerald-700 dark:text-emerald-400 font-bold text-base md:text-sm leading-relaxed">{currentCard.synonym}</div>
                                                     </div>
                                                 )}
                                                 {currentCard.antonym && (
                                                     <div className="text-left">
-                                                        <span className="block text-rose-600 dark:text-rose-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-rose-500/10 pb-1">{t('addWord.antonyms')}</span>
+                                                        <span className="block text-rose-600 dark:text-rose-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-rose-100 dark:border-rose-500/10 pb-1">{t('addWord.antonyms')}</span>
                                                         <div className="text-rose-700 dark:text-rose-400 font-bold text-base md:text-sm leading-relaxed">{currentCard.antonym}</div>
                                                     </div>
                                                 )}
                                                 {currentCard.collocation && (
                                                     <div className="text-left md:col-span-2">
-                                                        <span className="block text-amber-600 dark:text-amber-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-amber-500/10 pb-1">{t('addWord.collocations')}</span>
+                                                        <span className="block text-amber-600 dark:text-amber-500/40 text-[8px] font-black uppercase tracking-widest mb-1 border-b border-amber-100 dark:border-amber-500/10 pb-1">{t('addWord.collocations')}</span>
                                                         <div className="text-amber-700 dark:text-amber-400 font-bold text-base md:text-sm leading-relaxed">{currentCard.collocation}</div>
                                                     </div>
                                                 )}
@@ -333,21 +333,21 @@ export default function FlashcardsMode({ vocabulary, statusCounts, onUpdateSRS, 
                     <div className={`w-full max-w-2xl transition-all duration-700 delay-100 ${isFlipped ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}>
                         <div className="grid grid-cols-4 gap-2 md:gap-4 px-1">
                             {[
-                                { id: 'again', label: t('flashcards.again'), color: 'rose', time: '<10m', key: '1', classes: 'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-500' },
-                                { id: 'hard', label: t('flashcards.hard'), color: 'amber', time: '1d', key: '2', classes: 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-500' },
-                                { id: 'good', label: t('flashcards.good'), color: 'indigo', time: '3d', key: '3', classes: 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-500' },
-                                { id: 'easy', label: t('flashcards.easy'), color: 'emerald', time: '7d', key: '4', classes: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-500' }
+                                { id: 'again', label: t('flashcards.again'), color: 'rose', time: '<10m', key: '1', classes: 'bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-500' },
+                                { id: 'hard', label: t('flashcards.hard'), color: 'amber', time: '1d', key: '2', classes: 'bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-500' },
+                                { id: 'good', label: t('flashcards.good'), color: 'indigo', time: '3d', key: '3', classes: 'bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-500' },
+                                { id: 'easy', label: t('flashcards.easy'), color: 'emerald', time: '7d', key: '4', classes: 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-500' }
                             ].map(btn => (
                                 <button
                                     key={btn.id}
                                     onClick={(e) => { e.stopPropagation(); handleRate(btn.id); }}
                                     className="group flex flex-col items-center gap-1.5"
                                 >
-                                    <div className={`w-full py-2 md:py-6 ${btn.classes} border rounded-xl md:rounded-[2rem] transition-all flex flex-col items-center shadow-lg active:scale-90 hover:bg-opacity-20`}>
+                                    <div className={`w-full py-2 md:py-6 ${btn.classes} rounded-xl md:rounded-[2rem] transition-all flex flex-col items-center shadow-lg active:scale-90 hover:bg-opacity-20`}>
                                         <span className="font-black text-[10px] md:text-xl uppercase tracking-tighter">{btn.label}</span>
                                         <span className="text-[6px] md:text-[9px] opacity-60 font-black uppercase tracking-widest">{btn.time}</span>
                                     </div>
-                                    <div className="hidden md:block text-[10px] text-gray-700 font-black font-mono">{btn.key}</div>
+                                    <div className="hidden md:block text-[10px] text-gray-600 font-black font-mono">{btn.key}</div>
                                 </button>
                             ))}
                         </div>

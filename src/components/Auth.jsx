@@ -20,7 +20,7 @@ export default function Auth() {
                         access_type: 'offline',
                         prompt: 'select_account',
                     },
-                    redirectTo: redirectUrl // Supabase sẽ tự dùng Site URL nếu cái này trống
+                    redirectTo: redirectUrl
                 }
             });
             if (error) throw error;
@@ -33,18 +33,18 @@ export default function Auth() {
     };
 
     return (
-        <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#020617] flex items-center justify-center p-4">
             <div className="max-w-md w-full relative group">
                 {/* Hiệu ứng ánh sáng nền */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-blue-600 rounded-[3rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-blue-600 rounded-[3rem] blur opacity-10 group-hover:opacity-20 transition duration-1000 dark:opacity-20 dark:group-hover:opacity-40"></div>
 
-                <div className="relative glass-effect rounded-[3rem] p-10 md:p-14 border border-white/10 shadow-2xl bg-white/5 text-center">
+                <div className="relative card-hover rounded-[3rem] p-10 md:p-14 border border-white text-center">
                     <div className="mb-10">
                         <div className="text-6xl mb-6 animate-bounce-slow">🚀</div>
-                        <h1 className="text-5xl font-black text-white tracking-tighter mb-4">
-                            Vocab<span className="text-primary-500">Master</span>
+                        <h1 className="text-5xl font-black text-gray-900 dark:text-white tracking-tighter mb-4">
+                            Vocab<span className="text-primary-600 dark:text-primary-400">Master</span>
                         </h1>
-                        <p suppressHydrationWarning className="text-gray-400 font-medium leading-relaxed">
+                        <p suppressHydrationWarning className="text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
                             {t('auth.tagline')}
                         </p>
                     </div>
@@ -53,10 +53,10 @@ export default function Auth() {
                         <button
                             onClick={handleGoogleLogin}
                             disabled={loading}
-                            className="w-full py-5 bg-white text-black rounded-2xl font-black text-lg flex items-center justify-center gap-4 hover:scale-[1.03] active:scale-[0.97] transition-all shadow-xl shadow-black/20 disabled:opacity-70 group"
+                            className="w-full py-5 bg-white dark:bg-slate-800 text-black dark:text-white rounded-2xl font-black text-lg flex items-center justify-center gap-4 hover:scale-[1.03] active:scale-[0.97] transition-all shadow-lg shadow-gray-200/50 dark:shadow-black/20 disabled:opacity-70 border border-gray-200 dark:border-white/10 group"
                         >
                             {loading ? (
-                                <div className="w-6 h-6 border-4 border-black/20 border-t-black rounded-full animate-spin"></div>
+                                <div className="w-6 h-6 border-4 border-gray-200 border-t-primary-600 rounded-full animate-spin"></div>
                             ) : (
                                 <>
                                     <svg className="w-6 h-6" viewBox="0 0 24 24">
@@ -82,7 +82,7 @@ export default function Auth() {
                             )}
                         </button>
 
-                        <p suppressHydrationWarning className="text-[10px] text-gray-500 font-bold uppercase tracking-widest px-4 leading-loose">
+                        <p suppressHydrationWarning className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-widest px-4 leading-loose">
                             {t('auth.terms')}
                         </p>
                     </div>

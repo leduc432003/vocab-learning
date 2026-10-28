@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic'; // Tối ưu: Lazy load components
+import dynamic from 'next/dynamic';
 import { Toaster, toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import '../i18n';
@@ -20,10 +20,10 @@ import DictionaryPopup from '../components/DictionaryPopup';
 
 // Loading Component
 const ModeLoading = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-950">
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#020617]">
     <div className="flex flex-col items-center gap-4">
-      <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-gray-400 font-medium animate-pulse">Loading mode...</p>
+      <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-gray-500 dark:text-gray-400 font-medium animate-pulse">Loading mode...</p>
     </div>
   </div>
 );
@@ -470,17 +470,35 @@ export default function Page() {
     );
   }
 
+  const studyModes = [
+    { id: 'flashcards', label: t('modes.flashcards'), icon: '🎴', color: 'purple', bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-100', desc: t('modes.flashcardsDesc') || 'Anki Pro' },
+    { id: 'learn', label: t('modes.learn'), icon: '🎓', color: 'blue', bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100', desc: t('modes.learnDesc') || 'Start' },
+    { id: 'write', label: t('modes.write'), icon: '✍️', color: 'indigo', bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-100', desc: t('modes.writeDesc') || 'Focus' },
+    { id: 'review', label: t('modes.review'), icon: '🔄', color: 'amber', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100', desc: t('modes.reviewDesc') || 'Due' },
+    { id: 'spell', label: t('modes.spell'), icon: '🎧', color: 'pink', bg: 'bg-pink-50', text: 'text-pink-600', border: 'border-pink-100', desc: t('modes.spellDesc') || 'Listen' },
+    { id: 'speaking', label: t('modes.speaking'), icon: '🎙️', color: 'emerald', bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100', desc: t('modes.speakingDesc') || 'Voice' },
+    { id: 'dictation', label: t('modes.video'), icon: '📺', color: 'cyan', bg: 'bg-cyan-50', text: 'text-cyan-600', border: 'border-cyan-100', desc: t('modes.videoDesc') || 'YouTube' },
+    { id: 'test', label: t('modes.test'), icon: '📝', color: 'rose', bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-100', desc: t('modes.testDesc') || 'Final' }
+  ];
+
+  const statCards = [
+    { label: t('common.notLearned'), val: statusCounts.notLearned, color: 'blue', icon: '🆕', bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100' },
+    { label: t('common.learning'), val: statusCounts.learning, color: 'amber', icon: '⚡', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100' },
+    { label: t('common.mastered'), val: statusCounts.learned, color: 'emerald', icon: '🎓', bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100' },
+    { label: t('common.due'), val: statusCounts.due, color: 'rose', icon: '📅', bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-100' }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#020617] transition-colors duration-300">
-      <header className="bg-gradient-to-b from-primary-100/50 dark:from-primary-900/20 to-transparent border-b border-gray-200 dark:border-white/5 pt-8 pb-12">
+      <header className="bg-gradient-to-b from-primary-50 dark:from-primary-900/20 to-transparent border-b border-gray-200 dark:border-white/5 pt-8 pb-12">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="space-y-1">
                 <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tighter">
-                  {t('common.welcome')}, <span className="text-primary-600 dark:text-primary-500">{profile?.username || (i18n.language === 'vi' ? 'Bạn' : 'Guest')}</span>
+                  {t('common.welcome')}, <span className="text-primary-600 dark:text-primary-400">{profile?.username || (i18n.language === 'vi' ? 'Bạn' : 'Guest')}</span>
                 </h1>
-                <p className="text-gray-500 font-medium text-sm md:text-base">{t('common.syncText')}</p>
+                <p className="text-gray-500 dark:text-gray-400 font-medium text-sm md:text-base">{t('common.syncText')}</p>
               </div>
 
               <div className="flex items-center gap-4 w-full md:w-auto">
@@ -496,14 +514,14 @@ export default function Page() {
                 </button>
                 <button
                   onClick={toggleLanguage}
-                  className="p-3 bg-white dark:bg-white/10 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/20 transition-all shadow-sm font-bold text-xs"
+                  className="p-3 bg-white dark:bg-white/10 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/20 transition-all shadow-sm font-bold text-xs"
                   title={t('common.language')}
                 >
                   {i18n.language === 'vi' ? 'VN' : 'EN'}
                 </button>
                 <button
                   onClick={toggleTheme}
-                  className="p-3 bg-white dark:bg-white/10 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/20 transition-all shadow-sm"
+                  className="p-3 bg-white dark:bg-white/10 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/20 transition-all shadow-sm"
                 >
                   {theme === 'dark' ? '☀️' : '🌙'}
                 </button>
@@ -521,17 +539,12 @@ export default function Page() {
 
             {/* Stats Dashboard */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-              {[
-                { label: t('common.notLearned'), val: statusCounts.notLearned, color: 'blue', icon: '🆕' },
-                { label: t('common.learning'), val: statusCounts.learning, color: 'amber', icon: '⚡' },
-                { label: t('common.mastered'), val: statusCounts.learned, color: 'emerald', icon: '🎓' },
-                { label: t('common.due'), val: statusCounts.due, color: 'rose', icon: '📅' }
-              ].map((stat, i) => (
-                <div key={i} className="glass-effect rounded-3xl p-6 border border-white/10 bg-white/5 shadow-xl">
-                  <div className="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">{stat.label}</div>
-                  <div className={`text-3xl font-black text-${stat.color}-500 flex items-center justify-between`}>
+              {statCards.map((stat, i) => (
+                <div key={i} className={`glass-effect rounded-3xl p-6 border ${stat.border} ${stat.bg} shadow-xl group`}>
+                  <div className="text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">{stat.label}</div>
+                  <div className={`text-3xl font-black ${stat.text} flex items-center justify-between`}>
                     {stat.val}
-                    <span className="text-2xl opacity-30">{stat.icon}</span>
+                    <span className="text-2xl opacity-40 dark:opacity-30">{stat.icon}</span>
                   </div>
                 </div>
               ))}
@@ -543,24 +556,15 @@ export default function Page() {
       <main className="max-w-7xl mx-auto px-4 md:px-8 pb-32">
         {/* Study Modes Horizontal Scroll on Mobile, Grid on Desktop */}
         <div className="my-8 md:my-12 flex md:grid md:grid-cols-3 lg:grid-cols-6 gap-4 pb-4 overflow-x-auto no-scrollbar snap-x snap-mandatory">
-          {[
-            { id: 'flashcards', label: t('modes.flashcards'), icon: '🎴', desc: 'Anki Pro' },
-            { id: 'learn', label: t('modes.learn'), icon: '🎓', desc: 'Start' },
-            { id: 'write', label: t('modes.write'), icon: '✍️', desc: 'Focus' },
-            { id: 'review', label: t('modes.review'), icon: '🔄', desc: 'Due' },
-            { id: 'spell', label: t('modes.spell'), icon: '🎧', desc: 'Listen' },
-            { id: 'speaking', label: t('modes.speaking'), icon: '🎙️', desc: 'Voice' },
-            { id: 'dictation', label: t('modes.video'), icon: '📺', desc: 'YouTube' },
-            { id: 'test', label: t('modes.test'), icon: '📝', desc: 'Final' }
-          ].map(mode => (
+          {studyModes.map((mode, i) => (
             <button
               key={mode.id + mode.label}
               onClick={() => setCurrentMode(mode.id)}
-              className="group min-w-[140px] md:min-w-0 p-6 glass-effect rounded-[2rem] hover:bg-white/10 transition-all border border-white/5 text-center relative overflow-hidden snap-center"
+              className={`group min-w-[140px] md:min-w-0 p-6 glass-effect rounded-[2rem] hover:bg-white/50 dark:hover:bg-white/10 transition-all border ${mode.border} text-center relative overflow-hidden snap-center`}
             >
-              <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">{mode.icon}</div>
-              <div className="font-black text-white text-sm">{mode.label}</div>
-              <div className="text-[10px] text-gray-500 font-bold uppercase mt-1">{mode.desc}</div>
+              <div className={`text-3xl mb-3 ${mode.text} group-hover:scale-110 transition-transform`}>{mode.icon}</div>
+              <div className="font-black text-gray-900 dark:text-white text-sm">{mode.label}</div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase mt-1">{mode.desc}</div>
             </button>
           ))}
         </div>
@@ -570,25 +574,25 @@ export default function Page() {
           <input
             type="text"
             placeholder={t('common.search')}
-            className="w-full md:flex-1 px-6 md:px-8 py-4 md:py-5 bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl text-white outline-none focus:border-primary-500 transition-all text-sm md:text-base"
+            className="w-full md:flex-1 px-6 md:px-8 py-4 md:py-5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-2xl md:rounded-3xl text-gray-900 dark:text-white outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all text-sm md:text-base shadow-inner"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <div className="flex items-center overflow-x-auto no-scrollbar gap-2 md:gap-4 pb-2 md:pb-0">
             <button
               onClick={() => setShowAddModal(true)}
-              className="px-6 md:px-10 py-4 md:py-5 bg-white text-black rounded-2xl md:rounded-3xl font-black hover:scale-105 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
+              className="px-6 md:px-10 py-4 md:py-5 bg-white dark:bg-white/10 rounded-2xl md:rounded-3xl font-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 transition-all shadow-xl shadow-white/5 dark:shadow-indigo-500/20 flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
             >
               <span>+ {t('common.addWord')}</span>
             </button>
             <button
               onClick={handleAutoFill}
               disabled={isAutoFilling}
-              className="px-6 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 transition-all border border-white/10 text-white flex items-center justify-center gap-2 group text-sm md:text-base whitespace-nowrap shrink-0"
+              className="px-6 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 dark:hover:bg-white/20 transition-all border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white flex items-center justify-center gap-2 group text-sm md:text-base whitespace-nowrap shrink-0"
             >
               {isAutoFilling ? (
                 <>
-                  <div className="w-4 h-4 md:w-5 md:h-5 border-[3px] md:border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 md:w-5 md:h-5 border-[3px] md:border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                   <span>{Math.round((autoFillProgress.current / autoFillProgress.total) * 100) || 0}%</span>
                 </>
               ) : (
@@ -600,21 +604,21 @@ export default function Page() {
             </button>
             <button
               onClick={() => setShowDeleteImagesModal(true)}
-              className="px-4 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 transition-all border border-white/10 text-white flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
+              className="px-4 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 dark:hover:bg-white/20 transition-all border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white flex items-center justify-center gap-2 text-sm md:text-base whitespace-nowrap shrink-0"
               title={t('common.deleteImages') || 'Xóa ảnh'}
             >
               🗑️
             </button>
             <button
               onClick={() => setShowImportModal(true)}
-              className="px-4 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 transition-all border border-white/10 text-white text-sm md:text-base whitespace-nowrap shrink-0"
+              className="px-4 md:px-8 py-4 md:py-5 glass-effect rounded-2xl md:rounded-3xl font-black hover:bg-white/10 dark:hover:bg-white/20 transition-all border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white text-sm md:text-base whitespace-nowrap shrink-0"
               title="Nhập dữ liệu"
             >
               📥 <span className="hidden md:inline">{t('common.import')}</span>
             </button>
             <button
               onClick={() => setShowImportExportModal(true)}
-              className="px-4 md:px-8 py-4 md:py-5 bg-green-500/10 border border-green-500/20 text-green-400 rounded-2xl md:rounded-3xl font-black hover:bg-green-500/20 transition-all text-sm md:text-base whitespace-nowrap shrink-0"
+              className="px-4 md:px-8 py-4 md:py-5 bg-green-50 border border-green-200 dark:bg-green-500/10 dark:border-green-500/20 text-green-600 dark:text-green-400 rounded-2xl md:rounded-3xl font-black hover:bg-green-100 dark:hover:bg-green-500/20 transition-all text-sm md:text-base whitespace-nowrap shrink-0"
               title="Import/Export Excel"
             >
               📊 <span className="hidden md:inline">Excel</span>
@@ -637,10 +641,10 @@ export default function Page() {
                   />
                 ))
               ) : (
-                <div className="col-span-full py-20 text-center glass-effect rounded-[2.5rem] border border-white/5">
+                <div className="col-span-full py-20 text-center glass-effect rounded-[2.5rem] border border-gray-200 dark:border-white/5">
                   <div className="text-5xl mb-4">🔍</div>
-                  <h3 className="text-xl font-bold text-white">{t('common.noWords')}</h3>
-                  <p className="text-gray-500 mt-2">{t('common.trySearch')}</p>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('common.noWords')}</h3>
+                  <p className="text-gray-500 dark:text-gray-400 mt-2">{t('common.trySearch')}</p>
                 </div>
               )}
             </div>

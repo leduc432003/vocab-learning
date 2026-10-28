@@ -127,27 +127,27 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
 
     if (!isOpen) return null;
 
-    const inputCls = "w-full px-3 py-2.5 bg-gray-800/80 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all placeholder:text-gray-600";
-    const labelCls = "block mb-1.5 text-gray-400 font-semibold text-xs uppercase tracking-wider";
+    const inputCls = "w-full px-3 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white text-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-inner";
+    const labelCls = "block mb-1.5 text-gray-700 dark:text-gray-300 font-semibold text-xs uppercase tracking-wider";
     const fieldCls = "flex flex-col";
 
     return (
         <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-50 p-3 animate-fade-in"
+            className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 animate-fade-in"
             onClick={onClose}
         >
             <div
-                className="bg-gray-900 border border-white/10 rounded-2xl shadow-2xl animate-slide-up flex flex-col"
+                className="glass-strong rounded-2xl shadow-xl animate-slide-up flex flex-col"
                 style={{ width: '100%', maxWidth: '780px', maxHeight: '95vh' }}
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex justify-between items-center px-6 py-4 border-b border-white/8 flex-shrink-0">
-                    <h2 className="text-xl font-bold text-gradient-primary">
+                <div className="flex justify-between items-center px-6 py-4 border-b border-white/10 flex-shrink-0">
+                    <h2 className="text-xl font-black text-gray-900 dark:text-white">
                         {editWord ? t('addWord.titleEdit') : t('addWord.titleNew')}
                     </h2>
                     <button
-                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-all text-gray-400 hover:text-white text-lg"
+                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-lg"
                         onClick={onClose}
                         type="button"
                     >
@@ -162,7 +162,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                         <div className="grid grid-cols-2 gap-4 mb-4">
                             <div className={fieldCls}>
                                 <label htmlFor="term" className={labelCls}>
-                                    {t('addWord.word')} <span className="text-primary-400 normal-case tracking-normal">*</span>
+                                    {t('addWord.word')} <span className="text-primary-600 dark:text-primary-400 normal-case tracking-normal">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -195,7 +195,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                         {/* Row 2: Definition (full width) */}
                         <div className={`${fieldCls} mb-4`}>
                             <label htmlFor="definition" className={labelCls}>
-                                {t('addWord.definition')} <span className="text-primary-400 normal-case tracking-normal">*</span>
+                                {t('addWord.definition')} <span className="text-primary-600 dark:text-primary-400 normal-case tracking-normal">*</span>
                             </label>
                             <textarea
                                 id="definition"
@@ -348,7 +348,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                                         accept="image/*"
                                         onChange={handleImageChange}
                                         title="Upload from computer"
-                                        className="w-full px-3 py-2 bg-gray-800/80 border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-primary-500 transition-all file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-primary-600 file:text-white file:cursor-pointer file:text-xs hover:file:bg-primary-500"
+                                        className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white text-xs focus:outline-none focus:border-primary-500 transition-all file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-primary-600 dark:file:bg-primary-500 file:text-white file:cursor-pointer file:text-xs hover:file:bg-primary-500 dark:hover:file:bg-primary-400"
                                     />
                                     <input
                                         type="url"
@@ -371,7 +371,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                                                     toast.error('Không tìm thấy ảnh phù hợp', { id: toastId });
                                                 }
                                             }}
-                                            className="text-primary-400 text-xs hover:text-primary-300 flex items-center gap-1"
+                                            className="text-primary-600 dark:text-primary-400 text-xs hover:text-primary-500 dark:hover:text-primary-300 flex items-center gap-1"
                                         >
                                             🔍 {t('addWord.autoFindImage')}
                                         </button>
@@ -384,12 +384,12 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                                         <img
                                             src={formData.image}
                                             alt="Preview"
-                                            className="w-24 h-24 object-cover rounded-xl border border-white/10 shadow"
+                                            className="w-24 h-24 object-cover rounded-xl border border-gray-200 dark:border-white/10 shadow"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
-                                            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
                                             ×
                                         </button>
@@ -401,10 +401,10 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                 </div>
 
                 {/* Footer */}
-                <div className="flex gap-3 justify-end px-6 py-4 border-t border-white/8 flex-shrink-0">
+                <div className="flex gap-3 justify-end px-6 py-4 border-t border-white/10 flex-shrink-0">
                     <button
                         type="button"
-                        className="px-5 py-2.5 glass-effect rounded-xl font-semibold hover:bg-white/10 transition-all text-gray-400 text-sm"
+                        className="px-5 py-2.5 rounded-xl font-semibold hover:bg-gray-100 dark:hover:bg-white/10 transition-all text-gray-600 dark:text-gray-300 text-sm"
                         onClick={onClose}
                     >
                         {t('common.cancel')}
@@ -412,7 +412,7 @@ const AddWordModal = ({ isOpen, onClose, onSave, editWord, initialTerm = '' }) =
                     <button
                         type="submit"
                         form="add-word-form"
-                        className="px-6 py-2.5 bg-gradient-primary rounded-xl font-black text-white text-sm hover:shadow-lg hover:shadow-primary-500/30 hover:-translate-y-0.5 transition-all"
+                        className="btn-primary"
                     >
                         {editWord ? t('common.update') : t('common.addWord')}
                     </button>

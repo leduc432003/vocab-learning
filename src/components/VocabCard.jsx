@@ -27,10 +27,16 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
         const parts = text.split(/(\*\*.*?\*\*)/g);
         return parts.map((part, i) => {
             if (part && part.startsWith('**') && part.endsWith('**')) {
-                return <strong key={i} className="text-primary-400 font-black not-italic">{part.slice(2, -2)}</strong>;
+                return <strong key={i} className="text-primary-600 font-black not-italic">{part.slice(2, -2)}</strong>;
             }
             return part;
         });
+    };
+
+    const statusConfig = {
+        review: { label: t('vocabCard.review'), text: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+        learning: { label: t('vocabCard.learning'), text: 'text-amber-600 dark:text-amber-400', border: 'border-amber-500/30', bg: 'bg-amber-50 dark:bg-amber-500/10' },
+        new: { label: t('vocabCard.new'), text: 'text-blue-600 dark:text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-50 dark:bg-blue-500/10' }
     };
 
     return (
@@ -45,19 +51,16 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
 
                 {/* FRONT SIDE */}
                 <div className="absolute inset-0 backface-hidden">
-                    <div className="h-full glass-effect rounded-[2rem] md:rounded-[2.5rem] border border-gray-200 dark:border-white/10 flex flex-col p-6 md:p-8 transition-all group-hover:bg-white dark:group-hover:bg-white/[0.07] group-hover:border-primary-500/30 shadow-xl overflow-hidden relative bg-white/80 dark:bg-white/5">
+                    <div className={`h-full card-hover rounded-[2rem] md:rounded-[2.5rem] border border-white/10 dark:border-white/10 flex flex-col p-6 md:p-8 overflow-hidden relative bg-white dark:bg-white/5`}>
                         {/* Status Label */}
                         <div className="flex justify-between items-start mb-4">
-                            <span className={`px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border ${word.srsStage === 'review' ? 'text-emerald-600 dark:text-emerald-400 border-emerald-500/30' :
-                                word.srsStage === 'learning' ? 'text-amber-600 dark:text-amber-400 border-amber-500/30' :
-                                    'text-blue-600 dark:text-blue-400 border-blue-500/30'
-                                }`}>
-                                {word.srsStage === 'review' ? t('vocabCard.review') : word.srsStage === 'learning' ? t('vocabCard.learning') : t('vocabCard.new')}
+                            <span className={`px-2 md:px-3 py-1 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-widest border ${statusConfig[word.srsStage || 'new'].border} ${statusConfig[word.srsStage || 'new'].bg} ${statusConfig[word.srsStage || 'new'].text}`}>
+                                {statusConfig[word.srsStage || 'new'].label}
                             </span>
 
                             <button
                                 onClick={(e) => { e.stopPropagation(); onToggleStar(word.id); }}
-                                className={`text-xl transition-transform hover:scale-125 ${word.starred ? 'text-yellow-400' : 'text-gray-600 opacity-20 md:opacity-20 group-hover:opacity-100 opacity-100'}`}
+                                className={`text-xl transition-transform hover:scale-125 ${word.starred ? 'text-yellow-400' : 'text-gray-600 opacity-20 md:opacity-20 group-hover:opacity-100 opacity-100 dark:text-gray-300 dark:opacity-100 dark:group-hover:opacity-100'}`}
                             >
                                 {word.starred ? '⭐' : '☆'}
                             </button>
@@ -71,7 +74,7 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                                     alt=""
                                     loading="lazy"
                                     decoding="async"
-                                    className="w-20 h-20 md:w-32 md:h-32 object-cover rounded-2xl mb-1 md:mb-2 shadow-2xl border border-white/10 transform transition-transform duration-500 will-change-transform"
+                                    className="w-20 h-20 md:w-32 md:h-32 object-cover rounded-2xl mb-1 md:mb-2 shadow-lg border border-gray-200 dark:border-white/10 transform transition-transform duration-500 will-change-transform"
                                 />
                             )}
 
@@ -84,7 +87,7 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                                 </h3>
                                 <button
                                     onClick={(e) => speak(e, word.term)}
-                                    className="p-2 md:p-3 rounded-lg md:rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-primary-500/20 text-lg md:text-2xl transition-all active:scale-90 border border-gray-200 dark:border-white/5 hover:border-primary-500/30"
+                                    className="p-2 md:p-3 rounded-lg md:rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-primary-500/20 text-indigo-600 dark:text-indigo-400 transition-all active:scale-90 border border-gray-200 dark:border-white/5 hover:border-primary-500/30"
                                     title="Phát âm"
                                 >
                                     🔊
@@ -93,7 +96,7 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
 
                             <div className="flex flex-wrap justify-center gap-1.5 md:gap-2 opacity-80 dark:opacity-60">
                                 {word.phonetic && <span className="text-xs md:text-base text-primary-600 dark:text-primary-400 font-medium italic">{word.phonetic}</span>}
-                                {word.type && <span className="px-1.5 py-0.5 bg-gray-100 dark:bg-white/10 rounded text-[8px] md:text-[9px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">{word.type}</span>}
+                                {word.type && <span className={`px-1.5 py-0.5 rounded text-[8px] md:text-[9px] font-black uppercase tracking-widest bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400`}>{word.type}</span>}
                             </div>
                         </div>
 
@@ -101,11 +104,11 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
                         <div className="flex justify-center gap-3 md:gap-4 mt-4 md:opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                                 onClick={(e) => { e.stopPropagation(); onEdit(word); }}
-                                className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors border border-white/10 md:border-transparent"
+                                className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/10 transition-colors border border-gray-200 dark:border-white/10 md:border-transparent shadow-sm"
                             >✏️</button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); onDelete(word.id); }}
-                                className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-rose-500/10 flex items-center justify-center hover:bg-rose-500/20 text-rose-500 transition-colors border border-rose-500/20 md:border-transparent"
+                                className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-500 transition-colors border border-red-200 dark:border-red-500/20 md:border-transparent shadow-sm"
                             >🗑️</button>
                         </div>
                     </div>
@@ -113,7 +116,7 @@ function VocabCard({ word, onEdit, onDelete, onToggleStar }) {
 
                 {/* BACK SIDE */}
                 <div className="absolute inset-0 backface-hidden rotate-y-180">
-                    <div className="h-full bg-white dark:bg-[#0a0c16] text-gray-900 dark:text-white rounded-[2rem] md:rounded-[2.5rem] flex flex-col p-6 md:p-8 transition-colors shadow-2xl relative overflow-hidden border-2 border-transparent dark:border-white/10">
+                    <div className={`h-full bg-white dark:bg-[#0a0c16] text-gray-900 dark:text-white rounded-[2rem] md:rounded-[2.5rem] flex flex-col p-6 md:p-8 transition-colors shadow-2xl relative overflow-hidden border-2 border-transparent dark:border-white/10`}>
                         {/* Word Ref */}
                         <div className="flex justify-between items-center mb-4 md:mb-6 border-b border-gray-100 dark:border-white/10 pb-3 md:pb-4">
                             <span className="text-[10px] md:text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{word.term}</span>
